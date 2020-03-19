@@ -1,20 +1,60 @@
 version: "3.7"
-
 services:
 
-    flask:
-        build:  ./flask
-        container_name: flask
-        restart: always
-        environment: 
-            - APP_NAME=MyFlaskApp
-            - DB_USERNAME=example
-        expose: 
-         - 8080
+  flask:
+      build:  ./flask
+      container_name: flask
+      restart: always
+      environment:
+          - APP_NAME=MyFlaskApp
+          - DB_USERNAME=example
+      expose:
+       - 8080
 
-    nginx:
-        build: ./nginx
-        container_name: nginx
-        restart: always
-        ports: 
-          - "80:80"
+  postgres:
+    image: postgres:10.12-alpine
+
+    # Expose the default Postgres port on localhost
+   # ports:
+    #  - '5432:5432'
+    #network_mode: bridge
+   # container_name: postgres-itn
+    restart: always
+
+    environment:
+      POSTGRES_USER: 'postgres'
+      #POSTGRES_PASSWORD: 'admin'
+      POSTGRES_DB: 'inthenoudb'
+
+    # Copy files from dbinit into the image so that they will be run on boot and set host directory for data persistance.
+    volumes:
+      - ./InTheNou_Database_Scripts:/docker-entrypoint-initdb.d
+      - /InTheNou/Database_data:/var/lib/postgresql/data
+
+  pgadmin:
+    # For more details on configuring the pgadmin4 Docker image, see:
+    #   https://hub.docker.com/r/dpage/pgadmin4/
+    image: dpage/pgadmin4
+    restart: always
+    #container_name: pgadmin-itn
+
+    # Expose the web UI on localhost port 8080
+   # ports:
+    #  - '8080:80'
+    #network_mode: bridge
+
+    # Link this container to the postgres container with hostname 'postgres'
+   # external_links:
+    #  - postgres-itn:postgres-itn
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'admin@gmail.com'
+      PGADMIN_DEFAULT_PASSWORD: 'admin'
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    ports:
+    - "80:80"
+    - "443:443"

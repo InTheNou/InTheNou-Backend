@@ -1,3 +1,5 @@
 .vscode
 .env
 .idea
+/InTheNou_Database_Scripts/InTheNou_TestData.sql
+/nginx/ssl
