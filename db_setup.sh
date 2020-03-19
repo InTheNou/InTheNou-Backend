@@ -29,6 +29,7 @@ chmod +x /usr/local/bin/docker-compose
 # Create host machine storage directory for persistance of data.
 mkdir /InTheNou
 mkdir /InTheNou/Database_data
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./nginx/ssl/example.key -out ./nginx/ssl/example.crt
 
 # Build database and pgadmin images and containers.
 docker-compose -f docker-compose.yml build
