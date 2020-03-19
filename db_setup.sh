@@ -29,6 +29,8 @@ chmod +x /usr/local/bin/docker-compose
 # Create host machine storage directory for persistance of data.
 mkdir /InTheNou
 mkdir /InTheNou/Database_data
+
+# Used to generate self-signed ssh key for testing. Fill out with some info.
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./nginx/ssl/example.key -out ./nginx/ssl/example.crt
 
 # Build database and pgadmin images and containers.
