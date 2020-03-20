@@ -6,4 +6,4 @@ from app.handlers.EventHandler import EventHandler
 @app.route("/hello")
 def hello():
     # return "howdy."
-    return EventHandler().testHandler(3)
+    return EventHandler().getEventByID(3)
