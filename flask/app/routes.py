@@ -1,5 +1,6 @@
 from app import app
-from flask import Flask , redirect ,url_for,flash, render_template
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask import Flask , redirect ,url_for,flash, render_template,session
 from flask_login import login_required, logout_user
 
 
