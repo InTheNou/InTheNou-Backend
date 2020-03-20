@@ -15,8 +15,8 @@ services:
     image: postgres:10.12-alpine
 
     # Expose the default Postgres port on localhost
-   # ports:
-    #  - '5432:5432'
+    ports:
+      - '5432:5432'
     #network_mode: bridge
    # container_name: postgres-itn
     restart: always
@@ -57,6 +57,4 @@ services:
     restart: always
     ports:
     - "80:80"
-    #- "81:81"
     - "443:443"
-   # - "444:444"
