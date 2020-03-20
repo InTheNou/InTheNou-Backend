@@ -8,6 +8,7 @@ services:
       environment:
           - APP_NAME=MyFlaskApp
           - DB_USERNAME=example
+          - HOSTNAME=postgres
       expose:
        - 8080
 
