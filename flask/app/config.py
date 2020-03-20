@@ -2,11 +2,12 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 POSTGRES_URL = os.getenv("DATABASE_URL")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PW = os.getenv("POSTGRES_PW")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 
-DB_URI = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,db=POSTGRES_DB)
+DB_URI = 'postgresql+psycopg2://{user}:{pw}@{url}:{port}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,port=POSTGRES_PORT,db=POSTGRES_DB)
 
 
 class Config(object):
