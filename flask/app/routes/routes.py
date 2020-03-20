@@ -20,4 +20,4 @@ def login():
 
 @app.route ("/logged")
 def logged():
-        return "You have been taken here, after the google log in !!!"
+        return "You have been taken here, after the googe log in !!!"

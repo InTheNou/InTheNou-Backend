@@ -11,4 +11,4 @@ app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET
 google_bp = make_google_blueprint(scope=["profile", "email"], offline=True)
 app.register_blueprint(google_bp, url_prefix="/login")
 
-from app import routes
+from app.routes import routes, events_info_routes
