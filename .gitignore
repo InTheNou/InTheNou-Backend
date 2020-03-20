@@ -6,4 +6,4 @@
 db_setup.sh
 /flask/env
 /flask/venv
-__pychache__
+flask/app/__pychache__
