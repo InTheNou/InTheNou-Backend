@@ -1,14 +1,21 @@
-import os
-from flask import Flask , redirect ,url_for
-from flask_dance.contrib.google import make_google_blueprint, google
-from dotenv import load_dotenv
-load_dotenv()
+from flask import Flask , redirect ,url_for, flash, render_template
+from flask_login import login_required, logout_user
+from .config import Config,DB_URI
+from .models import db, login_manager
+from .oauth import blueprint
+from .cli import create_db
+from flask_sqlalchemy import SQLAlchemy
+
+
 
 app = Flask (__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersekrit")
-app.config["GOOGLE_OAUTH_CLIENT_ID"] = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
-google_bp = make_google_blueprint(scope=["profile", "email"], offline=True)
-app.register_blueprint(google_bp, url_prefix="/login")
+app.config['SQLALCHEMY_DATABASE_URI'] =DB_URI
+app.config.from_object(Config)
+app.register_blueprint(blueprint, url_prefix="/login")
+
+
+db.init_app(app)
+login_manager.init_app(app)
+
 
 from app import routes
