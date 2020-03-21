@@ -20,7 +20,6 @@ def index():
 
 
 
-
 # @app.route("/")
 # def index():
 #     if not google.authorized:
@@ -36,3 +35,12 @@ def index():
 #         return "Hello World, from a container"
 
 
+
+@app.route ("/login")
+def login():
+        return "Hello World, from a container"
+
+
+@app.route ("/logged")
+def logged():
+        return "You have been taken here, after the googe log in !!!"
