@@ -3,9 +3,9 @@
 .idea
 /InTheNou_Database_Scripts/InTheNou_TestData.sql
 /nginx/ssl
-db_setup.sh
 /flask/env
 /flask/venv
+/flask/app/*/_pycache_
 flask/app/__pychache__
 flask/app/__pycache__/__init__.cpython-36.pyc
 flask/app/__pycache__/cli.cpython-36.pyc
