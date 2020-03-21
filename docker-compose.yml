@@ -8,6 +8,7 @@ services:
       environment:
           - APP_NAME=MyFlaskApp
           - DB_USERNAME=example
+          - HOSTNAME=postgres
       expose:
        - 8080
 
@@ -23,7 +24,7 @@ services:
 
     environment:
       POSTGRES_USER: 'postgres'
-      #POSTGRES_PASSWORD: 'admin'
+      POSTGRES_PASSWORD: 'admin'
       POSTGRES_DB: 'inthenoudb'
 
     # Copy files from dbinit into the image so that they will be run on boot and set host directory for data persistance.
