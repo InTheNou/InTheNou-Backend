@@ -5,20 +5,21 @@ from app.DAOs.RoomDAO import RoomDAO
 
 class RoomHandler():
 
-    # def _buildEventResponse(self, eventTuple):
-    #     response = {}
-    #     response['eid'] = eventTuple[0]
-    #     response['ecreator'] = eventTuple[1]
-    #     response['roomid'] = eventTuple[2]
-    #     response['etitle'] = eventTuple[3]
-    #     response['edescription'] = eventTuple[4]
-    #     response['estart'] = eventTuple[5]
-    #     response['eend'] = eventTuple[6]
-    #     response['ecreation'] = eventTuple[7]
-    #     response['estatus'] = eventTuple[8]
-    #     response['estatusdate'] = eventTuple[9]
-    #     response['photoid'] = eventTuple[10]
-    #     return response
+    def _buildRoomResponse(self, room_tuple):
+        response = {}
+        response['rid'] = room_tuple[0]
+        response['bid'] = room_tuple[1]
+        response['rcode'] = room_tuple[2]
+        response['rfloor'] = room_tuple[3]
+        response['rdescription'] = room_tuple[4]
+        response['roccupancy'] = room_tuple[5]
+        response['rdept'] = room_tuple[6]
+        response['rcustodian'] = room_tuple[7]
+        response['rlongitude'] = room_tuple[8]
+        response['rlatitude'] = room_tuple[9]
+        response['raltitude'] = room_tuple[10]
+        response['photoid'] = room_tuple[10]
+        return response
 
     def getRoomByID(self, rid):
         """Return the room entry belonging to the specified rid.
@@ -29,6 +30,5 @@ class RoomHandler():
         if not room:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
-            # response = self._buildEventResponse(eventTuple=event)
-            # return jsonify()
-            return str(room)
+            response = self._buildRoomResponse(room_tuple=room)
+            return jsonify(response)
