@@ -2,16 +2,17 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-POSTGRES_PORT = os.getenv("DATABASE_PORT")
+#variables from .env used to build database URI for psycopg2 
+POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PW = os.getenv("POSTGRES_PW")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 try:
-    POSTGRES_URL = os.environ['HOSTNAME']
+    POSTGRES_HOSTNAME = os.environ['POSTGRES_CONTAINER']
 except KeyError:
-    POSTGRES_URL = os.getenv("DATABASE_URL")
+    POSTGRES_HOSTNAME = os.getenv("POSTGRES_LOCAL")
 
-DB_URI = 'postgresql+psycopg2://{user}:{pw}@{url}:{port}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,port=POSTGRES_PORT, db=POSTGRES_DB)
+DB_URI = 'postgresql+psycopg2://{user}:{pw}@{hostname}:{port}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,hostname=POSTGRES_HOSTNAME, port=POSTGRES_PORT,db=POSTGRES_DB)
 
 
 class Config(object):
