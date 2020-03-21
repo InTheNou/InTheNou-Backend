@@ -4,6 +4,7 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
+from app.handlers.TagHandler import TagHandler
 
 
 # TODO: MODIFY ROUTES TO MATCH PRE-ESTABISHED API ONCE FUNCTIONAL
@@ -27,3 +28,8 @@ def getBuildingByID(bid):
     if request.method == 'GET': return BuildingHandler().getBuildingByID(bid=bid)
     else: return jsonify(Error="Method not allowed."), 405
 
+# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
+@app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
+def getTagByID(tid):
+    if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
+    else: return jsonify(Error="Method not allowed."), 405

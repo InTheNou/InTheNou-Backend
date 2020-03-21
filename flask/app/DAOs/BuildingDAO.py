@@ -20,6 +20,7 @@ class BuildingDAO(MasterDAO):
             fields=sql.SQL(',').join([
                 sql.Identifier('bid'),
                 sql.Identifier('bname'),
+                sql.Identifier('babbrev'),
                 sql.Identifier('numfloors'),
                 sql.Identifier('bcommonname'),
                 sql.Identifier('btype'),

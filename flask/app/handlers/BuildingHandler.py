@@ -7,10 +7,11 @@ def _buildBuildingResponse(building_tuple):
     response = {}
     response['bid'] = building_tuple[0]
     response['bname'] = building_tuple[1]
-    response['numfloors'] = building_tuple[2]
-    response['bcommonname'] = building_tuple[3]
-    response['btype'] = building_tuple[4]
-    response['photourl'] = building_tuple[5]
+    response['babbrev'] = building_tuple[2]
+    response['numfloors'] = building_tuple[3]
+    response['bcommonname'] = building_tuple[4]
+    response['btype'] = building_tuple[5]
+    response['photourl'] = building_tuple[6]
     return response
 
 
