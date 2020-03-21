@@ -33,3 +33,9 @@ def getBuildingByID(bid):
 def getTagByID(tid):
     if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
     else: return jsonify(Error="Method not allowed."), 405
+
+# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
+@app.route("/App/Tags/eid=<int:eid>", methods=['GET'])
+def getTagsByEventID(eid):
+    if request.method == 'GET': return TagHandler().getTagsByEventID(eid=eid)
+    else: return jsonify(Error="Method not allowed."), 405
