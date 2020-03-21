@@ -3,10 +3,11 @@ from flask_login import LoginManager, UserMixin
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from flask_sqlalchemy import SQLAlchemy
 
+#data base object from FLASK-SQLAlchemy
 db = SQLAlchemy()
 
 
-
+#User object for FLASK-SQLAlchemy 
 class User(UserMixin,db.Model):
     __tablename__ = 'users'
     id = db.Column("uid",db.Integer, primary_key=True)
@@ -30,7 +31,7 @@ class User(UserMixin,db.Model):
 login_manager =LoginManager()
 login_manager.login_view = "google.login"
 
-
+#FLASK-Login manager, gets a user id and search for id in the database
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

@@ -5,7 +5,7 @@ from flask_login import login_required, logout_user
 
 
 
-
+#route used to logout user, must be logged in to access
 @app.route("/logout")
 @login_required
 def logout():
@@ -13,13 +13,13 @@ def logout():
     flash("You have logged out")
     return redirect(url_for("index"))
 
-
+#home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
 @app.route("/")
 def index():
     return render_template("home.html")
 
 
-
+############## Google oAuth Test routes ##############
 # @app.route("/")
 # def index():
 #     if not google.authorized:
@@ -30,17 +30,12 @@ def index():
 #     assert resp.ok, resp.text
 #     return resp.content
 
+
 # @app.route ("/login")
 # def login():
 #         return "Hello World, from a container"
 
 
-
-@app.route ("/login")
-def login():
-        return "Hello World, from a container"
-
-
-@app.route ("/logged")
-def logged():
-        return "You have been taken here, after the googe log in !!!"
+# @app.route ("/logged")
+# def logged():
+#         return "You have been taken here, after the googe log in !!!"
