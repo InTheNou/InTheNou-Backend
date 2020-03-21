@@ -6,13 +6,17 @@ class EventHandler():
 
     def _buildEventResponse(self, eventTuple):
         response = {}
-        response['ecreator'] = eventTuple[0]
-        response['roomid'] = eventTuple[1]
-        response['etitle'] = eventTuple[2]
-        response['edescription'] = eventTuple[3]
-        response['estart'] = eventTuple[4]
-        response['eend'] = eventTuple[5]
-        response['photoid'] = eventTuple[6]
+        response['eid'] = eventTuple[0]
+        response['ecreator'] = eventTuple[1]
+        response['roomid'] = eventTuple[2]
+        response['etitle'] = eventTuple[3]
+        response['edescription'] = eventTuple[4]
+        response['estart'] = eventTuple[5]
+        response['eend'] = eventTuple[6]
+        response['ecreation'] = eventTuple[7]
+        response['estatus'] = eventTuple[8]
+        response['estatusdate'] = eventTuple[9]
+        response['photoid'] = eventTuple[10]
         return response
 
     def getEventByID(self, eid):
