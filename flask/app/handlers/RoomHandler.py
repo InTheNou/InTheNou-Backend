@@ -20,13 +20,14 @@ def _buildRoomResponse(room_tuple):
     return response
 
 
-class RoomHandler():
+class RoomHandler:
 
-    def getRoomByID(self, rid):
+    def getRoomByID(self, rid, no_json=False):
         """
         Return the room entry belonging to the specified rid.
         Parameters:
             rid: room ID.
+            no_json: states if the response should be returned as JSON or not.
         Returns:
             JSON: containing room information. Error JSON otherwise.
         """
@@ -36,4 +37,6 @@ class RoomHandler():
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
             response = _buildRoomResponse(room_tuple=room)
+            if no_json:
+                return response
             return jsonify(response)

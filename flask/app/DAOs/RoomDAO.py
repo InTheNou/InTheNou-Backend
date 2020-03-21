@@ -5,6 +5,13 @@ from psycopg2 import sql
 class RoomDAO(MasterDAO):
 
     def getRoomByID(self, rid):
+        """
+         Query Database for an Room's information by its rid.
+        Parameters:
+            rid: event ID
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} where {pkey}= %s;").format(
             fields=sql.SQL(',').join([

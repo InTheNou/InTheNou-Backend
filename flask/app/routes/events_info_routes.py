@@ -16,3 +16,4 @@ def getEventByID(eid):
 def getRoomByID(rid):
     if request.method == 'GET': return RoomHandler().getRoomByID(rid=rid)
     else: return jsonify(Error="Method not allowed."), 405
+

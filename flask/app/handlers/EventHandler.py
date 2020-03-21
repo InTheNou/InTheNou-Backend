@@ -1,13 +1,15 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.EventDAO import EventDAO
+from app.handlers.RoomHandler import RoomHandler
+import json
 
 
 def _buildEventResponse(event_tuple):
     response = {}
     response['eid'] = event_tuple[0]
     response['ecreator'] = event_tuple[1]
-    response['roomid'] = event_tuple[2]
+    response['room'] = RoomHandler().getRoomByID(rid=event_tuple[2], no_json=True)
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
     response['estart'] = event_tuple[5]
@@ -15,11 +17,11 @@ def _buildEventResponse(event_tuple):
     response['ecreation'] = event_tuple[7]
     response['estatus'] = event_tuple[8]
     response['estatusdate'] = event_tuple[9]
-    response['photoid'] = event_tuple[10]
+    response['photourl'] = event_tuple[10]
     return response
 
 
-class EventHandler():
+class EventHandler:
 
     def getEventByID(self, eid):
         """Return the event entry belonging to the specified eid.
@@ -31,4 +33,5 @@ class EventHandler():
             return jsonify(Error='Event does not exist: eid=' + str(eid)), 404
         else:
             response = _buildEventResponse(event_tuple=event)
+            print (response)
             return jsonify(response)
