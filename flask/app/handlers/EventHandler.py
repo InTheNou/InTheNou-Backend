@@ -20,6 +20,9 @@ class EventHandler():
         return response
 
     def getEventByID(self, eid):
+        """Return the event entry belonging to the specified eid.
+        eid -- event ID.
+        """
         dao = EventDAO()
         event = dao.getEventByID(eid)
         if not event:
