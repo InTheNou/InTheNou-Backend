@@ -10,6 +10,11 @@ def _buildEventResponse(event_tuple):
     response['eid'] = event_tuple[0]
     response['ecreator'] = event_tuple[1]
     response['room'] = RoomHandler().getRoomByID(rid=event_tuple[2], no_json=True)
+
+    # Following line checks if the above returns a json (no room found or no_json set to False.
+    if not isinstance(response['room'], dict):
+        response['room'] = str(response['room'])
+
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
     response['estart'] = event_tuple[5]
