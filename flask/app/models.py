@@ -8,14 +8,22 @@ db = SQLAlchemy()
 
 
 class User(UserMixin,db.Model):
-    id = db.Column("UID",db.Integer, primary_key=True)
+    __tablename__ = 'users'
+    id = db.Column("uid",db.Integer, primary_key=True)
     email = db.Column(db.String(256),unique=True)
+    provider_user_id = db.Column("usub",db.String(256), unique=True, nullable=False)
+    first_name=db.Column("first_name", db.String(256),unique=False)
+    last_name=db.Column("last_name",db.String(256),unique=False)
+    user_type=db.Column("type",db.String(256),unique=False)
+    user_role=db.Column("roleid",db.Integer,unique=False)
+    role_issuer=db.Column("roleissuer",db.Integer,unique=False)
 
-
-class OAuth(OAuthConsumerMixin,db.Model):
-    provider_user_id = db.Column("sub",db.String(256), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
-    user = db.relationship(User)
+# class OAuth(OAuthConsumerMixin,db.Model):
+#     __tablename__ = 'users'
+#     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+#     provider_user_id = db.Column("usub",db.String(256), unique=True, nullable=False)
+    
+#     user = db.relationship(User)
 
 
 #Login Manager 

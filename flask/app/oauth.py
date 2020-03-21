@@ -4,12 +4,12 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized, oauth_error
 from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 from sqlalchemy.orm.exc import NoResultFound
-from .models import db, User, OAuth
+from .models import db, User
 
 
 blueprint = make_google_blueprint(
     scope=["profile", "email"],
-    storage=SQLAlchemyStorage(OAuth, db.session, user=current_user,),
+    storage=SQLAlchemyStorage(User, db.session, user=current_user),
     offline=True
 )
 
@@ -27,26 +27,32 @@ def google_logged_in(blueprint, token):
         return False
 
     info = resp.json()
+    print (info)
     user_id = info["id"]
-
     # Find this OAuth token in the database, or create it
-    query = OAuth.query.filter_by(provider=blueprint.name, provider_user_id=user_id)
+    query = User.query.filter_by( provider_user_id=user_id)
     try:
-        oauth = query.one()
+        user = query.one()
     except NoResultFound:
-        oauth = OAuth(provider=blueprint.name, provider_user_id=user_id, token=token)
+        user = User(provider_user_id=user_id)
 
-    if oauth.user:
-        login_user(oauth.user)
+    if user.id:
+        login_user(user)
         flash("Successfully signed in.")
 
     else:
         # Create a new local user account for this user
-        user = User(email=info["email"])
+        user = User(email=info["email"],provider_user_id=info["id"],
+         first_name=info["given_name"],
+          last_name=info["family_name"],
+          user_type="Student",
+          user_role= int(1),
+          role_issuer=int(1)
+          )
         # Associate the new local user account with the OAuth token
-        oauth.user = user
+       # user.user = user
         # Save and commit our database models
-        db.session.add_all([user, oauth])
+        db.session.add_all([user])
         db.session.commit()
         # Log in the new local user account
         login_user(user)
