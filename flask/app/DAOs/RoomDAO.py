@@ -1,6 +1,7 @@
 from app.DAOs.MasterDAO import MasterDAO
 from psycopg2 import sql
 
+
 class RoomDAO(MasterDAO):
 
     def getRoomByID(self, rid):
@@ -22,6 +23,6 @@ class RoomDAO(MasterDAO):
             ]),
             table=sql.Identifier('rooms'),
             pkey=sql.Identifier('rid'))
-        cursor.execute(query, (rid,))
+        cursor.execute(query, (int(rid),))
         result = cursor.fetchone()
         return result
