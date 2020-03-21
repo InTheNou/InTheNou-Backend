@@ -16,7 +16,7 @@ def _buildRoomResponse(room_tuple):
     response['rlongitude'] = float(room_tuple[8])
     response['rlatitude'] = float(room_tuple[9])
     response['raltitude'] = float(room_tuple[10])
-    response['photoid'] = room_tuple[11]
+    response['photourl'] = room_tuple[11]
     return response
 
 

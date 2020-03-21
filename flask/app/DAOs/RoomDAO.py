@@ -13,7 +13,10 @@ class RoomDAO(MasterDAO):
             Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table} where {pkey}= %s;").format(
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "where {pkey}= %s;").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('rid'),
                 sql.Identifier('bid'),
@@ -26,9 +29,12 @@ class RoomDAO(MasterDAO):
                 sql.Identifier('rlongitude'),
                 sql.Identifier('rlatitude'),
                 sql.Identifier('raltitude'),
-                sql.Identifier('photoid')
+                sql.Identifier('photourl')
             ]),
-            table=sql.Identifier('rooms'),
+            table1=sql.Identifier('rooms'),
+            table2=sql.Identifier('photos'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'),
             pkey=sql.Identifier('rid'))
         cursor.execute(query, (int(rid),))
         result = cursor.fetchone()
