@@ -52,58 +52,35 @@ class ServiceDAO(MasterDAO):
             table2=sql.Identifier('phones'),
             pkey=sql.Identifier('sid'))
         cursor.execute(query, (int(sid),))
-        print(query)
         result = []
         for row in cursor:
             result.append(row)
-        print(result)
         return result
 
-    # def getAllTags(self):
-    #     """
-    #      Query Database all tag entries.
-    #     Returns:
-    #         Tuple: SQL result of Query as a tuple.
-    #     """
-    #     cursor = self.conn.cursor()
-    #     query = sql.SQL("select {fields} from {table};").format(
-    #         fields=sql.SQL(',').join([
-    #             sql.Identifier('tid'),
-    #             sql.Identifier('tname')
-    #         ]),
-    #         table=sql.Identifier('tags'))
-    #     cursor.execute(query)
-    #     result = []
-    #     for row in cursor:
-    #         result.append(row)
-    #     return result
-    #
-    # def getTagsByUserID(self, uid):
-    #     """
-    #      Query Database for all the tags belonging
-    #         to a User, given the user's ID.
-    #     Parameters:
-    #         uid: User ID
-    #     Returns:
-    #         Tuple: SQL result of Query as a tuple.
-    #     """
-    #     cursor = self.conn.cursor()
-    #     query = sql.SQL("select {fields} from {table1} "
-    #                     "natural join {table2} "
-    #                     "natural join {table3} "
-    #                     "where {pkey}= %s;").format(
-    #         fields=sql.SQL(',').join([
-    #             sql.Identifier('tid'),
-    #             sql.Identifier('tname'),
-    #             sql.Identifier('tagweight')
-    #         ]),
-    #         table1=sql.Identifier('users'),
-    #         table2=sql.Identifier('usertags'),
-    #         table3=sql.Identifier('tags'),
-    #         pkey=sql.Identifier('uid'))
-    #     cursor.execute(query, (int(uid),))
-    #     result = []
-    #     for row in cursor:
-    #         result.append(row)
-    #     return result
-    #
+    def getServiceWebsites(self, sid):
+        """
+         Query Database for all the website entries belonging
+            to a Service, given the Service's ID.
+        Parameters:
+            sid: Service ID
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "natural join {table2} "
+                        "where {pkey}= %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('wid'),
+                sql.Identifier('url'),
+                sql.Identifier('wdescription'),
+                sql.Identifier('isdeleted'),
+            ]),
+            table1=sql.Identifier('servicewebsites'),
+            table2=sql.Identifier('websites'),
+            pkey=sql.Identifier('sid'))
+        cursor.execute(query, (int(sid),))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result

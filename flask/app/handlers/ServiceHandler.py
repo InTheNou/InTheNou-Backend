@@ -23,28 +23,16 @@ def _buildServiceResponse(service_tuple):
     return response
 
 
-class ServiceHandler:
+def _buildWebsiteResponse(website_tuple):
+    response = {}
+    response['wid'] = website_tuple[0]
+    response['url'] = website_tuple[1]
+    response['wdescription'] = website_tuple[2]
+    response['isdeleted'] = website_tuple[3]
+    return response
 
-    # def getAllBuildings(self, no_json=False):
-    #     """
-    #     Return all tag entries in the database.
-    #     Parameters:
-    #         no_json: states if the response should be returned as JSON or not.
-    #     Returns:
-    #         JSON: containing all tags. Error JSON otherwise.
-    #     """
-    #     dao = BuildingDAO()
-    #     buildings = dao.getAllBuildings()
-    #     if not buildings:
-    #         return jsonify(Error='Could not find any buildings in system.'), 404
-    #     else:
-    #         building_list = []
-    #         for row in buildings:
-    #             building_list.append(_buildBuildingResponse(building_tuple=row))
-    #         response = {"buildings": building_list}
-    #         if no_json:
-    #             return response
-    #         return jsonify(response)
+
+class ServiceHandler:
 
     def getServiceByID(self, sid, no_json=False):
         """
@@ -62,6 +50,7 @@ class ServiceHandler:
         else:
             response = _buildServiceResponse(service_tuple=service)
             response["phones"] = self.getServicePhones(sid=sid, no_json=True)['phones']
+            response["websites"] = self.getServiceWebsites(sid=sid, no_json=True)['websites']
             if no_json:
                 return response
             return jsonify(response)
@@ -84,6 +73,28 @@ class ServiceHandler:
             for row in phones:
                 phone_list.append(_buildPhoneResponse(phone_tuple=row))
             response = {"phones": phone_list}
+        if no_json:
+            return response
+        return jsonify(response)
+
+    def getServiceWebsites(self, sid, no_json=False):
+        """
+            Return the Website entries belonging to the specified Service sid.
+            Parameters:
+                sid: Service ID.
+                no_json: states if the response should be returned as JSON or not.
+            Returns:
+                JSON: containing room information. Error JSON otherwise.
+            """
+        dao = ServiceDAO()
+        websites = dao.getServiceWebsites(sid=sid)
+        if not websites:
+            response = {"websites": None}
+        else:
+            website_list = []
+            for row in websites:
+                website_list.append(_buildWebsiteResponse(website_tuple=row))
+            response = {"websites": website_list}
         if no_json:
             return response
         return jsonify(response)

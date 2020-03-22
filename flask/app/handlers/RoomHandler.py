@@ -46,3 +46,27 @@ class RoomHandler:
             if no_json:
                 return response
             return jsonify(response)
+
+    def getRoomsByBuildingAndFloor(self, bid, rfloor, no_json=False):
+        """
+        Return the room entries belonging to the specified building and floor.
+        Parameters:
+            bid: building ID.
+            rfloor: room floor.
+            no_json: states if the response should be returned as JSON or not.
+        Returns:
+            JSON: containing room information. Error JSON otherwise.
+        """
+        dao = RoomDAO()
+        rooms = dao.getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
+        if not rooms:
+            return jsonify(Error='No rooms found for bid=' + str(bid)
+                                 + " and rfloor=" + str(rfloor)), 404
+        else:
+            room_list = []
+            for row in rooms:
+                room_list.append(_buildRoomResponse(room_tuple=row))
+            response = {"rooms": room_list}
+        if no_json:
+            return response
+        return jsonify(response)

@@ -10,6 +10,7 @@ from app.handlers.TagHandler import TagHandler
 
 # TODO: MODIFY ROUTES TO MATCH PRE-ESTABISHED API ONCE FUNCTIONAL
 # TODO: Add event-related info about related tables once DAOs/Handlers implemented.
+# Automated test not set up
 @app.route("/App/Events/eid=<int:eid>", methods=['GET'])
 def getEventByID(eid):
     if request.method == 'GET': return EventHandler().getEventByID(eid=eid)
@@ -22,6 +23,14 @@ def getRoomByID(rid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up.
+@app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
+def getRoomsByBuildingAndFloor(bid, rfloor):
+    if request.method == 'GET': return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+# Automated test not set up; may not be necessary, since only one room in system.
 @app.route("/Dev/Buildings", methods=['GET'])
 def getAllBuildings():
     if request.method == 'GET': return BuildingHandler().getAllBuildings()
@@ -34,6 +43,7 @@ def getBuildingByID(bid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up
 @app.route("/App/Services/sid=<int:sid>", methods=['GET'])
 def getServiceByID(sid):
     if request.method == 'GET': return ServiceHandler().getServiceByID(sid=sid)
