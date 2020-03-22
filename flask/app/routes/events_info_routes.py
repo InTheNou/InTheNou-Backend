@@ -15,27 +15,37 @@ def getEventByID(eid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
 @app.route("/App/Rooms/rid=<int:rid>", methods=['GET'])
 def getRoomByID(rid):
     if request.method == 'GET': return RoomHandler().getRoomByID(rid=rid)
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
 @app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
 def getBuildingByID(bid):
     if request.method == 'GET': return BuildingHandler().getBuildingByID(bid=bid)
     else: return jsonify(Error="Method not allowed."), 405
 
-# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
+
 @app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
 def getTagByID(tid):
     if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
     else: return jsonify(Error="Method not allowed."), 405
 
-# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
+
+@app.route("/App/Tags", methods=['GET'])
+def getAllTags():
+    if request.method == 'GET': return TagHandler().getAllTags()
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Tags/eid=<int:eid>", methods=['GET'])
 def getTagsByEventID(eid):
     if request.method == 'GET': return TagHandler().getTagsByEventID(eid=eid)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Tags/uid=<int:uid>", methods=['GET'])
+def getTagsByUsertID(uid):
+    if request.method == 'GET': return TagHandler().getTagsByUserID(uid=uid)
     else: return jsonify(Error="Method not allowed."), 405

@@ -29,7 +29,7 @@ class BuildingHandler:
         dao = BuildingDAO()
         building = dao.getBuildingByID(bid=bid)
         if not building:
-            return jsonify(Error='building does not exist: ' + str(bid)), 404
+            return jsonify(Error='building does not exist: bid=' + str(bid)), 404
         else:
             response = _buildBuildingResponse(building_tuple=building)
             if no_json:
