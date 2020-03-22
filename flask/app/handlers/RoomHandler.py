@@ -7,12 +7,9 @@ from app.handlers.BuildingHandler import BuildingHandler
 def _buildRoomResponse(room_tuple):
     response = {}
     response['rid'] = room_tuple[0]
-    response['building'] = BuildingHandler().getBuildingByID(room_tuple[1], no_json=True)
-
-    # Following line checks if the above returns a json (no room found or no_json set to False.
-    if not isinstance(response['building'], dict):
-        response['building'] = str(response['building'])
-
+    # Skipping bid so that it may be added either internally
+    # as part of a single room, or externally, as part of a
+    # list of rooms. Use _safeGetBuiildingByID(bid).
     response['rcode'] = room_tuple[2]
     response['rfloor'] = room_tuple[3]
     response['rdescription'] = room_tuple[4]
@@ -24,6 +21,14 @@ def _buildRoomResponse(room_tuple):
     response['raltitude'] = float(room_tuple[10])
     response['photourl'] = room_tuple[11]
     return response
+
+
+def _safeGetBuildingByID(bid):
+    building = BuildingHandler().getBuildingByID(bid=bid, no_json=True)
+    # Following line checks if the above returns a json (no room found or no_json set to False.
+    if not isinstance(building, dict):
+        building = str(building)
+    return building
 
 
 class RoomHandler:
@@ -43,6 +48,7 @@ class RoomHandler:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
             response = _buildRoomResponse(room_tuple=room)
+            response['building'] = _safeGetBuildingByID(bid=room[1])
             if no_json:
                 return response
             return jsonify(response)
@@ -66,7 +72,7 @@ class RoomHandler:
             room_list = []
             for row in rooms:
                 room_list.append(_buildRoomResponse(room_tuple=row))
-            response = {"rooms": room_list}
+            response = {"rooms": room_list, 'building': _safeGetBuildingByID(bid=bid)}
         if no_json:
             return response
         return jsonify(response)
