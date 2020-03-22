@@ -17,6 +17,27 @@ def _buildBuildingResponse(building_tuple):
 
 class BuildingHandler:
 
+    def getAllBuildings(self, no_json=False):
+        """
+        Return all tag entries in the database.
+        Parameters:
+            no_json: states if the response should be returned as JSON or not.
+        Returns:
+            JSON: containing all tags. Error JSON otherwise.
+        """
+        dao = BuildingDAO()
+        buildings = dao.getAllBuildings()
+        if not buildings:
+            return jsonify(Error='Could not find any buildings in system.'), 404
+        else:
+            building_list = []
+            for row in buildings:
+                building_list.append(_buildBuildingResponse(building_tuple=row))
+            response = {"buildings": building_list}
+            if no_json:
+                return response
+            return jsonify(response)
+
     def getBuildingByID(self, bid, no_json=False):
         """
         Return the building entry belonging to the specified bid.

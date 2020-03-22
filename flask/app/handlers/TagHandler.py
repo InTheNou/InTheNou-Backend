@@ -56,7 +56,7 @@ class TagHandler:
             tag_list = []
             for row in tags:
                 tag_list.append(_buildTagResponse(tag_tuple=row))
-            response = tag_list
+            response = {"tags": tag_list}
             if no_json:
                 return response
             return jsonify(response)
@@ -78,7 +78,7 @@ class TagHandler:
             tag_list = []
             for row in tags:
                 tag_list.append(_buildWeightedTagResponse(tag_tuple=row))
-            response = tag_list
+            response = {"tags": tag_list}
             if no_json:
                 return response
             return jsonify(response)
@@ -99,7 +99,7 @@ class TagHandler:
             tag_list = []
             for row in tags:
                 tag_list.append(_buildTagResponse(tag_tuple=row))
-            response = tag_list
+            response = {"tags": tag_list}
             if no_json:
                 return response
             return jsonify(response)

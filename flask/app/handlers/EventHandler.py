@@ -30,7 +30,7 @@ def _buildEventResponse(event_tuple):
     response['estatus'] = event_tuple[8]
     response['estatusdate'] = event_tuple[9]
     response['photourl'] = event_tuple[10]
-    response['tags'] = TagHandler().getTagsByEventID(eid=event_tuple[0], no_json=True)
+    response['tags'] = TagHandler().getTagsByEventID(eid=event_tuple[0], no_json=True)["tags"]
 
     # Following line checks if the above returns a json (no tags found or no_json set to False.
     if not isinstance(response['tags'], list):

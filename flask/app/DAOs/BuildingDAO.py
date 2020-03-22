@@ -4,6 +4,35 @@ from psycopg2 import sql
 
 class BuildingDAO(MasterDAO):
 
+    def getAllBuildings(self):
+        """
+                Query Database for all Building entries.
+               Returns:
+                   Tuple: SQL result of Query as a tuple.
+               """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier};").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('bid'),
+                sql.Identifier('bname'),
+                sql.Identifier('babbrev'),
+                sql.Identifier('numfloors'),
+                sql.Identifier('bcommonname'),
+                sql.Identifier('btype'),
+                sql.Identifier('photourl')
+            ]),
+            table1=sql.Identifier('buildings'),
+            table2=sql.Identifier('photos'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'))
+        cursor.execute(query)
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def getBuildingByID(self, bid):
         """
                 Query Database for an Building's information by its bid.
@@ -34,3 +63,4 @@ class BuildingDAO(MasterDAO):
         cursor.execute(query, (int(bid),))
         result = cursor.fetchone()
         return result
+
