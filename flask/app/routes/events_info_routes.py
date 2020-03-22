@@ -4,6 +4,7 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
+from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
 
 
@@ -30,6 +31,12 @@ def getAllBuildings():
 @app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
 def getBuildingByID(bid):
     if request.method == 'GET': return BuildingHandler().getBuildingByID(bid=bid)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Services/sid=<int:sid>", methods=['GET'])
+def getServiceByID(sid):
+    if request.method == 'GET': return ServiceHandler().getServiceByID(sid=sid)
     else: return jsonify(Error="Method not allowed."), 405
 
 
