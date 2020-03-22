@@ -15,6 +15,8 @@ def _buildEventResponse(event_tuple):
     """
     response = {}
     response['eid'] = event_tuple[0]
+
+    # TODO: Add user information Once Diego creates routes (uid, name, lastname)
     response['ecreator'] = event_tuple[1]
     response['room'] = RoomHandler().getRoomByID(rid=event_tuple[2], no_json=True)
 
@@ -51,5 +53,4 @@ class EventHandler:
             return jsonify(Error='Event does not exist: eid=' + str(eid)), 404
         else:
             response = _buildEventResponse(event_tuple=event)
-            print (response)
             return jsonify(response)
