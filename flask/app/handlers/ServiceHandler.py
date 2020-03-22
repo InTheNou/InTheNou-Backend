@@ -1,6 +1,7 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.ServiceDAO import ServiceDAO
+from app.handlers.RoomHandler import RoomHandler
 
 
 def _buildPhoneResponse(phone_tuple):
@@ -15,7 +16,7 @@ def _buildPhoneResponse(phone_tuple):
 def _buildServiceResponse(service_tuple):
     response = {}
     response['sid'] = service_tuple[0]
-    response['rid'] = service_tuple[1]
+    response['room'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
     response['sname'] = service_tuple[2]
     response['sdescription'] = service_tuple[3]
     response['sschedule'] = service_tuple[4]

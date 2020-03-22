@@ -23,14 +23,6 @@ def _buildRoomResponse(room_tuple):
     return response
 
 
-def _safeGetBuildingByID(bid):
-    building = BuildingHandler().getBuildingByID(bid=bid, no_json=True)
-    # Following line checks if the above returns a json (no room found or no_json set to False.
-    if not isinstance(building, dict):
-        building = str(building)
-    return building
-
-
 class RoomHandler:
 
     def getRoomByID(self, rid, no_json=False):
@@ -48,7 +40,7 @@ class RoomHandler:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
             response = _buildRoomResponse(room_tuple=room)
-            response['building'] = _safeGetBuildingByID(bid=room[1])
+            response['building'] = BuildingHandler().safeGetBuildingByID(bid=room[1])
             if no_json:
                 return response
             return jsonify(response)
@@ -72,7 +64,15 @@ class RoomHandler:
             room_list = []
             for row in rooms:
                 room_list.append(_buildRoomResponse(room_tuple=row))
-            response = {"rooms": room_list, 'building': _safeGetBuildingByID(bid=bid)}
+            response = {"rooms": room_list,
+                        'building': BuildingHandler().safeGetBuildingByID(bid=bid)}
         if no_json:
             return response
         return jsonify(response)
+
+    def safeGetRoomByID(self, rid):
+        room = self.getRoomByID(rid=rid, no_json=True)
+        # Following line checks if the above returns a json (no room found or no_json set to False.
+        if not isinstance(room, dict):
+            room = str(room)
+        return room

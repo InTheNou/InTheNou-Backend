@@ -56,3 +56,10 @@ class BuildingHandler:
             if no_json:
                 return response
             return jsonify(response)
+
+    def safeGetBuildingByID(self, bid):
+        building = self.getBuildingByID(bid=bid, no_json=True)
+        # Following line checks if the above returns a json (no room found or no_json set to False.
+        if not isinstance(building, dict):
+            building = str(building)
+        return building

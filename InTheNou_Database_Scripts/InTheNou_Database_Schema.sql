@@ -78,7 +78,10 @@ Create table Services( sid serial primary key,
                        isDeleted boolean NOT NULL,
                        CONSTRAINT unique_room_services UNIQUE(rid, sName));
             
-/* Create Phones */            
+/* Create Phones */
+/* pnumber format: XXX-XXX-XXX | XXX-XXX-XXX,XXX
+   pType: E-Extension, F-Fax, L-Landline, M-Mobile
+ */
 Create table Phones( phoneID serial primary key,
                      pNumber text NOT NULL UNIQUE CHECK (pNumber <> ''),
                      pType char(1) NOT NULL,
