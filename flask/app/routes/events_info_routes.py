@@ -21,7 +21,7 @@ def getRoomByID(rid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Buildings", methods=['GET'])
+@app.route("/Dev/Buildings", methods=['GET'])
 def getAllBuildings():
     if request.method == 'GET': return BuildingHandler().getAllBuildings()
     else: return jsonify(Error="Method not allowed."), 405
@@ -33,15 +33,16 @@ def getBuildingByID(bid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
-def getTagByID(tid):
-    if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
 @app.route("/App/Tags", methods=['GET'])
 def getAllTags():
     if request.method == 'GET': return TagHandler().getAllTags()
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+# Test Route
+@app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
+def getTagByID(tid):
+    if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
     else: return jsonify(Error="Method not allowed."), 405
 
 
