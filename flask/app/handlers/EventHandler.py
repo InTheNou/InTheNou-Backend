@@ -1,23 +1,47 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.EventDAO import EventDAO
+from app.handlers.RoomHandler import RoomHandler
+from app.handlers.TagHandler import TagHandler
 
-class EventHandler():
 
-    def _buildEventResponse(self, eventTuple):
-        response = {}
-        response['eid'] = eventTuple[0]
-        response['ecreator'] = eventTuple[1]
-        response['roomid'] = eventTuple[2]
-        response['etitle'] = eventTuple[3]
-        response['edescription'] = eventTuple[4]
-        response['estart'] = eventTuple[5]
-        response['eend'] = eventTuple[6]
-        response['ecreation'] = eventTuple[7]
-        response['estatus'] = eventTuple[8]
-        response['estatusdate'] = eventTuple[9]
-        response['photoid'] = eventTuple[10]
-        return response
+def _buildEventResponse(event_tuple):
+    """
+    Private Method to build event dictionary to be JSONified.
+    Parameters:
+        event_tuple: response tuple from SQL query
+    Returns:
+        Dict: Event information.
+    """
+    response = {}
+    response['eid'] = event_tuple[0]
+
+    # TODO: Add user information Once Diego creates routes (uid, name, lastname)
+    response['ecreator'] = event_tuple[1]
+    response['room'] = RoomHandler().getRoomByID(rid=event_tuple[2], no_json=True)
+
+    # Following line checks if the above returns a json (no room found or no_json set to False.
+    if not isinstance(response['room'], dict):
+        response['room'] = str(response['room'])
+
+    response['etitle'] = event_tuple[3]
+    response['edescription'] = event_tuple[4]
+    response['estart'] = event_tuple[5]
+    response['eend'] = event_tuple[6]
+    response['ecreation'] = event_tuple[7]
+    response['estatus'] = event_tuple[8]
+    response['estatusdate'] = event_tuple[9]
+    response['photourl'] = event_tuple[10]
+    response['tags'] = TagHandler().getTagsByEventID(eid=event_tuple[0], no_json=True)["tags"]
+
+    # Following line checks if the above returns a json (no tags found or no_json set to False.
+    if not isinstance(response['tags'], list):
+        response['tags'] = str(response['tags'])
+
+    return response
+
+
+class EventHandler:
 
     def getEventByID(self, eid):
         """Return the event entry belonging to the specified eid.
@@ -26,7 +50,7 @@ class EventHandler():
         dao = EventDAO()
         event = dao.getEventByID(eid)
         if not event:
-            return jsonify(Error='Event does not exist: ' + str(eid)), 404
+            return jsonify(Error='Event does not exist: eid=' + str(eid)), 404
         else:
-            response = self._buildEventResponse(eventTuple=event)
+            response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
