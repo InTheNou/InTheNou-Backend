@@ -24,7 +24,7 @@ class TagHandler:
         dao = TagDAO()
         tag = dao.getTagByID(tid=tid)
         if not tag:
-            return jsonify(Error='Tag does not exist: ' + str(tid)), 404
+            return jsonify(Error='Tag does not exist: tid=' + str(tid)), 404
         else:
             response = _buildTagResponse(tag_tuple=tag)
             if no_json:
@@ -43,12 +43,12 @@ class TagHandler:
         dao = TagDAO()
         tags = dao.getTagsByEventID(eid=eid)
         if not tags:
-            return jsonify(Error='Event Tags do not exist: ' + str(eid)), 404
+            return jsonify(Error='Event Tags do not exist: eid=' + str(eid)), 404
         else:
             tag_list = []
             for row in tags:
                 tag_list.append(_buildTagResponse(tag_tuple=row))
-            response = {"tags": tag_list}
+            response = tag_list
             if no_json:
                 return response
             return jsonify(response)

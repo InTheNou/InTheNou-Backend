@@ -2,10 +2,17 @@ from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.EventDAO import EventDAO
 from app.handlers.RoomHandler import RoomHandler
-import json
+from app.handlers.TagHandler import TagHandler
 
 
 def _buildEventResponse(event_tuple):
+    """
+    Private Method to build event dictionary to be JSONified.
+    Parameters:
+        event_tuple: response tuple from SQL query
+    Returns:
+        Dict: Event information.
+    """
     response = {}
     response['eid'] = event_tuple[0]
     response['ecreator'] = event_tuple[1]
@@ -23,6 +30,12 @@ def _buildEventResponse(event_tuple):
     response['estatus'] = event_tuple[8]
     response['estatusdate'] = event_tuple[9]
     response['photourl'] = event_tuple[10]
+    response['tags'] = TagHandler().getTagsByEventID(eid=event_tuple[0], no_json=True)
+
+    # Following line checks if the above returns a json (no tags found or no_json set to False.
+    if not isinstance(response['tags'], list):
+        response['tags'] = str(response['tags'])
+
     return response
 
 
