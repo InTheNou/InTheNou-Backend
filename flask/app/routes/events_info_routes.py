@@ -30,6 +30,15 @@ def getUpcomingFollowedEventsSegmented(uid, offset, limit):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up
+# TODO: test further when event insert routes are functional.
+# TODO: Consider what information should belong in JSONS.
+@app.route("/App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getDismissedEvents(uid, offset, limit):
+    if request.method == 'GET': return EventHandler().getDismissedEvents(uid=uid, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Rooms/rid=<int:rid>", methods=['GET'])
 def getRoomByID(rid):
     if request.method == 'GET': return RoomHandler().getRoomByID(rid=rid)

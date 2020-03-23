@@ -117,3 +117,26 @@ class EventHandler:
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
+
+    def getDismissedEvents(self, uid, offset, limit=10):
+        """Return the dismissed event entries specified by offset and limit parameters.
+        Parameters:
+            uid: User ID
+            offset: Number of result rows to ignore from top of query results.
+            limit: Max number of result rows to return. Default=10.
+        Return:
+            JSON Response Object: JSON containing limit-defined number of dismissed events.
+                """
+        dao = EventDAO()
+        events = dao.getDismissedEvents(uid=uid, offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                # TODO: consider re-developing Response builders for more flexibility.
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_entry['recommendstatus'] = row[11]
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
