@@ -31,6 +31,29 @@ def _buildEventResponse(event_tuple):
     return response
 
 
+def _buildCoreEventResponse(event_tuple):
+    """
+    Private Method to build core event dictionary to be JSONified.
+    Parameters:
+        event_tuple: response tuple from SQL query
+    Returns:
+        Dict: Event information.
+    """
+    response = {}
+    response['eid'] = event_tuple[0]
+    response['ecreator'] = event_tuple[1]
+    response['room'] = RoomHandler().getCoreRoomByID(rid=event_tuple[2], no_json=True)
+    response['etitle'] = event_tuple[3]
+    response['edescription'] = event_tuple[4]
+    response['estart'] = event_tuple[5]
+    response['eend'] = event_tuple[6]
+    response['ecreation'] = event_tuple[7]
+    response['estatus'] = event_tuple[8]
+    response['estatusdate'] = event_tuple[9]
+    response['photourl'] = event_tuple[10]
+    return response
+
+
 class EventHandler:
 
     def getEventByID(self, eid):
@@ -44,3 +67,22 @@ class EventHandler:
         else:
             response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
+
+    def getUpcomingGeneralEventsSegmented(self, offset, limit=10):
+        """Return the upcoming, active event entries specified by offset and limit parameters.
+        Parameters:
+            offset: Number of result rows to ignore from top of query results.
+            limit: Max number of result rows to return. Default=10.
+        Return:
+            JSON Response Object: JSON containing limit-defined number of upcoming, active events.
+                """
+        dao = EventDAO()
+        events = dao.getUpcomingGeneralEventsSegmented(offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_list.append(_buildCoreEventResponse(event_tuple=row))
+            response = {'events': event_list}
+        return jsonify(response)

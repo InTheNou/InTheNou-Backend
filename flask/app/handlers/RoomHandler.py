@@ -23,6 +23,17 @@ def _buildRoomResponse(room_tuple):
     return response
 
 
+def _buildCoreRoomResponse(room_tuple):
+    # Currently using the getRoomByID() method
+    response = {}
+    response['rid'] = room_tuple[0]
+    # Skipping bid so that it may be added either internally
+    # as part of a single room, or externally, as part of a
+    # list of rooms.
+    response['rcode'] = room_tuple[2]
+    return response
+
+
 class RoomHandler:
 
     def getRoomByID(self, rid, no_json=False):
@@ -76,3 +87,23 @@ class RoomHandler:
         if not isinstance(room, dict):
             room = str(room)
         return room
+
+    def getCoreRoomByID(self, rid, no_json=False):
+        """
+        Return the room entry belonging to the specified rid.
+        Parameters:
+            rid: room ID.
+            no_json: states if the response should be returned as JSON or not.
+        Returns:
+            JSON: containing room information. Error JSON otherwise.
+        """
+        dao = RoomDAO()
+        room = dao.getRoomByID(rid)
+        if not room:
+            return jsonify(Error='Room does not exist: ' + str(rid)), 404
+        else:
+            response = _buildCoreRoomResponse(room_tuple=room)
+            response['building'] = BuildingHandler().getCoreBuildingByID(bid=room[1], no_json=True)
+            if no_json:
+                return response
+            return jsonify(response)

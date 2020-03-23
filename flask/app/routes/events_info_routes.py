@@ -17,6 +17,14 @@ def getEventByID(eid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up
+# UID not currently used by this route.
+@app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getUpcomingGeneralEventsSegmented(uid, offset, limit):
+    if request.method == 'GET': return EventHandler().getUpcomingGeneralEventsSegmented(offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Rooms/rid=<int:rid>", methods=['GET'])
 def getRoomByID(rid):
     if request.method == 'GET': return RoomHandler().getRoomByID(rid=rid)
