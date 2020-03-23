@@ -1,5 +1,6 @@
 from app.DAOs.MasterDAO import MasterDAO
-from psycopg2 import sql
+from psycopg2 import sql, errors
+
 
 class EventDAO(MasterDAO):
 
@@ -34,7 +35,7 @@ class EventDAO(MasterDAO):
             table1Identifier=sql.Identifier('photoid'),
             table2Identifier=sql.Identifier('photoid'),
             pkey=sql.Identifier('eid'))
-        cursor.execute(query, (eid,))
+        cursor.execute(query, (int(eid),))
         result = cursor.fetchone()
         return result
 
@@ -282,9 +283,45 @@ class EventDAO(MasterDAO):
             table2Identifier=sql.Identifier('photoid'),
             pkey1=sql.Identifier('ecreator'),
             table1Identifier2=sql.Identifier('estart'))
-        print(uid)
         cursor.execute(query, (int(uid), int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
+        return result
+
+    def followEvent(self, uid, eid):
+        """
+         Create an eventuserinteraction entry for the defined user and event
+         that states only that the user is now following said event. If an entry
+         for the user/event key pair exists, update the itype field to 'following'
+        Parameters:
+            uid: User ID,
+            eid: Event ID
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("insert into {table1} "
+                        "({insert_fields}) "
+                        "VALUES ('following', 'N', %s, %s) "
+                        "on CONFLICT({conflict_keys}) do "
+                        "update set {ukey1}='following' "
+                        "returning {conflict_keys}").format(
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('itype'),
+                sql.Identifier('recommendstatus'),
+                sql.Identifier('uid'),
+                sql.Identifier('eid')
+            ]),
+            conflict_keys=sql.SQL(',').join([
+                sql.Identifier('uid'),
+                sql.Identifier('eid')
+            ]),
+            table1=sql.Identifier('eventuserinteractions'),
+            ukey1=sql.Identifier('itype'))
+        try:
+            cursor.execute(query, (int(uid), int(eid)))
+            result = cursor.fetchone()
+        except errors.ForeignKeyViolation as e:
+            result = e
         return result

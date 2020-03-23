@@ -17,6 +17,12 @@ def getEventByID(eid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Follow", methods=['POST'])
+def followEvent(eid, uid):
+    if request.method == 'POST': return EventHandler().followEvent(eid=eid, uid=uid)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # Automated test not set up
 @app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingGeneralEventsSegmented(uid, offset, limit):
