@@ -127,7 +127,8 @@ Create table EventWebsites( eid integer references Events(eid) NOT NULL,
                             wid integer references Websites(wid) NOT NULL,
                             primary key (eid,wid));
 
-/* Relate Events with Users through interactions other than creation/deletion. */               
+/* Relate Events with Users through interactions other than creation/deletion. */
+/* Current iTypes: 'following', 'unfollowing', 'dismissed' */
 Create table EventUserInteractions(iType text NOT NULL CHECK (iType <> ''),
                                    recommendStatus char(1) NOT NULL,
                                    uid int references Users(uid) NOT NULL,
