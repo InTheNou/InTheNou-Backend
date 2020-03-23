@@ -36,7 +36,7 @@ def getRoomByID(rid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Sort rooms by rcode or rid.
+# TODO: Update Automated tests
 @app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 def getRoomsByBuildingAndFloor(bid, rfloor):
     if request.method == 'GET': return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)

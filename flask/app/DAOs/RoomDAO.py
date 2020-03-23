@@ -53,7 +53,8 @@ class RoomDAO(MasterDAO):
         query = sql.SQL("select {fields} from {table1} "
                         "left outer join {table2} "
                         "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
-                        "where {pkey1}= %s and {pkey2}= %s;").format(
+                        "where {pkey1}= %s and {pkey2}= %s"
+                        "order by {orderkey};").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('rid'),
                 sql.Identifier('bid'),
@@ -73,7 +74,8 @@ class RoomDAO(MasterDAO):
             table1Identifier=sql.Identifier('photoid'),
             table2Identifier=sql.Identifier('photoid'),
             pkey1=sql.Identifier('bid'),
-            pkey2=sql.Identifier('rfloor'))
+            pkey2=sql.Identifier('rfloor'),
+            orderkey=sql.Identifier('rcode'))
         cursor.execute(query, (int(bid), int(rfloor)))
         result = []
         for row in cursor:
