@@ -242,3 +242,49 @@ class EventDAO(MasterDAO):
         for row in cursor:
             result.append(row)
         return result
+
+    def getEventsCreatedByUser(self, uid, offset, limit):
+        """
+         Query Database for events created by a user,
+            ordered by highest-value start date, offset by
+            a set number of rows, returning a limited number of rows after offset.
+        Parameters:
+            uid: User ID,
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "where {pkey1}= %s "
+                        "order by {table1Identifier2} desc "
+                        "offset %s "
+                        "limit %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate'),
+                sql.Identifier('photourl')
+            ]),
+            table1=sql.Identifier('events'),
+            table2=sql.Identifier('photos'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'),
+            pkey1=sql.Identifier('ecreator'),
+            table1Identifier2=sql.Identifier('estart'))
+        print(uid)
+        cursor.execute(query, (int(uid), int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result

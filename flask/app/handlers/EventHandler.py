@@ -148,7 +148,7 @@ class EventHandler:
             offset: Number of result rows to ignore from top of query results.
             limit: Max number of result rows to return. Default=10.
         Return:
-            JSON Response Object: JSON containing limit-defined number of upcoming, active events.
+            JSON Response Object: JSON containing limit-defined number past, followed events.
                 """
         dao = EventDAO()
         events = dao.getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
@@ -160,6 +160,28 @@ class EventHandler:
                 # TODO: consider re-developing Response builders for more flexibility.
                 event_entry = _buildCoreEventResponse(event_tuple=row)
                 event_entry['recommendstatus'] = row[11]
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getEventsCreatedByUser(self, uid, offset, limit=10):
+        """Return the events created by a given user, specified by offset and limit parameters.
+        Parameters:
+            uid: User ID
+            offset: Number of result rows to ignore from top of query results.
+            limit: Max number of result rows to return. Default=10.
+        Return:
+            JSON Response Object: JSON containing limit-defined number of events created by a user.
+                """
+        dao = EventDAO()
+        events = dao.getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                # TODO: consider re-developing Response builders for more flexibility.
+                event_entry = _buildCoreEventResponse(event_tuple=row)
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)

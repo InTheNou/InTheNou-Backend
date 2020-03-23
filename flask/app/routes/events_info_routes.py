@@ -38,6 +38,13 @@ def getPastFollowedEventsSegmented(uid, offset, limit):
 
 
 # Automated test not set up
+@app.route("/App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getEventsCreatedByUser(uid, offset, limit):
+    if request.method == 'GET': return EventHandler().getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+# Automated test not set up
 # TODO: test further when event insert routes are functional.
 # TODO: Consider what information should belong in JSONS.
 @app.route("/App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
