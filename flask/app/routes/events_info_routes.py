@@ -19,7 +19,13 @@ def getEventByID(eid):
 
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Follow", methods=['POST'])
 def followEvent(eid, uid):
-    if request.method == 'POST': return EventHandler().followEvent(eid=eid, uid=uid)
+    if request.method == 'POST': return EventHandler().setInteraction(eid=eid, uid=uid, itype="following")
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Dismiss", methods=['POST'])
+def dismissEvent(eid, uid):
+    if request.method == 'POST': return EventHandler().setInteraction(eid=eid, uid=uid, itype="dismissed")
     else: return jsonify(Error="Method not allowed."), 405
 
 

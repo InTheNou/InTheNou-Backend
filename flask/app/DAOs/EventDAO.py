@@ -289,23 +289,24 @@ class EventDAO(MasterDAO):
             result.append(row)
         return result
 
-    def followEvent(self, uid, eid):
+    def setInteraction(self, uid, eid, itype):
         """
          Create an eventuserinteraction entry for the defined user and event
-         that states only that the user is now following said event. If an entry
-         for the user/event key pair exists, update the itype field to 'following'
+         that sets the interaction type to the one provided, and recommended as "N". If an entry
+         for the user/event key pair exists, update the itype field.
         Parameters:
             uid: User ID,
             eid: Event ID
+            itype: interaction Type string
         Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+            List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
-                        "VALUES ('following', 'N', %s, %s) "
+                        "VALUES (%s, 'N', %s, %s) "
                         "on CONFLICT({conflict_keys}) do "
-                        "update set {ukey1}='following' "
+                        "update set {ukey1}= %s "
                         "returning {conflict_keys}").format(
             insert_fields=sql.SQL(',').join([
                 sql.Identifier('itype'),
@@ -320,7 +321,7 @@ class EventDAO(MasterDAO):
             table1=sql.Identifier('eventuserinteractions'),
             ukey1=sql.Identifier('itype'))
         try:
-            cursor.execute(query, (int(uid), int(eid)))
+            cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
             result = cursor.fetchone()
         except errors.ForeignKeyViolation as e:
             result = e

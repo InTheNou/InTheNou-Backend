@@ -186,17 +186,18 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def followEvent(self, uid, eid):
-        """Set an eventuserinteractions entry that states the user is following
+    def setInteraction(self, uid, eid, itype):
+        """Set an eventuserinteractions entry that states the user has interacted with
         the specified event.
         Parameters:
             uid: User ID
             eid: Event ID.
+            itype: type of interaction string.
         Return:
             JSON Response Object: JSON containing successful post response.
                 """
         dao = EventDAO()
-        uid_eid_pair = dao.followEvent(uid=uid, eid=eid)
+        uid_eid_pair = dao.setInteraction(uid=uid, eid=eid, itype=itype)
         # TODO: Consider a better way to do this error handling.
         try:
             return jsonify({"uid": uid_eid_pair[0],
