@@ -191,3 +191,54 @@ class EventDAO(MasterDAO):
         for row in cursor:
             result.append(row)
         return result
+
+    def getPastFollowedEventsSegmented(self, uid, offset, limit):
+        """
+         Query Database for events that the user followed,
+            and have ended, ordered by closest start date, offset by
+            a set number of rows, returning a limited number of rows after offset.
+        Parameters:
+            uid: User ID,
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "natural join {table3} "
+                        "where {pkey1} < CURRENT_TIMESTAMP "
+                        "and {pkey2}=%s and {pkey3} = %s "
+                        "order by {table1Identifier2} desc "
+                        "offset %s "
+                        "limit %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate'),
+                sql.Identifier('photourl'),
+                sql.Identifier('recommendstatus')
+            ]),
+            table1=sql.Identifier('events'),
+            table2=sql.Identifier('photos'),
+            table3=sql.Identifier('eventuserinteractions'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'),
+            pkey1=sql.Identifier('eend'),
+            pkey2=sql.Identifier('uid'),
+            pkey3=sql.Identifier('itype'),
+            table1Identifier2=sql.Identifier('estart'))
+        cursor.execute(query, (int(uid), 'following', int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
