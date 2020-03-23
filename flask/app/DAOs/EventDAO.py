@@ -39,46 +39,53 @@ class EventDAO(MasterDAO):
         return result
 
     # TODO: add UID to this, to return interaction info.
-    def getUpcomingGeneralEventsSegmented(self, offset, limit):
+    def getUpcomingGeneralEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that are active, that have not ended,
             ordered by closest start date, offset by a set number of rows,
              returning a limited number of rows after offset.
         Parameters:
+            uid: user ID.
             offset: Number of rows to ignore from top results.
             limit: Maximum number of rows to return from query results.
         Returns:
             List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table1} "
-                        "left outer join {table2} "
-                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
-                        "where {pkey1}= %s and {pkey2} > CURRENT_TIMESTAMP "
-                        "order by {table1Identifier2}"
-                        "offset %s"
-                        "limit %s;").format(
+        query = sql.SQL("select {fields} from ("
+                        "(select * from events "
+                        "where estatus='active' and eend>CURRENT_TIMESTAMP "
+                        "and eid not in("
+                        "select eid from eventuserinteractions "
+                        "where uid=%s and itype='dismissed')) "
+                        "as uevents	"
+                        "left outer join photos "
+                        "on uevents.photoid = photos.photoid) "
+                        "as undismissed_events "
+                        "left outer join ("
+                        "select * from eventuserinteractions "
+                        "where uid=%s) "
+                        "as users_interactions "
+                        "on undismissed_events.eid = users_interactions.eid "
+                        "order by estart "
+                        "offset %s "
+                        "limit %s").format(
             fields=sql.SQL(',').join([
-                sql.Identifier('eid'),
-                sql.Identifier('ecreator'),
-                sql.Identifier('roomid'),
-                sql.Identifier('etitle'),
-                sql.Identifier('edescription'),
-                sql.Identifier('estart'),
-                sql.Identifier('eend'),
-                sql.Identifier('ecreation'),
-                sql.Identifier('estatus'),
-                sql.Identifier('estatusdate'),
-                sql.Identifier('photourl')
-            ]),
-            table1=sql.Identifier('events'),
-            table2=sql.Identifier('photos'),
-            table1Identifier=sql.Identifier('photoid'),
-            table2Identifier=sql.Identifier('photoid'),
-            pkey1=sql.Identifier('estatus'),
-            pkey2=sql.Identifier('eend'),
-            table1Identifier2=sql.Identifier('estart'))
-        cursor.execute(query, ('active', int(offset), int(limit)))
+                sql.Identifier("undismissed_events", 'eid'),
+                sql.Identifier("undismissed_events", 'ecreator'),
+                sql.Identifier("undismissed_events", 'roomid'),
+                sql.Identifier("undismissed_events", 'etitle'),
+                sql.Identifier("undismissed_events", 'edescription'),
+                sql.Identifier("undismissed_events", 'estart'),
+                sql.Identifier("undismissed_events", 'eend'),
+                sql.Identifier("undismissed_events", 'ecreation'),
+                sql.Identifier("undismissed_events", 'estatus'),
+                sql.Identifier("undismissed_events", 'estatusdate'),
+                sql.Identifier("undismissed_events", 'photourl'),
+                sql.Identifier("users_interactions", 'itype'),
+                sql.Identifier("users_interactions", 'recommendstatus')
+            ]))
+        cursor.execute(query, (int(uid), int(uid), int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)

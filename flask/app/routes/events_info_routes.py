@@ -18,15 +18,12 @@ def getEventByID(eid):
 
 
 # Automated test not set up
-# UID not currently used by this route.
 @app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingGeneralEventsSegmented(uid, offset, limit):
-    if request.method == 'GET': return EventHandler().getUpcomingGeneralEventsSegmented(offset=offset, limit=limit)
+    if request.method == 'GET': return EventHandler().getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
-# UID not currently used by this route.
 @app.route("/App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingFollowedEventsSegmented(uid, offset, limit):
     if request.method == 'GET': return EventHandler().getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
@@ -39,7 +36,7 @@ def getRoomByID(rid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up.
+# TODO: Sort rooms by rcode or rid.
 @app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 def getRoomsByBuildingAndFloor(bid, rfloor):
     if request.method == 'GET': return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)

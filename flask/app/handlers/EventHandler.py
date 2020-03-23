@@ -68,22 +68,30 @@ class EventHandler:
             response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
 
-    def getUpcomingGeneralEventsSegmented(self, offset, limit=10):
+    def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=10):
         """Return the upcoming, active event entries specified by offset and limit parameters.
         Parameters:
+            uid: User ID
             offset: Number of result rows to ignore from top of query results.
             limit: Max number of result rows to return. Default=10.
         Return:
             JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                 """
         dao = EventDAO()
-        events = dao.getUpcomingGeneralEventsSegmented(offset=offset, limit=limit)
+        events = dao.getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
+            print(events)
             event_list = []
             for row in events:
-                event_list.append(_buildCoreEventResponse(event_tuple=row))
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                # TODO: Consider reworking generalEventsSegmented and builder.
+                event_entry['interaction'] = {
+                    "itype": row[11],
+                    "recommendstatus": row[12]
+                }
+                event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
 
