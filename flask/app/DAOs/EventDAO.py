@@ -323,6 +323,7 @@ class EventDAO(MasterDAO):
         try:
             cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
             result = cursor.fetchone()
+            self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e
         return result
