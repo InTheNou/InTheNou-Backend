@@ -1,15 +1,18 @@
-from flask import flash
+from functools import wraps
+from flask import g,flash,redirect ,url_for,flash, render_template,session
 from flask_login import current_user, login_user
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer import oauth_authorized, oauth_error
 from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 from sqlalchemy.orm.exc import NoResultFound
 from .models import db, User
+from app.handlers.UserHandler import UserHandler
+
 
 #FLASK-DANCE setup, need to fix offline setting so that we can refresh sessions if user token expires
 blueprint = make_google_blueprint(
     scope=["profile", "email"],
-    storage=SQLAlchemyStorage(User, db.session, user=current_user),
+    storage=SQLAlchemyStorage(User, db.session,user_required=False, user=current_user),
     offline=True
 )
 
@@ -28,15 +31,16 @@ def google_logged_in(blueprint, token):
         return False
     #Decrypt JSON token from Google oAuth 
     info = resp.json()
-    print (info)
-    user_id = info["id"]
+    
+    
+    user_usub = info["id"]
     # Find this google id in the database, or create it
-    query = User.query.filter_by( provider_user_id=user_id)
+    query = User.query.filter_by( provider=user_usub)
     try:
         user = query.one()
     #user was not found in the database
     except NoResultFound:
-        user = User(provider_user_id=user_id)
+        user = User(provider=user_usub)
     #user was found in the database
     if user.id:
         login_user(user)
@@ -45,12 +49,13 @@ def google_logged_in(blueprint, token):
     else:
         user = User(
           email=info["email"],
-          provider_user_id=info["id"],
+          provider=user_usub,
           first_name=info["given_name"],
           last_name=info["family_name"],
           user_type="Student",
           user_role= int(1),
-          role_issuer=int(1)
+          role_issuer=int(1),
+          
           )
        
         # Save and commit our database models
@@ -59,9 +64,9 @@ def google_logged_in(blueprint, token):
         # Log in the new local user account
         login_user(user)
         flash("Successfully signed in.")
-
-    # Disable Flask-Dance's default behavior for saving the OAuth token
-    return False
+        
+    
+    return UserHandler().getUserByID(int(user.id))
 
 
 # notify on OAuth provider error
@@ -71,3 +76,36 @@ def google_error(blueprint, message, response):
         name=blueprint.name, message=message, response=response
     )
     flash(msg, category="error")
+
+def admin_role_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if current_user.user_role == 4:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to be an admin for this action.")
+            return redirect(url_for('app_home'))
+
+    return wrap
+       
+def mod_role_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if current_user.user_role >= 3:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to be a moderator for this action.")
+            return redirect(url_for('app_home'))
+
+    return wrap    
+
+def event_creator_role_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if current_user.user_role >= 2:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to be a event creator for this action.")
+            return redirect(url_for('app_home'))
+
+    return wrap 

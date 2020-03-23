@@ -13,7 +13,7 @@
   {% endif %}
 {% endwith %}
 {% if current_user.is_authenticated %}
-  You are logged in as {{ current_user.email }}!
+{{ current_user.id }} is logged in as {{ current_user.email }} !
   <a href="{{ url_for("logout") }}">Log out</a>
 {% else %}
   You are not logged in.

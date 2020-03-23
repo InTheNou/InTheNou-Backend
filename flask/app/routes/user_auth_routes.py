@@ -1,5 +1,6 @@
 from app import app
 from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.consumer.requests import OAuth1Session
 from flask import Flask , redirect ,url_for,flash, render_template,session
 from flask_login import login_required, logout_user
 
@@ -11,11 +12,25 @@ from flask_login import login_required, logout_user
 def logout():
     logout_user()
     flash("You have logged out")
-    return redirect(url_for("index"))
+    return redirect(url_for("app_home"))
+
+@app.route("/App/login")
+# @authorization_required
+def app_login():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    return render_template("home.html")
+
+
+# @app.route("/")
+# @login_required
+# def index():
+#     return render_template("home.html")
+
 
 #home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
-@app.route("/")
-def index():
+@app.route("/App/home")
+def app_home():
     return render_template("home.html")
 
 
