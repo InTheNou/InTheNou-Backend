@@ -45,6 +45,7 @@ def setRecommendation(eid, uid, recommendstatus):
 
 # TODO: use UID to verify user's permission to delete an event.
 # TODO: Make estatus pass parameters via JSON
+# Automated test not set up
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Delete", methods=['POST'])
 def setEventStatus(eid, uid):
     if request.method == 'POST': return EventHandler().setEventStatus(eid=eid, uid=uid, estatus='deleted')
