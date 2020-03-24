@@ -43,6 +43,8 @@ def google_logged_in(blueprint, token):
         user = User(provider=user_usub)
     #user was found in the database
     if user.id:
+        
+        
         login_user(user)
         flash("Successfully signed in.")
     # Create a new local user account for this user, "hardcoded type,role and role issuer attributes"
@@ -62,6 +64,8 @@ def google_logged_in(blueprint, token):
         db.session.add_all([user])
         db.session.commit()
         # Log in the new local user account
+        
+      
         login_user(user)
         flash("Successfully signed in.")
         

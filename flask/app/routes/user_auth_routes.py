@@ -54,3 +54,15 @@ def app_home():
 # @app.route ("/logged")
 # def logged():
 #         return "You have been taken here, after the googe log in !!!"
+
+
+################## DASHBOARD ROUTES ######################
+
+
+@app.route("/Dashboard/login")
+def dashboard_login():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    return render_template("home.html")
+
+    

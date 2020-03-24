@@ -37,3 +37,5 @@ login_manager.login_view = "google.login"
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+

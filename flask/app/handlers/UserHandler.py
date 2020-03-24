@@ -23,6 +23,25 @@ def _buildUserResponse(user_tuple):
 
     return response
 
+def _buildDelegatedUserResponse(user_tuple):
+    """
+    Private Method to build user dictionary to be JSONified.
+    Parameters:
+        user_tuple: response tuple from SQL query
+    Returns:
+        Dict: Delegated User information
+    """
+    response = {}
+    
+    
+  
+    response['user_id']       = user_tuple[4]
+    response['user_email']    = user_tuple[3]
+    response['user_type']     = user_tuple[2]
+    response['issuer_email']  = user_tuple[1]
+    response['issuer_type']   = user_tuple[0]
+    return response
+
 
 class UserHandler:
 
@@ -36,4 +55,18 @@ class UserHandler:
             return jsonify(Error='User does not exist: uid=' + str(uid)), 404
         else:
             response = _buildUserResponse(user_tuple=user)
+            return jsonify(response)
+    
+
+    def getUsersDelegatedByID(self, id):
+
+        dao = UserDAO()
+        users =dao.getUsersDelegatedByID(id)
+        if not users:
+            return jsonify(Error='User does has not delegated any users' + str(id)), 405
+        else:
+            user_list = []
+            for row in users:
+                user_list.append(_buildDelegatedUserResponse(user_tuple=row))
+            response = {"Users":user_list}
             return jsonify(response)
