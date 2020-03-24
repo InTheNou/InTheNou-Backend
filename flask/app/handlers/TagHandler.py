@@ -61,6 +61,14 @@ class TagHandler:
                 return response
             return jsonify(response)
 
+    def safeGetTagsByEventID(self, eid):
+        tags = self.getTagsByEventID(eid=eid, no_json=True)["tags"]
+        # Following line checks if the above returns a json (no tags found or no_json set to False.
+        if not isinstance(tags, list):
+            tags = str(tags)
+        return tags
+
+    # TODO: Add safe version of this method when needed.
     def getTagsByUserID(self, uid, no_json=False):
         """
         Return the tag entries belonging to a user specified by their uid.
