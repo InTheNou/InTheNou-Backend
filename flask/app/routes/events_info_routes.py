@@ -35,6 +35,14 @@ def dismissEvent(eid, uid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: Make recommendstatus pass parameters via JSON
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
+def setRecommendation(eid, uid, recommendstatus):
+    if request.method == 'POST': return EventHandler().setRecommendation(eid=eid, uid=uid,
+                                                                         recommendstatus=recommendstatus)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # Automated test not set up
 @app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingGeneralEventsSegmented(uid, offset, limit):

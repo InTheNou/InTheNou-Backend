@@ -205,3 +205,24 @@ class EventHandler:
         except TypeError:
             return jsonify(Error=str(uid_eid_pair)), 400
 
+    def setRecommendation(self, uid, eid, recommendstatus):
+        """Set an eventuserinteractions entry that states if the specified event
+        has been recommended to the user or not.
+        Parameters:
+            uid: User ID
+            eid: Event ID.
+            recommendstatus: qualitative result of recommendation calculation.
+        Return:
+            JSON Response Object: JSON containing successful post response.
+                """
+        if recommendstatus == 'R' or recommendstatus == 'N':
+            dao = EventDAO()
+            uid_eid_pair = dao.setRecommendation(uid=uid, eid=eid, recommendstatus=recommendstatus)
+            # TODO: Consider a better way to do this error handling.
+            try:
+                return jsonify({"uid": uid_eid_pair[0],
+                                "eid": uid_eid_pair[1]}), 201
+            except TypeError:
+                return jsonify(Error=str(uid_eid_pair)), 400
+        return jsonify(Error='Invalid recommendstatus = ' + str(recommendstatus)), 400
+

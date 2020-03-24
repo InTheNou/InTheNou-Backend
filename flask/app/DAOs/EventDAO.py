@@ -327,3 +327,42 @@ class EventDAO(MasterDAO):
         except errors.ForeignKeyViolation as e:
             result = e
         return result
+
+    def setRecommendation(self, uid, eid, recommendstatus):
+        """
+         Create an eventuserinteraction entry for the defined user and event
+         that sets the recommendstatus to the one provided, and itype as "none". If an entry
+         for the user/event key pair exists, update the itype field.
+        Parameters:
+            uid: User ID,
+            eid: Event ID
+            recommendstatus: Char that states if the event is recommended or not.
+        Returns:
+            List[Tuple]: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("insert into {table1} "
+                        "({insert_fields}) "
+                        "VALUES ('none', %s, %s, %s) "
+                        "on CONFLICT({conflict_keys}) do "
+                        "update set {ukey1}= %s "
+                        "returning {conflict_keys}").format(
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('itype'),
+                sql.Identifier('recommendstatus'),
+                sql.Identifier('uid'),
+                sql.Identifier('eid')
+            ]),
+            conflict_keys=sql.SQL(',').join([
+                sql.Identifier('uid'),
+                sql.Identifier('eid')
+            ]),
+            table1=sql.Identifier('eventuserinteractions'),
+            ukey1=sql.Identifier('recommendstatus'))
+        try:
+            cursor.execute(query, (str(recommendstatus), int(uid), int(eid), str(recommendstatus)))
+            result = cursor.fetchone()
+            self.conn.commit()
+        except errors.ForeignKeyViolation as e:
+            result = e
+        return result
