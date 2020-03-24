@@ -78,7 +78,10 @@ Create table Services( sid serial primary key,
                        isDeleted boolean NOT NULL,
                        CONSTRAINT unique_room_services UNIQUE(rid, sName));
             
-/* Create Phones */            
+/* Create Phones */
+/* pnumber format: XXX-XXX-XXX | XXX-XXX-XXX,XXX
+   pType: E-Extension, F-Fax, L-Landline, M-Mobile
+ */
 Create table Phones( phoneID serial primary key,
                      pNumber text NOT NULL UNIQUE CHECK (pNumber <> ''),
                      pType char(1) NOT NULL,
@@ -124,7 +127,8 @@ Create table EventWebsites( eid integer references Events(eid) NOT NULL,
                             wid integer references Websites(wid) NOT NULL,
                             primary key (eid,wid));
 
-/* Relate Events with Users through interactions other than creation/deletion. */               
+/* Relate Events with Users through interactions other than creation/deletion. */
+/* Current iTypes: 'following', 'unfollowing', 'dismissed' */
 Create table EventUserInteractions(iType text NOT NULL CHECK (iType <> ''),
                                    recommendStatus char(1) NOT NULL,
                                    uid int references Users(uid) NOT NULL,
