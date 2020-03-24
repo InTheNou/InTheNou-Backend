@@ -249,3 +249,21 @@ class EventHandler:
                 return jsonify(Error=str(uid_eid_pair)), 400
         return jsonify(Error='Invalid recommendstatus = ' + str(recommendstatus)), 400
 
+    def setEventStatus(self, uid, eid, estatus):
+        """Set the estatus of an event entry to the specified value.
+        Parameters:
+            uid: User ID
+            eid: Event ID.
+            estatus: status string.
+        Return:
+            JSON Response Object: JSON containing successful post response.
+                """
+        if estatus == 'active' or estatus == 'deleted':
+            dao = EventDAO()
+            uid_eid_pair = dao.setEventStatus(uid=uid, eid=eid, estatus=estatus)
+            # TODO: Consider a better way to do this error handling.
+            try:
+                return jsonify({"eid": uid_eid_pair[0]}), 201
+            except TypeError:
+                return jsonify(Error=str(uid_eid_pair)), 400
+        return jsonify(Error='Unsupported event status = ' + str(estatus)), 400

@@ -419,3 +419,30 @@ class EventDAO(MasterDAO):
         except errors.ForeignKeyViolation as e:
             result = e
         return result
+
+    # TODO: consider if the user has privileges to execute this.
+    def setEventStatus(self, uid, eid, estatus):
+        """
+         Sets the estatus for a given event.
+        Parameters:
+            uid: User ID,
+            eid: Event ID
+            estatus: string that indicates the event's status.
+        Returns:
+            List[Tuple]: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("update {table1} "
+                        "set {ukey1} = %s "
+                        "where {pkey1}= %s "
+                        "returning {pkey1}").format(
+            table1=sql.Identifier('events'),
+            ukey1=sql.Identifier('estatus'),
+            pkey1=sql.Identifier('eid'))
+        try:
+            cursor.execute(query, (str(estatus), int(eid)))
+            result = cursor.fetchone()
+            self.conn.commit()
+        except errors.ForeignKeyViolation as e:
+            result = e
+        return result

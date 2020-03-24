@@ -43,6 +43,14 @@ def setRecommendation(eid, uid, recommendstatus):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: use UID to verify user's permission to delete an event.
+# TODO: Make estatus pass parameters via JSON
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Delete", methods=['POST'])
+def setEventStatus(eid, uid):
+    if request.method == 'POST': return EventHandler().setEventStatus(eid=eid, uid=uid, estatus='deleted')
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # Automated test not set up
 @app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingGeneralEventsSegmented(uid, offset, limit):
