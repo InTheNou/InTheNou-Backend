@@ -7,7 +7,7 @@ from flask_login import login_required, logout_user
 
 
 #route used to logout user, must be logged in to access
-@app.route("/logout")
+@app.route("/App/logout")
 @login_required
 def logout():
     logout_user()
@@ -15,7 +15,6 @@ def logout():
     return redirect(url_for("app_home"))
 
 @app.route("/App/login")
-# @authorization_required
 def app_login():
     if not google.authorized:
         return redirect(url_for("google.login"))
@@ -65,4 +64,13 @@ def dashboard_login():
         return redirect(url_for("google.login"))
     return render_template("home.html")
 
-    
+@app.route("/Dashboard/logout")
+@login_required
+def dashboard_logout():
+    logout_user()
+    flash("You have logged out")
+    return redirect(url_for("dashboard_home"))
+
+@app.route("/Dashboard/home")
+def dashboard_home():
+    return render_template("home.html")

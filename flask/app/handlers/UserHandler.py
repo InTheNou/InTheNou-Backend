@@ -35,11 +35,12 @@ def _buildDelegatedUserResponse(user_tuple):
     
     
   
-    response['user_id']       = user_tuple[4]
-    response['user_email']    = user_tuple[3]
-    response['user_type']     = user_tuple[2]
+    response['user_id']       = user_tuple[5]
+    response['user_email']    = user_tuple[4]
+    response['user_type']     = user_tuple[3]
     response['issuer_email']  = user_tuple[1]
     response['issuer_type']   = user_tuple[0]
+    response['issuer_id']      = user_tuple[2]
     return response
 
 
@@ -64,6 +65,19 @@ class UserHandler:
         users =dao.getUsersDelegatedByID(id)
         if not users:
             return jsonify(Error='User does has not delegated any users' + str(id)), 405
+        else:
+            user_list = []
+            for row in users:
+                user_list.append(_buildDelegatedUserResponse(user_tuple=row))
+            response = {"Users":user_list}
+            return jsonify(response)
+
+    def getUsersAndIssuersSegmented(self,offset,limit):
+
+        dao =UserDAO()
+        users = dao.getUsersAndIssuersSegmented(offset=offset,limit = limit)
+        if not users:
+            response = {'users': None}
         else:
             user_list = []
             for row in users:
