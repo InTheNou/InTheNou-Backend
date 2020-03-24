@@ -18,9 +18,10 @@ def getUserByID(uid):
 
 
 
+
 @app.route("/Dashboard/Users/Delegated",methods =['GET'])
 #@login_required
-#@mod_role_required
+#@admin_role_required
 def getDelegatedUserByID():
     if request.method == 'GET' : return UserHandler().getUsersDelegatedByID(int(current_user.id))
     else:return jsonify(Error ='Method not allowed.'),405
@@ -29,6 +30,14 @@ def getDelegatedUserByID():
 @app.route("/Dashboard/Users/Permissions/offset=<int:offset>/limit=<int:limit>",methods =['GET'])
 #@login_required
 #@mod_role_required
-def geUserAndIssuersSegmented(offset,limit):
+def geUsersAndIssuersSegmented(offset,limit):
     if request.method == 'GET' : return UserHandler().getUsersAndIssuersSegmented(offset=offset,limit=limit)
+    else:return jsonify(Error = 'Method not allowed.'),405
+
+
+@app.route("/Dashboard/Users/offset=<int:offset>/limit=<int:limit>",methods =['GET'])
+#@login_required
+#@admin_role_required
+def geUsersSegmented(offset,limit):
+    if request.method == 'GET' : return UserHandler().getUsersSegmented(offset=offset,limit=limit)
     else:return jsonify(Error = 'Method not allowed.'),405

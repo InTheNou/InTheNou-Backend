@@ -19,7 +19,7 @@ def _buildUserResponse(user_tuple):
     response['first_name'] = user_tuple[2]
     response['last_name']  = user_tuple[3]
     response['type']       = user_tuple[4]
-    response['roleid']     = user_tuple[5]
+    # response['roleid']     = user_tuple[5]
 
     return response
 
@@ -82,5 +82,19 @@ class UserHandler:
             user_list = []
             for row in users:
                 user_list.append(_buildDelegatedUserResponse(user_tuple=row))
+            response = {"Users":user_list}
+            return jsonify(response)
+
+     
+    def getUsersSegmented(self,offset,limit):
+
+        dao =UserDAO()
+        users = dao.getUsersSegmented(offset=offset,limit = limit)
+        if not users:
+            response = {'users': None}
+        else:
+            user_list = []
+            for row in users:
+                user_list.append(_buildUserResponse(user_tuple=row))
             response = {"Users":user_list}
             return jsonify(response)
