@@ -258,9 +258,11 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing successful post response.
                 """
+        # TODO: During integration, add user verification from Diego's Handlers.
+        # if userCanModifyEvent(uid, eid)
         if estatus == 'active' or estatus == 'deleted':
             dao = EventDAO()
-            uid_eid_pair = dao.setEventStatus(uid=uid, eid=eid, estatus=estatus)
+            uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus)
             # TODO: Consider a better way to do this error handling.
             try:
                 return jsonify({"eid": uid_eid_pair[0]}), 201

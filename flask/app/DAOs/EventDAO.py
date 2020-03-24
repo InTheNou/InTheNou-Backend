@@ -420,12 +420,10 @@ class EventDAO(MasterDAO):
             result = e
         return result
 
-    # TODO: consider if the user has privileges to execute this.
-    def setEventStatus(self, uid, eid, estatus):
+    def setEventStatus(self, eid, estatus):
         """
          Sets the estatus for a given event.
         Parameters:
-            uid: User ID,
             eid: Event ID
             estatus: string that indicates the event's status.
         Returns:

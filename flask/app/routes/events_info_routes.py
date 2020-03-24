@@ -8,8 +8,9 @@ from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
 
 
-# TODO: MODIFY ROUTES TO MATCH PRE-ESTABISHED API ONCE FUNCTIONAL
-# TODO: Add event-related info about related tables once DAOs/Handlers implemented.
+# TODO: Add Event Creator information to event routes during integration.
+# TODO: Change parameter passing from URI to URI + JSON + Session during integration.
+# NOTE: all personal uid's will be sent via sessions, or json during integration.
 # Automated test not set up
 @app.route("/App/Events/eid=<int:eid>", methods=['GET'])
 def getEventByID(eid):
@@ -46,9 +47,9 @@ def setRecommendation(eid, uid, recommendstatus):
 # TODO: use UID to verify user's permission to delete an event.
 # TODO: Make estatus pass parameters via JSON
 # Automated test not set up
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Delete", methods=['POST'])
-def setEventStatus(eid, uid):
-    if request.method == 'POST': return EventHandler().setEventStatus(eid=eid, uid=uid, estatus='deleted')
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>", methods=['POST'])
+def setEventStatus(eid, uid, estatus):
+    if request.method == 'POST': return EventHandler().setEventStatus(eid=eid, uid=uid, estatus=estatus)
     else: return jsonify(Error="Method not allowed."), 405
 
 
