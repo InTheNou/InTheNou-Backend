@@ -39,7 +39,6 @@ class EventDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
-    # TODO: add UID to this, to return interaction info.
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that are active, that have not ended,
@@ -161,7 +160,7 @@ class EventDAO(MasterDAO):
                         "left outer join {table2} "
                         "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
                         "natural join {table3} "
-                        "where {pkey1}= %s and {pkey2} = %s "
+                        "where {pkey1}= %s and {pkey2} = %s and {pkey3} <> %s"
                         "order by {table1Identifier2} desc "
                         "offset %s "
                         "limit %s;").format(
@@ -186,8 +185,9 @@ class EventDAO(MasterDAO):
             table2Identifier=sql.Identifier('photoid'),
             pkey1=sql.Identifier('uid'),
             pkey2=sql.Identifier('itype'),
+            pkey3=sql.Identifier('estatus'),
             table1Identifier2=sql.Identifier('estart'))
-        cursor.execute(query, (int(uid), 'dismissed', int(offset), int(limit)))
+        cursor.execute(query, (int(uid), 'dismissed', 'deleted', int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
