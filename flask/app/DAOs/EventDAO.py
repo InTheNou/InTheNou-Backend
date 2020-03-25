@@ -1,4 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.TagDAO  import TagDAO
 from psycopg2 import sql, errors
 
 
@@ -420,12 +421,10 @@ class EventDAO(MasterDAO):
             result = e
         return result
 
-    # TODO: consider if the user has privileges to execute this.
-    def setEventStatus(self, uid, eid, estatus):
+    def setEventStatus(self, eid, estatus):
         """
          Sets the estatus for a given event.
         Parameters:
-            uid: User ID,
             eid: Event ID
             estatus: string that indicates the event's status.
         Returns:
@@ -446,3 +445,133 @@ class EventDAO(MasterDAO):
         except errors.ForeignKeyViolation as e:
             result = e
         return result
+
+    def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, photourl, tags, websites):
+        """
+        Create an Event from the information provided.
+        Parameters:
+            ecreator: the event creator's UID.
+            roomid: the rid of the room in which the event will take place.
+            etitle: the event's title string.
+            edescription: the event's description string.
+            estart: the event's start timestamp
+            eend: the event's end timestamp which must be greater than the start timestamp
+            photourl: a url of a photo to be related to the event. Can be empty.
+            tags: a list of tag IDs to relate to the event. Should be between 3-10 tags.
+            websites: a list dictionaries that hold url and wdescription values.
+        Return:
+            Tuple: SQL result of Query as a tuple.
+        """
+        print(ecreator, roomid, etitle, edescription, estart, eend, photourl, tags, websites)
+        photoid = self.insertPhoto(photourl=photourl)
+        print(str(photoid))
+        # Theoretically, you've inserted the photo here, or photoid is None.
+        cursor = self.conn.cursor()
+        query = sql.SQL("insert into {table1} ({insert_fields})"
+                        "values (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s) "
+                        "returning {pkey1}").format(
+            table1=sql.Identifier('events'),
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate'),
+                sql.Identifier('photoid')
+            ]),
+            pkey1=sql.Identifier('eid'))
+        cursor.execute(query, (int(ecreator), int(roomid), str(etitle), str(edescription),
+                               str(estart), str(eend), 'active', None, photoid[0]))
+        result = cursor.fetchone()
+        eid = result[0]
+        print(eid)
+        # TODO: Figure out how to tag events without commiting event in case of failure.
+        self.conn.commit()
+        TagDAO().tagEvent(eid=eid, tags=tags)
+
+        self.addWebsitesToEvent(eid=eid, websites=websites)
+        self.conn.commit()
+        return [eid, ]
+
+    def insertPhoto(self, photourl):
+        """
+        Attempt to insert a photo's url into the photos table. DOES NOT COMMIT CHANGES.
+        Parameters:
+            photourl: a non-empty string or None
+        Returns:
+            Tuple: the photoID of the photo in the Photos table, as an SQL result
+        """
+        if photourl is not None or photourl != "":
+            cursor = self.conn.cursor()
+            query = sql.SQL("insert into {table1} "
+                            "({insert_field})"
+                            "values (%s) "
+                            "returning {pkey1}").format(
+                table1=sql.Identifier('photos'),
+                insert_field=sql.Identifier('photourl'),
+                pkey1=sql.Identifier('photoid'))
+            cursor.execute(query, (str(photourl),))
+            result = cursor.fetchone()
+            # TODO: figure out how to commit at end of all inserts.
+            self.conn.commit()
+        else:
+            result = [None, None]
+        return result
+
+    def addWebsitesToEvent(self, eid, websites):
+        """
+        Relates the websites to the event. DOES NOT COMMIT CHANGES TO
+        DB.
+        Parameters:
+            eid: newly created Event ID.
+            tags: list of integer tag IDs
+        """
+        cursor = self.conn.cursor()
+        # TODO: INSERT WEBSITES FIRST, build list of wid
+        for site in websites:
+            wid = self.insertWebsite(url=site['url'], wdescription=site['wdescription'])[0]
+            query = sql.SQL("insert into {table1} "
+                            "({insert_fields}) "
+                            "values (%s, %s);").format(
+                table1=sql.Identifier('eventwebsites'),
+                insert_fields=sql.SQL(',').join([
+                    sql.Identifier('eid'),
+                    sql.Identifier('wid')
+                ]))
+            cursor.execute(query, (int(eid), int(wid)))
+            # TODO: FIGURe out how to commit at end of inserts.
+            self.conn.commit()
+        return
+
+    def insertWebsite(self, url, wdescription):
+        """Inserts a website into the website table
+        Parameters:
+            url: the url for the website
+            wdescription: a description for the website
+        Returns:
+            wid: website ID
+            """
+        cursor = self.conn.cursor()
+        query = sql.SQL("insert into {table1} "
+                        "({insert_fields}) "
+                        "values (%s, %s, %s) "
+                        "on CONFLICT (url) do update "
+                        "set url=%s"
+                        "returning wid;").format(
+            table1=sql.Identifier('websites'),
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('url'),
+                sql.Identifier('wdescription'),
+                sql.Identifier('isdeleted')
+            ]))
+        cursor.execute(query, (str(url), wdescription, False, str(url)))
+        result = cursor.fetchone()
+        # TODO: FIGURe out how to commit at end of inserts.
+        self.conn.commit()
+        return result
+
+
