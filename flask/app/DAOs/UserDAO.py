@@ -29,10 +29,35 @@ class UserDAO(MasterDAO):
         return result
 
 
+    def getUsersThatCanModifyEvent(self,eid):
+        """
+        Query Database for a User's who can modify the givven event, these are the event creator, the event creator's 
+        Paramenters:
+            uid: user ID
+        Returns:
+            Tuple: SQL result of Query as tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select distinct {users} from ({users_roles_info}) where {pkey} = %s) as users_that_can_modify on issuer=u2.uid or  userid=u2.uid "
+                        ).format(
+            users=sql.SQL(',').join([
+                sql.Identifier('u2.uid')
+            ]),
+            users_roles_info=sql.SQL(
+                                "users u2 join (select e1.ecreator as userid,roleissuer as issuer from events e1 "
+                                "join users on ((roleissuer= users.uid or ecreator=users.uid or users.roleid =4) and users.roleid>1) "
+                                ),
+            pkey=sql.Identifier('e1.eid'))
+        cursor.execute(query, (eid,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
 
     def getUsersDelegatedByID(self,id):
         """
-        Query Database for a User's information bout who he has assigned roles to 
+        Query Database for a User's information about who he has assigned roles to 
         Paramenters:
             uid: user ID
         Returns:

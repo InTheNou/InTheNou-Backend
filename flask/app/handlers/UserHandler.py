@@ -40,11 +40,12 @@ def _buildDelegatedUserResponse(user_tuple):
     response['user_type']     = user_tuple[3]
     response['issuer_email']  = user_tuple[1]
     response['issuer_type']   = user_tuple[0]
-    response['issuer_id']      = user_tuple[2]
+    response['issuer_id']     = user_tuple[2]
     return response
 
 def _buildUserNumberResponse(user_tuple):
-    """
+    """Return the amount of users with a given roleid
+    roleid -- Role ID
     """
     response = {}
 
@@ -105,6 +106,21 @@ class UserHandler:
             for row in users:
                 user_list.append(_buildUserResponse(user_tuple=row))
             response = {"Users":user_list}
+            return jsonify(response)
+    
+    def getUsersThatCanModify(self,eid,no_json=False):
+
+        dao =UserDAO()
+        users = dao.getUsersThatCanModifyEvent(eid=eid)
+        if not users:
+            response = {'users': None}
+        else:
+            user_list = []
+            for row in users:
+                user_list.append(_buildUserResponse(user_tuple=row))
+            response = {"Users":user_list}
+            if no_json:
+                return response
             return jsonify(response)
 
     def getNumberOfUsersByRole(self,roleid):
