@@ -455,19 +455,19 @@ class EventDAO(MasterDAO):
             etitle: the event's title string.
             edescription: the event's description string.
             estart: the event's start timestamp
-            eend: the event's end timestamp which must be greater than the start timestamp
-            photoid: the ID of a photo to be related to the event. Can be empty.
+            eend: the event's end timestamp which must be greater than the start timestamp.
+            tags: a list of integers corresponding to tag IDs
+            photourl:the url of a photo to be related to the event. Can be empty.
+            websites: a list of dictionaries containing website urls and wdescriptions. can be empty.
         Return:
             Tuple: SQL result of Query as a tuple.
         """
-        # Todo: Remove test prints when done.
-        # print(ecreator, roomid, etitle, edescription, estart, eend, photoid)
-        # Theoretically, you've inserted the photo here, or photoid is None.
         cursor = self.conn.cursor()
+
+        # Insert photo into table if it does not exist, then get the photoid.
         photoid = self.insertPhoto(photourl=photourl, cursor=cursor)[0]
 
-
-
+        # Build the query to create an event entry.
         query = sql.SQL("insert into {table1} ({insert_fields})"
                         "values (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s) "
                         "returning {pkey1}").format(
@@ -485,36 +485,45 @@ class EventDAO(MasterDAO):
                 sql.Identifier('photoid')
             ]),
             pkey1=sql.Identifier('eid'))
-        # try:
-        cursor.execute(query, (int(ecreator), int(roomid), str(etitle), str(edescription),
-                               str(estart), str(eend), 'active', None, photoid))
-        result = cursor.fetchone()
-        eid = result[0]
 
-        # TODO: Figure out how to tag events without commiting event in case of failure.
-        # self.conn.commit()
+        # Try to insert the event into the database, catch if any event is duplicated.
+        try:
+            cursor.execute(query, (int(ecreator), int(roomid), str(etitle), str(edescription),
+                                   str(estart), str(eend), 'active', None, photoid))
+            result = cursor.fetchone()
+            eid = result[0]
+        except errors.UniqueViolation as unique_error:
+            return unique_error
 
-        for tag in tags:
-            TagDAO().tagEvent(eid=eid, tid=tag, cursor=cursor)
+        # Once the event is created, tag it with the list of tags provided. Catch any bad tags.
+        try:
+            for tag in tags:
+                TagDAO().tagEvent(eid=eid, tid=tag, cursor=cursor)
+        except errors.ForeignKeyViolation as fk_error:
+            return fk_error
 
-        for website in websites:
-            wid = self.insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor = cursor)[0]
+        # Once tagged, insert the websites, if any, that do not already exist, and relate them to the event.
+        if websites is not None:
+            try:
+                for website in websites:
+                    wid = self.insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor=cursor)[0]
 
-            self.addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
+                    self.addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
+            # Do not know if this is the right error to expect.
+            except TypeError as e:
+                return e
 
+        # Commit changes if no errors occur.
         self.conn.commit()
         return result
-        # TagDAO().tagEvent(eid=eid, tags=tags)
-        #
-        # self.addWebsitesToEvent(eid=eid, websites=websites)
-
 
     def insertPhoto(self, photourl, cursor):
         """
         Attempt to insert a photo's url into the photos table; Does nothing if the photourl is either None
-            or and empty string.
+            or and empty string. DOES NOT COMMIT CHANGES.
         Parameters:
             photourl: a non-empty string or None
+            cursor: createEvent method call connection cursor to database.
         Returns:
             Tuple: the photoID of the photo in the Photos table, as an SQL result
         """
@@ -530,8 +539,6 @@ class EventDAO(MasterDAO):
                 pkey1=sql.Identifier('photoid'))
             cursor.execute(query, (str(photourl), str(photourl)))
             result = cursor.fetchone()
-            # TODO: figure out how to commit at end of all inserts.
-            #self.conn.commit()
         else:
             result = [None, None]
         return result
@@ -543,6 +550,7 @@ class EventDAO(MasterDAO):
         Parameters:
             eid: newly created Event ID.
             wid: website IDs
+            cursor: createEvent method call connection cursor to database.
         """
         cursor = cursor
         query = sql.SQL("insert into {table1} "
@@ -554,8 +562,6 @@ class EventDAO(MasterDAO):
                 sql.Identifier('wid')
             ]))
         cursor.execute(query, (int(eid), int(wid)))
-        # TODO: FIGURe out how to commit at end of inserts.
-        #self.conn.commit()
         return
 
     def insertWebsite(self, url, wdescription, cursor):
@@ -563,6 +569,7 @@ class EventDAO(MasterDAO):
         Parameters:
             url: the url for the website
             wdescription: a description for the website
+            cursor: createEvent method call connection cursor to database.
         Returns:
             wid: website ID
             """
@@ -582,8 +589,6 @@ class EventDAO(MasterDAO):
                 ]))
             cursor.execute(query, (str(url), wdescription, False, str(url)))
             result = cursor.fetchone()
-            # TODO: FIGURe out how to commit at end of inserts.
-            #self.conn.commit()
         else:
             result = [None, None]
         return result

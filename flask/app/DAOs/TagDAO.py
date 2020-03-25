@@ -108,22 +108,18 @@ class TagDAO(MasterDAO):
         Parameters:
             eid: newly created Event ID.
             tid: tag ID
+            cursor: createEvent method call connection cursor to database.
         """
         cursor = cursor
-        result = 'successfully tagged event.'
-        try:
-            query = sql.SQL("insert into {table1} "
-                            "({insert_fields}) "
-                            "values (%s, %s);").format(
-                table1=sql.Identifier('eventtags'),
-                insert_fields=sql.SQL(',').join([
-                    sql.Identifier('eid'),
-                    sql.Identifier('tid')
-                ]))
-            cursor.execute(query, (int(eid), int(tid)))
-            # TODO: FIGURe out how to commit at end of inserts.
-            # self.conn.commit()
-        except errors.ForeignKeyViolation as e:
-            result = e
-        return result
+
+        query = sql.SQL("insert into {table1} "
+                        "({insert_fields}) "
+                        "values (%s, %s);").format(
+            table1=sql.Identifier('eventtags'),
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('tid')
+            ]))
+        cursor.execute(query, (int(eid), int(tid)))
+
 
