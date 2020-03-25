@@ -1,6 +1,7 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.EventDAO import EventDAO
+from app.DAOs.TagDAO import TagDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.TagHandler import TagHandler
 
@@ -58,7 +59,8 @@ def _buildCoreEventResponse(event_tuple):
 def _unpackTags(json_tags):
     tags=[]
     for tag in json_tags:
-        tags.append(tag['tid'])
+        if tag['tid'] not in tags:
+            tags.append(tag['tid'])
     return tags
 
 
@@ -290,17 +292,35 @@ class EventHandler:
         for key in CREATEEVENTKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-        # TODO: verify tags uniqueness
-        # TODO: Verify photo
-        # TODO: verify websites.
         # TODO: pass uid not through json.
 
         tags = _unpackTags(json_tags=json['tags'])
+        if len(tags) < 3 or len(tags) > 10:
+            return jsonify(Error="Improper number of unique tags provided: "+ str(len(tags))), 400
+
         dao = EventDAO()
+        photoid = dao.insertPhoto(photourl=json['photourl'])
+
         eid = dao.createEvent(ecreator=json['ecreator'], roomid=json['roomid'], etitle=json['etitle'],
                               edescription=json['edescription'], estart=json['estart'],
-                              eend=json['eend'], photourl=json['photourl'], tags=tags, websites=json['websites'])
+                              eend=json['eend'], photoid=photoid[0])
         try:
-            return jsonify({"eid": eid[0]}), 201
+            eid=eid[0]
         except TypeError:
             return jsonify(Error=str(eid)), 400
+
+        for tag in tags:
+            tag_results = TagDAO().tagEvent(eid=eid, tid=tag)
+            if tag_results != 'successfully tagged event.':
+                return jsonify(Error="Invalid tag ID provided: " + str(tag)), 400
+
+        for website in json['websites']:
+            wid = dao.insertWebsite(url=website['url'], wdescription=website['wdescription'])
+            try:
+                wid = wid[0]
+            except TypeError:
+                return jsonify(Error="Invalid website: " + str(website)), 400
+            dao.addWebsitesToEvent(eid=eid, wid=wid)
+
+        return jsonify({"eid": eid}), 201
+

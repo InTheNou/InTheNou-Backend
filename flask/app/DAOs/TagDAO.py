@@ -1,5 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
-from psycopg2 import sql
+from psycopg2 import sql, errors
 
 
 class TagDAO(MasterDAO):
@@ -101,16 +101,17 @@ class TagDAO(MasterDAO):
             result.append(row)
         return result
 
-    def tagEvent(self, eid, tags):
+    def tagEvent(self, eid, tid):
         """
-        Tag the specified event with the specified tags. DOES NOT COMMIT CHANGES TO
+        Tag the specified event with the specified tag. DOES NOT COMMIT CHANGES TO
         DB.
         Parameters:
             eid: newly created Event ID.
-            tags: list of integer tag IDs
+            tid: tag ID
         """
         cursor = self.conn.cursor()
-        for tid in tags:
+        result = 'successfully tagged event.'
+        try:
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s, %s);").format(
@@ -122,5 +123,7 @@ class TagDAO(MasterDAO):
             cursor.execute(query, (int(eid), int(tid)))
             # TODO: FIGURe out how to commit at end of inserts.
             self.conn.commit()
-        return
+        except errors.ForeignKeyViolation as e:
+            result = e
+        return result
 
