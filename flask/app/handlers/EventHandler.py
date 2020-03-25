@@ -303,9 +303,10 @@ class EventHandler:
         dao = EventDAO()
         eid = dao.createEvent(ecreator=json['ecreator'], roomid=json['roomid'], etitle=json['etitle'],
                               edescription=json['edescription'], estart=json['estart'],
-                              eend=json['eend'], photourl=json['photourl'], tags=tags, websites=json['websites'])
+                              eend=json['eend'], photourl=json['photourl'], tags=tags,
+                              websites=json['websites'])
         try:
-            eid=eid[0]
+            eid = eid[0]
         except TypeError:
             return jsonify(Error=str(eid)), 400
 
