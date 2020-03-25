@@ -285,7 +285,7 @@ class EventHandler:
         Parameters:
             uid: User ID.
             json: JSON object with the following keys:
-                ecreator, roomid, etitle, edescription, estart, eend, photourl
+                ecreator, roomid, etitle, edescription, estart, eend, photourl, websites, tags
         Return:
             JSON Response Object: JSON containing success or error response.
         """
@@ -299,28 +299,29 @@ class EventHandler:
             return jsonify(Error="Improper number of unique tags provided: "+ str(len(tags))), 400
 
         dao = EventDAO()
-        photoid = dao.insertPhoto(photourl=json['photourl'])
+
+        # photoid = dao.insertPhoto(photourl=json['photourl'])
 
         eid = dao.createEvent(ecreator=json['ecreator'], roomid=json['roomid'], etitle=json['etitle'],
                               edescription=json['edescription'], estart=json['estart'],
-                              eend=json['eend'], photoid=photoid[0])
-        try:
-            eid=eid[0]
-        except TypeError:
-            return jsonify(Error=str(eid)), 400
-
-        for tag in tags:
-            tag_results = TagDAO().tagEvent(eid=eid, tid=tag)
-            if tag_results != 'successfully tagged event.':
-                return jsonify(Error="Invalid tag ID provided: " + str(tag)), 400
-
-        for website in json['websites']:
-            wid = dao.insertWebsite(url=website['url'], wdescription=website['wdescription'])
-            try:
-                wid = wid[0]
-            except TypeError:
-                return jsonify(Error="Invalid website: " + str(website)), 400
-            dao.addWebsitesToEvent(eid=eid, wid=wid)
+                              eend=json['eend'], photourl=json['photourl'], tags=tags, websites=json['websites'])
+        # try:
+        #     eid=eid[0]
+        # except TypeError:
+        #     return jsonify(Error=str(eid)), 400
+        #
+        # for tag in tags:
+        #     tag_results = TagDAO().tagEvent(eid=eid, tid=tag)
+        #     if tag_results != 'successfully tagged event.':
+        #         return jsonify(Error="Invalid tag ID provided: " + str(tag)), 400
+        #
+        # for website in json['websites']:
+        #     wid = dao.insertWebsite(url=website['url'], wdescription=website['wdescription'])
+        #     try:
+        #         wid = wid[0]
+        #     except TypeError:
+        #         return jsonify(Error="Invalid website: " + str(website)), 400
+        #     dao.addWebsitesToEvent(eid=eid, wid=wid)
 
         return jsonify({"eid": eid}), 201
 

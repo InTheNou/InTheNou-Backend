@@ -101,7 +101,7 @@ class TagDAO(MasterDAO):
             result.append(row)
         return result
 
-    def tagEvent(self, eid, tid):
+    def tagEvent(self, eid, tid, cursor):
         """
         Tag the specified event with the specified tag. DOES NOT COMMIT CHANGES TO
         DB.
@@ -109,7 +109,7 @@ class TagDAO(MasterDAO):
             eid: newly created Event ID.
             tid: tag ID
         """
-        cursor = self.conn.cursor()
+        cursor = cursor
         result = 'successfully tagged event.'
         try:
             query = sql.SQL("insert into {table1} "
@@ -122,7 +122,7 @@ class TagDAO(MasterDAO):
                 ]))
             cursor.execute(query, (int(eid), int(tid)))
             # TODO: FIGURe out how to commit at end of inserts.
-            self.conn.commit()
+            # self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e
         return result

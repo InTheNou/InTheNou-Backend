@@ -446,7 +446,7 @@ class EventDAO(MasterDAO):
             result = e
         return result
 
-    def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, photoid):
+    def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, tags, photourl, websites):
         """
         Create an Event from the information provided.
         Parameters:
@@ -464,6 +464,10 @@ class EventDAO(MasterDAO):
         # print(ecreator, roomid, etitle, edescription, estart, eend, photoid)
         # Theoretically, you've inserted the photo here, or photoid is None.
         cursor = self.conn.cursor()
+        photoid = self.insertPhoto(photourl=photourl, cursor=cursor)[0]
+
+
+
         query = sql.SQL("insert into {table1} ({insert_fields})"
                         "values (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s) "
                         "returning {pkey1}").format(
@@ -481,22 +485,31 @@ class EventDAO(MasterDAO):
                 sql.Identifier('photoid')
             ]),
             pkey1=sql.Identifier('eid'))
-        try:
-            cursor.execute(query, (int(ecreator), int(roomid), str(etitle), str(edescription),
-                                   str(estart), str(eend), 'active', None, photoid))
-            result = cursor.fetchone()
+        # try:
+        cursor.execute(query, (int(ecreator), int(roomid), str(etitle), str(edescription),
+                               str(estart), str(eend), 'active', None, photoid))
+        result = cursor.fetchone()
+        eid = result[0]
 
-            # TODO: Figure out how to tag events without commiting event in case of failure.
-            self.conn.commit()
-        except errors.UniqueViolation as e:
-            result = e
+        # TODO: Figure out how to tag events without commiting event in case of failure.
+        # self.conn.commit()
+
+        for tag in tags:
+            TagDAO().tagEvent(eid=eid, tid=tag, cursor=cursor)
+
+        for website in websites:
+            wid = self.insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor = cursor)[0]
+
+            self.addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
+
+        self.conn.commit()
         return result
         # TagDAO().tagEvent(eid=eid, tags=tags)
         #
         # self.addWebsitesToEvent(eid=eid, websites=websites)
-        # self.conn.commit()
 
-    def insertPhoto(self, photourl):
+
+    def insertPhoto(self, photourl, cursor):
         """
         Attempt to insert a photo's url into the photos table; Does nothing if the photourl is either None
             or and empty string.
@@ -506,7 +519,7 @@ class EventDAO(MasterDAO):
             Tuple: the photoID of the photo in the Photos table, as an SQL result
         """
         if photourl is not None and photourl != "":
-            cursor = self.conn.cursor()
+            cursor = cursor
             query = sql.SQL("insert into {table1} "
                             "({insert_field})"
                             "values (%s) on conflict(photourl) "
@@ -518,12 +531,12 @@ class EventDAO(MasterDAO):
             cursor.execute(query, (str(photourl), str(photourl)))
             result = cursor.fetchone()
             # TODO: figure out how to commit at end of all inserts.
-            self.conn.commit()
+            #self.conn.commit()
         else:
             result = [None, None]
         return result
 
-    def addWebsitesToEvent(self, eid, wid):
+    def addWebsitesToEvent(self, eid, wid, cursor):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
         DB.
@@ -531,7 +544,7 @@ class EventDAO(MasterDAO):
             eid: newly created Event ID.
             wid: website IDs
         """
-        cursor = self.conn.cursor()
+        cursor = cursor
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s);").format(
@@ -542,10 +555,10 @@ class EventDAO(MasterDAO):
             ]))
         cursor.execute(query, (int(eid), int(wid)))
         # TODO: FIGURe out how to commit at end of inserts.
-        self.conn.commit()
+        #self.conn.commit()
         return
 
-    def insertWebsite(self, url, wdescription):
+    def insertWebsite(self, url, wdescription, cursor):
         """Inserts a website into the website table
         Parameters:
             url: the url for the website
@@ -554,7 +567,7 @@ class EventDAO(MasterDAO):
             wid: website ID
             """
         if url is not None and url != "":
-            cursor = self.conn.cursor()
+            cursor = cursor
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s, %s, %s) "
@@ -570,9 +583,11 @@ class EventDAO(MasterDAO):
             cursor.execute(query, (str(url), wdescription, False, str(url)))
             result = cursor.fetchone()
             # TODO: FIGURe out how to commit at end of inserts.
-            self.conn.commit()
+            #self.conn.commit()
         else:
             result = [None, None]
         return result
+
+
 
 
