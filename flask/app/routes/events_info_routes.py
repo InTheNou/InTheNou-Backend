@@ -18,6 +18,14 @@ def getEventByID(eid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: verify the user has event creator + privileges
+# TODO: Pass uid from session.
+@app.route("/App/Events/Create", methods=['POST'])
+def createEvent():
+    if request.method == 'POST': return EventHandler().createEvent(json=request.json)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Follow", methods=['POST'])
 def followEvent(eid, uid):
     if request.method == 'POST': return EventHandler().setInteraction(eid=eid, uid=uid, itype="following")

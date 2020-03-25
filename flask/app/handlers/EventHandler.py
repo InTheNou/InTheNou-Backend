@@ -4,6 +4,7 @@ from app.DAOs.EventDAO import EventDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.TagHandler import TagHandler
 
+CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
 
 def _buildEventResponse(event_tuple):
     """
@@ -52,6 +53,13 @@ def _buildCoreEventResponse(event_tuple):
     response['estatusdate'] = event_tuple[9]
     response['photourl'] = event_tuple[10]
     return response
+
+
+def _unpackTags(json_tags):
+    tags=[]
+    for tag in json_tags:
+        tags.append(tag['tid'])
+    return tags
 
 
 class EventHandler:
@@ -269,3 +277,30 @@ class EventHandler:
             except TypeError:
                 return jsonify(Error=str(uid_eid_pair)), 400
         return jsonify(Error='Unsupported event status = ' + str(estatus)), 400
+
+    def createEvent(self, json, uid=None):
+        """Attempt to create an event.
+        Parameters:
+            uid: User ID.
+            json: JSON object with the following keys:
+                ecreator, roomid, etitle, edescription, estart, eend, photourl
+        Return:
+            JSON Response Object: JSON containing success or error response.
+        """
+        for key in CREATEEVENTKEYS:
+            if key not in json:
+                return jsonify(Error='Missing credentials from submission: ' + key), 400
+        # TODO: verify tags uniqueness
+        # TODO: Verify photo
+        # TODO: verify websites.
+        # TODO: pass uid not through json.
+
+        tags = _unpackTags(json_tags=json['tags'])
+        dao = EventDAO()
+        eid = dao.createEvent(ecreator=json['ecreator'], roomid=json['roomid'], etitle=json['etitle'],
+                              edescription=json['edescription'], estart=json['estart'],
+                              eend=json['eend'], photourl=json['photourl'], tags=tags, websites=json['websites'])
+        try:
+            return jsonify({"eid": eid[0]}), 201
+        except TypeError:
+            return jsonify(Error=str(eid)), 400

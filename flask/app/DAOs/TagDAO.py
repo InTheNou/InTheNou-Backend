@@ -101,3 +101,26 @@ class TagDAO(MasterDAO):
             result.append(row)
         return result
 
+    def tagEvent(self, eid, tags):
+        """
+        Tag the specified event with the specified tags. DOES NOT COMMIT CHANGES TO
+        DB.
+        Parameters:
+            eid: newly created Event ID.
+            tags: list of integer tag IDs
+        """
+        cursor = self.conn.cursor()
+        for tid in tags:
+            query = sql.SQL("insert into {table1} "
+                            "({insert_fields}) "
+                            "values (%s, %s);").format(
+                table1=sql.Identifier('eventtags'),
+                insert_fields=sql.SQL(',').join([
+                    sql.Identifier('eid'),
+                    sql.Identifier('tid')
+                ]))
+            cursor.execute(query, (int(eid), int(tid)))
+            # TODO: FIGURe out how to commit at end of inserts.
+            self.conn.commit()
+        return
+
