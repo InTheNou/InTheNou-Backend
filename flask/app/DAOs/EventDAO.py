@@ -1,5 +1,6 @@
 from app.DAOs.MasterDAO import MasterDAO
-from app.DAOs.TagDAO  import TagDAO
+from app.DAOs.TagDAO import TagDAO
+from app.DAOs.WebsiteDAO import WebsiteDAO
 from psycopg2 import sql, errors
 
 
@@ -506,9 +507,9 @@ class EventDAO(MasterDAO):
         if websites is not None:
             try:
                 for website in websites:
-                    wid = self.insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor=cursor)[0]
+                    wid = WebsiteDAO().insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor=cursor)[0]
 
-                    self.addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
+                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
             # Do not know if this is the right error to expect.
             except TypeError as e:
                 return e
@@ -542,77 +543,3 @@ class EventDAO(MasterDAO):
         else:
             result = [None, None]
         return result
-
-    def addWebsitesToEvent(self, eid, wid, cursor):
-        """
-        Relates the websites to the event. DOES NOT COMMIT CHANGES TO
-        DB.
-        Parameters:
-            eid: newly created Event ID.
-            wid: website IDs
-            cursor: createEvent method call connection cursor to database.
-        """
-        cursor = cursor
-        query = sql.SQL("insert into {table1} "
-                        "({insert_fields}) "
-                        "values (%s, %s);").format(
-            table1=sql.Identifier('eventwebsites'),
-            insert_fields=sql.SQL(',').join([
-                sql.Identifier('eid'),
-                sql.Identifier('wid')
-            ]))
-        cursor.execute(query, (int(eid), int(wid)))
-        return
-
-    def insertWebsite(self, url, wdescription, cursor):
-        """Inserts a website into the website table
-        Parameters:
-            url: the url for the website
-            wdescription: a description for the website
-            cursor: createEvent method call connection cursor to database.
-        Returns:
-            wid: website ID
-            """
-        if url is not None and url != "":
-            cursor = cursor
-            query = sql.SQL("insert into {table1} "
-                            "({insert_fields}) "
-                            "values (%s, %s, %s) "
-                            "on CONFLICT (url) do update "
-                            "set url=%s"
-                            "returning wid;").format(
-                table1=sql.Identifier('websites'),
-                insert_fields=sql.SQL(',').join([
-                    sql.Identifier('url'),
-                    sql.Identifier('wdescription'),
-                    sql.Identifier('isdeleted')
-                ]))
-            cursor.execute(query, (str(url), wdescription, False, str(url)))
-            result = cursor.fetchone()
-        else:
-            result = [None, None]
-        return result
-
-    def getWebsitesByEventID(self, eid):
-        cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table1} "
-                        "natural join {table2} "
-                        "where {pkey1} = %s and {pkey2} = %s;").format(
-            fields=sql.SQL(',').join([
-                sql.Identifier('wid'),
-                sql.Identifier('url'),
-                sql.Identifier('wdescription')
-            ]),
-            table1=sql.Identifier('eventwebsites'),
-            table2=sql.Identifier('websites'),
-            pkey1=sql.Identifier('eid'),
-            pkey2=sql.Identifier('isdeleted'))
-        cursor.execute(query, (int(eid), False))
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
-
-
-
-

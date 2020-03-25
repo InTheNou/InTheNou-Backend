@@ -4,6 +4,7 @@ from app.DAOs.EventDAO import EventDAO
 from app.DAOs.TagDAO import TagDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.TagHandler import TagHandler
+from app.handlers.WebsiteHandler import WebsiteHandler
 
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
 
@@ -30,7 +31,7 @@ def _buildEventResponse(event_tuple):
     response['estatusdate'] = event_tuple[9]
     response['photourl'] = event_tuple[10]
     response['tags'] = TagHandler().safeGetTagsByEventID(eid=event_tuple[0])
-    response['websites'] = EventHandler().getWebistesByEventID(eid=event_tuple[0], no_json=True)["websites"]
+    response['websites'] = WebsiteHandler().getWebistesByEventID(eid=event_tuple[0], no_json=True)["websites"]
     return response
 
 
@@ -57,22 +58,6 @@ def _buildCoreEventResponse(event_tuple):
     return response
 
 
-
-def _buildWebsiteResponse(site_tuple):
-    """
-    Private Method to build core event dictionary to be JSONified.
-    Parameters:
-        event_tuple: response tuple from SQL query
-    Returns:
-        Dict: Event information.
-    """
-    response = {}
-    response['wid'] = site_tuple[0]
-    response['url'] = site_tuple[1]
-    response['wdescription'] = site_tuple[2]
-    return response
-
-
 def _unpackTags(json_tags):
     tags=[]
     for tag in json_tags:
@@ -82,20 +67,6 @@ def _unpackTags(json_tags):
 
 
 class EventHandler:
-
-    def getWebistesByEventID(self, eid, no_json=False):
-        dao = EventDAO()
-        sites = dao.getWebsitesByEventID(eid=eid)
-        site_list = []
-        if not sites:
-            site_list= None
-        else:
-            for row in sites:
-                site_list.append(_buildWebsiteResponse(site_tuple=row))
-        response = {"websites": site_list}
-        if no_json:
-            return response
-        return jsonify(response)
 
     def getEventByID(self, eid):
         """Return the event entry belonging to the specified eid.
