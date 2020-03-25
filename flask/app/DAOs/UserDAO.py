@@ -38,17 +38,17 @@ class UserDAO(MasterDAO):
             Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select distinct {users} from ({users_roles_info}) where {pkey} = %s) as users_that_can_modify on issuer=u2.uid or  userid=u2.uid "
+        query = sql.SQL("select distinct {users} from {users_roles_info}  where {pkey} = %s) as users_that_can_modify on issuer=u2.uid or  userid=u2.uid  or u2.roleid=4 "
                         ).format(
             users=sql.SQL(',').join([
-                sql.Identifier('u2.uid')
+                sql.SQL("u2.uid")
             ]),
             users_roles_info=sql.SQL(
                                 "users u2 join (select e1.ecreator as userid,roleissuer as issuer from events e1 "
-                                "join users on ((roleissuer= users.uid or ecreator=users.uid or users.roleid =4) and users.roleid>1) "
+                                "join users on ((roleissuer= users.uid or ecreator = users.uid) and users.roleid > 1) "
                                 ),
-            pkey=sql.Identifier('e1.eid'))
-        cursor.execute(query, (eid,))
+            pkey=sql.SQL('e1.eid'))
+        cursor.execute(query, (int(eid),))
         result = []
         for row in cursor:
             result.append(row)

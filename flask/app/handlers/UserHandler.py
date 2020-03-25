@@ -53,6 +53,15 @@ def _buildUserNumberResponse(user_tuple):
     return response
 
 
+
+def _buildUserIDList(user_tuple):
+    response = {}
+
+    response['user_id']  =user_tuple[0]
+    return response
+
+
+
 class UserHandler:
 
     def getUserByID(self, uid):
@@ -108,7 +117,7 @@ class UserHandler:
             response = {"Users":user_list}
             return jsonify(response)
     
-    def getUsersThatCanModify(self,eid,no_json=False):
+    def getUsersThatCanModifyEvent(self,eid,no_json=False):
 
         dao =UserDAO()
         users = dao.getUsersThatCanModifyEvent(eid=eid)
@@ -117,7 +126,7 @@ class UserHandler:
         else:
             user_list = []
             for row in users:
-                user_list.append(_buildUserResponse(user_tuple=row))
+                user_list.append(_buildUserIDList(user_tuple=row))
             response = {"Users":user_list}
             if no_json:
                 return response

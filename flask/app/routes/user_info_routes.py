@@ -15,8 +15,21 @@ def getUserByID(uid):
     if request.method == 'GET' : return UserHandler().getUserByID(uid=uid)
     else: return jsonify(Error='Method not allowed.'), 405
 
+    
+
+@app.route("/App/Users/canModify/eid=<int:eid>", methods = ['GET'])
+def getUsersThatCanModifyEvent(eid):
+    if request.method == 'GET' : return UserHandler().getUsersThatCanModifyEvent(eid=eid)
+    else: return jsonify(Error='Method not allowed.'), 405
 
 
+##DASHBOARD ROUTES##
+# TODO: verify the user has event creator + privileges
+# TODO: Pass uid from session.
+@app.route("/Dashboard/Users/changeRole", methods=['POST'])
+def changeRole():
+    if request.method == 'POST': return UserHandler().changeRole(json=request.json)
+    else: return jsonify(Error="Method not allowed."), 405
 
 
 @app.route("/Dashboard/Users/Delegated",methods =['GET'])
