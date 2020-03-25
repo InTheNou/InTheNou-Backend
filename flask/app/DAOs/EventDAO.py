@@ -593,6 +593,26 @@ class EventDAO(MasterDAO):
             result = [None, None]
         return result
 
+    def getWebsitesByEventID(self, eid):
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "natural join {table2} "
+                        "where {pkey1} = %s and {pkey2} = %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('wid'),
+                sql.Identifier('url'),
+                sql.Identifier('wdescription')
+            ]),
+            table1=sql.Identifier('eventwebsites'),
+            table2=sql.Identifier('websites'),
+            pkey1=sql.Identifier('eid'),
+            pkey2=sql.Identifier('isdeleted'))
+        cursor.execute(query, (int(eid), False))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
 
 
 
