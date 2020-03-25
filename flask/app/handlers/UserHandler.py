@@ -43,6 +43,14 @@ def _buildDelegatedUserResponse(user_tuple):
     response['issuer_id']      = user_tuple[2]
     return response
 
+def _buildUserNumberResponse(user_tuple):
+    """
+    """
+    response = {}
+
+    response['number'] = user_tuple[0]
+    return response
+
 
 class UserHandler:
 
@@ -97,4 +105,14 @@ class UserHandler:
             for row in users:
                 user_list.append(_buildUserResponse(user_tuple=row))
             response = {"Users":user_list}
+            return jsonify(response)
+
+    def getNumberOfUsersByRole(self,roleid):
+
+        dao = UserDAO()
+        users = dao.getNumberOfUsersByRole(roleid = roleid)
+        if not users:
+            return jsonify(Error='Users with roles id does not exist: roleid=' + str(roleid)), 404
+        else:
+            response = _buildUserNumberResponse(user_tuple=users)
             return jsonify(response)

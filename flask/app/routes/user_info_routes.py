@@ -41,3 +41,10 @@ def geUsersAndIssuersSegmented(offset,limit):
 def geUsersSegmented(offset,limit):
     if request.method == 'GET' : return UserHandler().getUsersSegmented(offset=offset,limit=limit)
     else:return jsonify(Error = 'Method not allowed.'),405
+
+@app.route("/Dashboard/Stats/roleid=<int:roleid>",methods =['GET'])
+#@login_required
+#@admin_role_required
+def geNumberOdUsersByRole(roleid):
+    if request.method == 'GET' : return UserHandler().getNumberOfUsersByRole(roleid = roleid)
+    else:return jsonify(Error = 'Method not allowed.'),405

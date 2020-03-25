@@ -123,10 +123,8 @@ class UserDAO(MasterDAO):
             users=sql.SQL(',').join([
                 sql.Identifier('user_id'),
                 sql.Identifier('user_email'),
-                
                 sql.Identifier('first_name'),
                 sql.Identifier('last_name'),
-                
                 sql.Identifier('user_type'),
             ]),
             users_roles_info=sql.SQL(
@@ -144,4 +142,36 @@ class UserDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        return result
+
+
+
+    def getNumberOfUsersByRole(self,roleid):
+        """
+        Query Database for all users and their basic information
+        Parameters:
+            offset:Number of records to ignore , ordered by user ID biggest first
+            limit:maximum number of records to recieve
+        Returns:
+            Tuple: SQL result of Query as tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {users} from ({users_roles_info} where user_role = %s) as delegated ").format(
+            users=sql.SQL(',').join([
+                sql.SQL(' COUNT(*) '),
+            ]),
+
+            users_roles_info=sql.SQL(
+                                "SELECT first_name,last_name, user_id,user_email,user_type,user_role, issuer_email, roletype as issuer_type,issuer_id FROM "
+                                "(SELECT first_name,last_name, user_email,roletype as user_type,user_role, issuer_email,issuer_role,issuer_id,user_id "
+                                "FROM roles "
+                                "left outer join (SELECT u1.email as user_email,"
+                                "u1.first_name as first_name, u1.last_name as last_name, u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
+                                "FROM users u1 inner join users u2 "
+                                "on u1.roleissuer = u2.uid) as users_filtered "
+                                "on user_role = roles.roleid )as users_typed "
+                                "left outer join roles r2 "
+                                "on issuer_role=r2.roleid "))
+        cursor.execute(query,(roleid,))
+        result = cursor.fetchone()
         return result
