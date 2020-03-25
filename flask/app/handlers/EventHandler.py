@@ -80,7 +80,7 @@ class EventHandler:
             response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
 
-    def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=10):
+    def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -107,7 +107,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingFollowedEventsSegmented(self, uid, offset, limit=10):
+    def getUpcomingFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, followed event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -130,7 +130,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getDismissedEvents(self, uid, offset, limit=10):
+    def getDismissedEvents(self, uid, offset, limit=20):
         """Return the dismissed event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -153,7 +153,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=10):
+    def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, recommended event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -176,7 +176,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getPastFollowedEventsSegmented(self, uid, offset, limit=10):
+    def getPastFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the user's followed event entries that have ended, specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -199,7 +199,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getEventsCreatedByUser(self, uid, offset, limit=10):
+    def getEventsCreatedByUser(self, uid, offset, limit=20):
         """Return the events created by a given user, specified by offset and limit parameters.
         Parameters:
             uid: User ID
