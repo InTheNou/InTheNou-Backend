@@ -358,6 +358,80 @@ class EventDAO(MasterDAO):
             List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
+        standard_change = 5
+        # Todo: create methods that check the type, get the proper tags, and set the new weights accordingly
+
+        # Get existing user event interaction.
+        query = sql.SQL("select itype from eventuserinteractions "
+                        "where eid=%s and uid=%s;")
+        cursor.execute(query, (str(eid), int(uid)))
+        current_itype = cursor.fetchone()
+        print("new itype to insert: " + str(itype))
+        print("Current itype: " + str(current_itype))
+        if current_itype is None:
+            # TODO: HANDLE NO INTERACTION ENTRY PROCESS.
+            print("no existing interaction found; creating one.")
+            if itype =='following': weight_change = standard_change
+            else: weight_change = -standard_change
+        else:
+            if itype == 'dismissed':
+                if current_itype[0] == 'following':
+                    weight_change = -2*standard_change
+                else: weight_change = -standard_change
+            elif itype == "unfollowed": weight_change = -standard_change
+            else: weight_change = standard_change
+        print("weight_change = "+ str(weight_change))
+
+        # TODO: Set fields for this query so you can access it in the for below.
+        # Get a list of the event's tags and whatever weights the user has.
+        query = sql.SQL("select et.tid, cuser.tagweight from "
+                        "eventtags as et "
+                        "left outer join "
+                        "(select * from usertags where uid = %s) as cuser "
+                        "on et.tid = cuser.tid "
+                        "where et.eid = %s")
+        cursor.execute(query, (str(uid), int(eid)))
+        tag_weight = []
+        for row in cursor:
+            tag_weight.append(row)
+            print("tag id and weight: " + str(row))
+
+        # Todo: process the the received rows.
+
+        for t_w in tag_weight:
+            tid = t_w[0]
+            if t_w[1] is not None:
+                print("usertag entry found; updating entry:")
+                # TODO: decide what to do if user has tag
+                current_weight = t_w[1]
+
+                if (weight_change>0) and (current_weight+weight_change>=200):
+                    # Call method to set tag to 200
+                    print("Updated tag weight: " + str(current_weight+weight_change) + " exceeds 200. Setting to 200")
+                    TagDAO().setUserTag(uid=uid, tid=tid, weight=200, cursor=cursor)
+                elif (weight_change<0) and (current_weight+weight_change<=0):
+                    # call method to set tag to 0
+                    print("Updated tag weight: " + str(current_weight + weight_change) + " Below 0. Setting to 0")
+                    TagDAO().setUserTag(uid=uid, tid=tid, weight=0, cursor=cursor)
+                else:
+                    # call method to add weight change to tag
+                    print("Updated tag weight: " + str(current_weight + weight_change) + " within range. Setting to value")
+                    TagDAO().setUserTag(uid=uid, tid=tid, weight=(current_weight+weight_change),
+                                        cursor=cursor)
+            else:
+                print("usertag entry NOT found: determining actions:")
+                # TODO: decide what to do if user does not have tag.
+                if weight_change>0:
+                    # call method to create tag with weigt change
+                    print("Postivie weight change: creating usertag entry.")
+                    TagDAO().setUserTag(uid=uid, tid=tid, weight=weight_change, cursor=cursor)
+                else:
+                    print("Negative weight change: skipping entry creation.")
+                    pass
+
+
+
+        # if you get here with no errors, update the interaction and finish.
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "VALUES (%s, 'N', %s, %s) "
@@ -379,8 +453,17 @@ class EventDAO(MasterDAO):
         try:
             cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
             result = cursor.fetchone()
+
+            # event_tag_tuples = TagDAO().getTagsByEventID(eid=eid)
+
+
+
+
+
             self.conn.commit()
+            print("Updated interaction entry.\n Operation Successfull!")
         except errors.ForeignKeyViolation as e:
+            print(" Error found!!")
             result = e
         return result
 
