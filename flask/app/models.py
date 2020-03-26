@@ -7,17 +7,19 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-#User object for FLASK-SQLAlchemy 
+#User object for FLASK-SQLAlchemy and Flask-Login 
 class User(UserMixin,db.Model):
     __tablename__ = 'users'
     id = db.Column("uid",db.Integer, primary_key=True)
     email = db.Column(db.String(256),unique=True)
-    provider_user_id = db.Column("usub",db.String(256), unique=True, nullable=False)
+    provider = db.Column("usub",db.String(256), unique=True, nullable=False)
     first_name=db.Column("first_name", db.String(256),unique=False)
     last_name=db.Column("last_name",db.String(256),unique=False)
     user_type=db.Column("type",db.String(256),unique=False)
     user_role=db.Column("roleid",db.Integer,unique=False)
     role_issuer=db.Column("roleissuer",db.Integer,unique=False)
+    
+
 
 # class OAuth(OAuthConsumerMixin,db.Model):
 #     __tablename__ = 'users'
@@ -33,5 +35,7 @@ login_manager.login_view = "google.login"
 
 #FLASK-Login manager, gets a user id and search for id in the database
 @login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+def load_user(id):
+    return User.query.get(int(id))
+
+

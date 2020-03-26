@@ -19,4 +19,4 @@ db.init_app(app)
 login_manager.init_app(app)
 
 
-from app.routes import user_auth_routes, events_info_routes
+from app.routes import user_info_routes,user_auth_routes,events_info_routes
