@@ -15,7 +15,7 @@ def getUserByID(uid):
     if request.method == 'GET' : return UserHandler().getUserByID(uid=uid)
     else: return jsonify(Error='Method not allowed.'), 405
 
-    
+
 
 @app.route("/App/Users/canModify/eid=<int:eid>", methods = ['GET'])
 def getUsersThatCanModifyEvent(eid):
@@ -26,9 +26,21 @@ def getUsersThatCanModifyEvent(eid):
 ##DASHBOARD ROUTES##
 # TODO: verify the user has event creator + privileges
 # TODO: Pass uid from session.
+
+# TEST ROUTE #
+# @app.route("/Dashboard/Users/getUserIssuers", methods=['GET'])
+# def getUserIssuers():
+#         if request.method == 'GET':
+#             return UserHandler().getUserIssuers(json =request.json)
+#         else: return jsonify(Error="User cannot change  role ID"), 405
+
+
 @app.route("/Dashboard/Users/changeRole", methods=['POST'])
 def changeRole():
-    if request.method == 'POST': return UserHandler().changeRole(json=request.json)
+    if request.method == 'POST': 
+        if UserHandler().getUserIssuers(json=request.json,no_json=True):
+            return UserHandler().changeRole(json=request.json)
+        else: return jsonify(Error="User cannot change  role ID"), 405
     else: return jsonify(Error="Method not allowed."), 405
 
 
