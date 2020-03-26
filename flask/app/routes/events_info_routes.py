@@ -160,3 +160,10 @@ def getTagsByEventID(eid):
 def getTagsByUserID(uid):
     if request.method == 'GET': return TagHandler().getTagsByUserID(uid=uid)
     else: return jsonify(Error="Method not allowed."), 405
+
+
+# Automated test not set up
+@app.route("/App/Tags/User/Remove", methods=['DELETE'])
+def setUserTagsToZero():
+    if request.method == 'DELETE': return TagHandler().batchSetUserTags(json=request.json, weight=0)
+    else: return jsonify(Error="Method not allowed."), 405

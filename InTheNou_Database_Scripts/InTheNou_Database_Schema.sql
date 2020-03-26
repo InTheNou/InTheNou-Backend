@@ -30,7 +30,7 @@ Create table Users( uid serial primary key,
 /* Create Photos table */
 /* NOTE: Should we allow duplicate photo urls? */
 Create table Photos( photoID serial primary key,
-                     photoURL text NOT NULL CHECK (photoURL <> ''));
+                     photoURL text NOT NULL UNIQUE CHECK (photoURL <> ''));
                     
 /* Create Buildings */
 /* NOTE: Should some of the Building properties, like bCommonName or bType be NOT NULL?

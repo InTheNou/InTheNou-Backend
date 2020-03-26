@@ -5,7 +5,7 @@
 /nginx/ssl
 /flask/env
 /flask/venv
-/flask/app/*/_pycache_
+/flask/app/*/__pycache__
 flask/app/__pychache__
 flask/app/__pycache__/__init__.cpython-36.pyc
 flask/app/__pycache__/cli.cpython-36.pyc
