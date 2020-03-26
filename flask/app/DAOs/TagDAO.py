@@ -1,5 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
-from psycopg2 import sql
+from psycopg2 import sql, errors
 
 
 class TagDAO(MasterDAO):
@@ -85,7 +85,7 @@ class TagDAO(MasterDAO):
         query = sql.SQL("select {fields} from {table1} "
                         "natural join {table2} "
                         "natural join {table3} "
-                        "where {pkey}= %s;").format(
+                        "where {pkey}= %s and tagweight > 0;").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('tid'),
                 sql.Identifier('tname'),
@@ -99,5 +99,68 @@ class TagDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        return result
+
+    def tagEvent(self, eid, tid, cursor):
+        """
+        Tag the specified event with the specified tag. DOES NOT COMMIT CHANGES TO
+        DB.
+        Parameters:
+            eid: newly created Event ID.
+            tid: tag ID
+            cursor: createEvent method call connection cursor to database.
+        """
+        cursor = cursor
+
+        query = sql.SQL("insert into {table1} "
+                        "({insert_fields}) "
+                        "values (%s, %s);").format(
+            table1=sql.Identifier('eventtags'),
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('tid')
+            ]))
+        cursor.execute(query, (int(eid), int(tid)))
+
+    def setUserTag(self, uid, tid, weight):
+        cursor = self.conn.cursor()
+        query = sql.SQL("insert into {table}({fields}) "
+                        "values (%s, %s, %s) "
+                        "on Conflict(uid,tid) "
+                        "do update "
+                        "set tagweight=%s "
+                        "returning {fields};").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('uid'),
+                sql.Identifier('tid'),
+                sql.Identifier('tagweight')
+            ]),
+            table=sql.Identifier('usertags'))
+        cursor.execute(query, (int(uid), int(tid), int(weight), int(weight)))
+        result = cursor.fetchone()
+        return result
+
+    def batchSetUserTags(self, uid, tags, weight):
+        cursor = self.conn.cursor()
+        result = []
+        try:
+            for tid in tags:
+                query = sql.SQL("insert into {table}({fields}) "
+                                "values (%s, %s, %s) "
+                                "on Conflict(uid,tid) "
+                                "do update "
+                                "set tagweight=%s "
+                                "returning {fields};").format(
+                    fields=sql.SQL(',').join([
+                        sql.Identifier('uid'),
+                        sql.Identifier('tid'),
+                        sql.Identifier('tagweight')
+                    ]),
+                    table=sql.Identifier('usertags'))
+                cursor.execute(query, (int(uid), int(tid), int(weight), int(weight)))
+                result.append(cursor.fetchone())
+            self.conn.commit()
+        except errors.ForeignKeyViolation as badkey:
+            return badkey
         return result
 

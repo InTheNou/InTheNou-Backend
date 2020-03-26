@@ -1,4 +1,7 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.PhotoDAO import PhotoDAO
+from app.DAOs.TagDAO import TagDAO
+from app.DAOs.WebsiteDAO import WebsiteDAO
 from psycopg2 import sql, errors
 
 
@@ -420,12 +423,10 @@ class EventDAO(MasterDAO):
             result = e
         return result
 
-    # TODO: consider if the user has privileges to execute this.
-    def setEventStatus(self, uid, eid, estatus):
+    def setEventStatus(self, eid, estatus):
         """
          Sets the estatus for a given event.
         Parameters:
-            uid: User ID,
             eid: Event ID
             estatus: string that indicates the event's status.
         Returns:
@@ -445,4 +446,75 @@ class EventDAO(MasterDAO):
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e
+        return result
+
+    def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, tags, photourl, websites):
+        """
+        Create an Event from the information provided.
+        Parameters:
+            ecreator: the event creator's UID.
+            roomid: the rid of the room in which the event will take place.
+            etitle: the event's title string.
+            edescription: the event's description string.
+            estart: the event's start timestamp
+            eend: the event's end timestamp which must be greater than the start timestamp.
+            tags: a list of integers corresponding to tag IDs
+            photourl:the url of a photo to be related to the event. Can be empty.
+            websites: a list of dictionaries containing website urls and wdescriptions. can be empty.
+        Return:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+
+        # Insert photo into table if it does not exist, then get the photoid.
+        photoid = PhotoDAO().insertPhoto(photourl=photourl, cursor=cursor)[0]
+
+        # Build the query to create an event entry.
+        query = sql.SQL("insert into {table1} ({insert_fields})"
+                        "values (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s) "
+                        "returning {pkey1}").format(
+            table1=sql.Identifier('events'),
+            insert_fields=sql.SQL(',').join([
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate'),
+                sql.Identifier('photoid')
+            ]),
+            pkey1=sql.Identifier('eid'))
+
+        # Try to insert the event into the database, catch if any event is duplicated.
+        try:
+            cursor.execute(query, (int(ecreator), int(roomid), str(etitle), str(edescription),
+                                   str(estart), str(eend), 'active', None, photoid))
+            result = cursor.fetchone()
+            eid = result[0]
+        except errors.UniqueViolation as unique_error:
+            return unique_error
+
+        # Once the event is created, tag it with the list of tags provided. Catch any bad tags.
+        try:
+            for tag in tags:
+                TagDAO().tagEvent(eid=eid, tid=tag, cursor=cursor)
+        except errors.ForeignKeyViolation as fk_error:
+            return fk_error
+
+        # Once tagged, insert the websites, if any, that do not already exist, and relate them to the event.
+        if websites is not None:
+            try:
+                for website in websites:
+                    wid = WebsiteDAO().insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor=cursor)[0]
+
+                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
+            # Do not know if this is the right error to expect.
+            except TypeError as e:
+                return e
+
+        # Commit changes if no errors occur.
+        self.conn.commit()
         return result

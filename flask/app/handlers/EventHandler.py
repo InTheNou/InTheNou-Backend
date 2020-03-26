@@ -1,9 +1,12 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.EventDAO import EventDAO
+from app.DAOs.TagDAO import TagDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.TagHandler import TagHandler
+from app.handlers.WebsiteHandler import WebsiteHandler
 
+CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
 
 def _buildEventResponse(event_tuple):
     """
@@ -28,6 +31,7 @@ def _buildEventResponse(event_tuple):
     response['estatusdate'] = event_tuple[9]
     response['photourl'] = event_tuple[10]
     response['tags'] = TagHandler().safeGetTagsByEventID(eid=event_tuple[0])
+    response['websites'] = WebsiteHandler().getWebistesByEventID(eid=event_tuple[0], no_json=True)["websites"]
     return response
 
 
@@ -68,7 +72,7 @@ class EventHandler:
             response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
 
-    def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=10):
+    def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -95,7 +99,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingFollowedEventsSegmented(self, uid, offset, limit=10):
+    def getUpcomingFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, followed event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -118,7 +122,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getDismissedEvents(self, uid, offset, limit=10):
+    def getDismissedEvents(self, uid, offset, limit=20):
         """Return the dismissed event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -141,7 +145,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=10):
+    def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, recommended event entries specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -164,7 +168,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getPastFollowedEventsSegmented(self, uid, offset, limit=10):
+    def getPastFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the user's followed event entries that have ended, specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -187,7 +191,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getEventsCreatedByUser(self, uid, offset, limit=10):
+    def getEventsCreatedByUser(self, uid, offset, limit=20):
         """Return the events created by a given user, specified by offset and limit parameters.
         Parameters:
             uid: User ID
@@ -258,12 +262,45 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing successful post response.
                 """
+        # TODO: During integration, add user verification from Diego's Handlers.
+        # if userCanModifyEvent(uid, eid)
         if estatus == 'active' or estatus == 'deleted':
             dao = EventDAO()
-            uid_eid_pair = dao.setEventStatus(uid=uid, eid=eid, estatus=estatus)
+            uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus)
             # TODO: Consider a better way to do this error handling.
             try:
                 return jsonify({"eid": uid_eid_pair[0]}), 201
             except TypeError:
                 return jsonify(Error=str(uid_eid_pair)), 400
         return jsonify(Error='Unsupported event status = ' + str(estatus)), 400
+
+    def createEvent(self, json, uid=None):
+        """Attempt to create an event.
+        Parameters:
+            uid: User ID.
+            json: JSON object with the following keys:
+                ecreator, roomid, etitle, edescription, estart, eend, photourl, websites, tags
+        Return:
+            JSON Response Object: JSON containing success or error response.
+        """
+        for key in CREATEEVENTKEYS:
+            if key not in json:
+                return jsonify(Error='Missing credentials from submission: ' + key), 400
+        # TODO: pass uid not through json.
+
+        tags = TagHandler().unpackTags(json_tags=json['tags'])
+        if len(tags) < 3 or len(tags) > 10:
+            return jsonify(Error="Improper number of unique tags provided: "+ str(len(tags))), 400
+
+        dao = EventDAO()
+        eid = dao.createEvent(ecreator=json['ecreator'], roomid=json['roomid'], etitle=json['etitle'],
+                              edescription=json['edescription'], estart=json['estart'],
+                              eend=json['eend'], photourl=json['photourl'], tags=tags,
+                              websites=json['websites'])
+        try:
+            eid = eid[0]
+        except TypeError:
+            return jsonify(Error=str(eid)), 400
+
+        return jsonify({"eid": eid}), 201
+

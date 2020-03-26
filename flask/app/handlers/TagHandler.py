@@ -20,6 +20,14 @@ def _buildWeightedTagResponse(tag_tuple):
 
 class TagHandler:
 
+    def unpackTags(self, json_tags):
+        tags = []
+        for tag in json_tags:
+            if tag['tid'] not in tags:
+                tags.append(tag['tid'])
+        return tags
+
+
     def getTagByID(self, tid, no_json=False):
         """
         Return the tag entry belonging to the specified tid.
@@ -111,3 +119,42 @@ class TagHandler:
             if no_json:
                 return response
             return jsonify(response)
+
+    def setUserTag(self, uid, tid, weight):
+        """
+        Set/create the weight of the user's tag to the specified value.
+        Parameters:
+            uid: User ID
+            tid: tag ID
+            weight: integer representing new weight to set for the tag.
+        Returns:
+            JSON: containing the updated entry for the user's tag. Error JSON otherwise.
+        """
+        dao = TagDAO()
+        user_tag = dao.setUserTag(uid=uid, tid=tid, weight=weight)
+        user_tag_dict = _buildWeightedTagResponse(tag_tuple=user_tag)
+        return user_tag_dict
+
+    def batchSetUserTags(self,  json, weight, uid=None, no_json=False):
+        """
+        Set the weight for the given tags in a JSON to a specified value
+        """
+        if uid is None:
+            uid = json['uid']
+        if weight < 0 or weight > 200:
+            return jsonify(Error='Tag Weight outside range of 0-200: ' + str(weight)), 400
+
+        tags = self.unpackTags(json_tags=json['tags'])
+        updated_usertags = []
+        rows = TagDAO().batchSetUserTags(uid=uid, tags=tags, weight=weight)
+        try:
+            for user_tag in rows:
+                updated_usertags.append(_buildWeightedTagResponse(tag_tuple=user_tag))
+        except TypeError:
+            return jsonify(Error=str(rows)), 400
+
+        response = {"tags": updated_usertags}
+        if no_json:
+            return response
+        return jsonify(response), 201
+
