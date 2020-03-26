@@ -85,7 +85,7 @@ class TagDAO(MasterDAO):
         query = sql.SQL("select {fields} from {table1} "
                         "natural join {table2} "
                         "natural join {table3} "
-                        "where {pkey}= %s;").format(
+                        "where {pkey}= %s and tagweight > 0;").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('tid'),
                 sql.Identifier('tname'),
@@ -122,4 +122,45 @@ class TagDAO(MasterDAO):
             ]))
         cursor.execute(query, (int(eid), int(tid)))
 
+    def setUserTag(self, uid, tid, weight):
+        cursor = self.conn.cursor()
+        query = sql.SQL("insert into {table}({fields}) "
+                        "values (%s, %s, %s) "
+                        "on Conflict(uid,tid) "
+                        "do update "
+                        "set tagweight=%s "
+                        "returning {fields};").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('uid'),
+                sql.Identifier('tid'),
+                sql.Identifier('tagweight')
+            ]),
+            table=sql.Identifier('usertags'))
+        cursor.execute(query, (int(uid), int(tid), int(weight), int(weight)))
+        result = cursor.fetchone()
+        return result
+
+    def batchSetUserTags(self, uid, tags, weight):
+        cursor = self.conn.cursor()
+        result = []
+        try:
+            for tid in tags:
+                query = sql.SQL("insert into {table}({fields}) "
+                                "values (%s, %s, %s) "
+                                "on Conflict(uid,tid) "
+                                "do update "
+                                "set tagweight=%s "
+                                "returning {fields};").format(
+                    fields=sql.SQL(',').join([
+                        sql.Identifier('uid'),
+                        sql.Identifier('tid'),
+                        sql.Identifier('tagweight')
+                    ]),
+                    table=sql.Identifier('usertags'))
+                cursor.execute(query, (int(uid), int(tid), int(weight), int(weight)))
+                result.append(cursor.fetchone())
+            self.conn.commit()
+        except errors.ForeignKeyViolation as badkey:
+            return badkey
+        return result
 

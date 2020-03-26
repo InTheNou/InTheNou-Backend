@@ -58,14 +58,6 @@ def _buildCoreEventResponse(event_tuple):
     return response
 
 
-def _unpackTags(json_tags):
-    tags=[]
-    for tag in json_tags:
-        if tag['tid'] not in tags:
-            tags.append(tag['tid'])
-    return tags
-
-
 class EventHandler:
 
     def getEventByID(self, eid):
@@ -296,7 +288,7 @@ class EventHandler:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
         # TODO: pass uid not through json.
 
-        tags = _unpackTags(json_tags=json['tags'])
+        tags = TagHandler().unpackTags(json_tags=json['tags'])
         if len(tags) < 3 or len(tags) > 10:
             return jsonify(Error="Improper number of unique tags provided: "+ str(len(tags))), 400
 
