@@ -76,7 +76,20 @@ Create table Services( sid serial primary key,
                        sDescription text,
                        sSchedule text,
                        isDeleted boolean NOT NULL,
-                       CONSTRAINT unique_room_services UNIQUE(rid, sName));
+                       CONSTRAINT unique_room_services UNIQUE(rid, sName),
+                       sname_tokens tsvector,
+                       sdescription_tokens tsvector);
+
+create or replace function vectorizeService() returns trigger as $$
+begin
+	new.sname_tokens = to_tsvector(new.sname);
+	new.sdescription_tokens = to_tsvector(new.sdescription);
+	return new;
+end $$ language plpgsql;
+
+create trigger vectorizeService before insert or update
+on services for each row execute procedure vectorizeService();
+
             
 /* Create Phones */
 /* pnumber format: XXX-XXX-XXX | XXX-XXX-XXX,XXX
@@ -121,18 +134,18 @@ Create table Events( eid serial primary key,
                      eStatusDate timestamp,
                      photoID int references Photos(photoID),
                      CONSTRAINT no_duplicate_events_at_same_time_place UNIQUE (roomID, eTitle, eStart),
-                     title_tokens tsvector,
-                     description_tokens tsvector);
+                     etitle_tokens tsvector,
+                     edescription_tokens tsvector);
 
 /* Function and trigger to automatically set the tsvectors for the events. */
 create or replace function vectorizeEvent() returns trigger as $$
 begin
-	new.title_tokens = to_tsvector(new.etitle);
-	new.description_tokens = to_tsvector(new.edescription);
+	new.etitle_tokens = to_tsvector(new.etitle);
+	new.edescription_tokens = to_tsvector(new.edescription);
 	return new;
 end $$ language plpgsql;
 
-create trigger vectorizeEvent before insert
+create trigger vectorizeEvent before insert or update
 on events for each row execute procedure vectorizeEvent();
 
 /*  Relate Events with Websites */
@@ -169,11 +182,12 @@ Create table UserTags( uid int references Users(uid) NOT NULL,
                        primary key (uid, tid),
                        tagWeight int NOT NULL CHECK (tagWeight BETWEEN 0 AND 200));
                         
-/* Create Audit Table */                        
-Create table Audit( auditID serial primary key,
-                    aTime timestamp NOT NULL,
-                    changedTable text NOT NULL CHECK (changedTable <> ''),
-                    changeType text NOT NULL CHECK (changeType <> ''),
-                    oldValue text NOT NULL,
-                    newValue text NOT NULL,
-                    uid int references Users(uid) NOT NULL);
+/* Create Audit Table */
+/* Removed due to COVID-19 Curriculum changes. */
+--Create table Audit( auditID serial primary key,
+--                    aTime timestamp NOT NULL,
+--                    changedTable text NOT NULL CHECK (changedTable <> ''),
+--                    changeType text NOT NULL CHECK (changeType <> ''),
+--                    oldValue text NOT NULL,
+--                    newValue text NOT NULL,
+--                    uid int references Users(uid) NOT NULL);
