@@ -86,7 +86,6 @@ class EventHandler:
         if not events:
             response = {'events': None}
         else:
-            print(events)
             event_list = []
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
@@ -122,6 +121,24 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
+    def processSearchString(self, searchstring):
+        """
+        Splits a string by its spaces, filters non-alpha-numeric symbols out,
+        and joins the keywords by space-separated pipes.
+        """
+        keyword_list = str.split(searchstring)
+        filtered_words = []
+        for word in keyword_list:
+            filtered_string = ""
+            for character in word:
+                if character.isalnum():
+                    filtered_string += character
+            if not filtered_string.isspace() and filtered_string != "":
+                filtered_words.append(filtered_string)
+        keywords = " | ".join(filtered_words)
+        return keywords
+
+
     def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit):
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
@@ -132,16 +149,14 @@ class EventHandler:
                Return:
                    JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                        """
+        # Process keywords to be filtered and separated by pipes.
+        keywords = self.processSearchString(searchstring=json['searchstring'])
 
-        # split the searchstring by spaces and join them with pipes.
-        keyword_list = str.split(json['searchstring'])
-        keywords = " | ".join(keyword_list)
         dao = EventDAO()
         events = dao.getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
-            print(events)
             event_list = []
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)

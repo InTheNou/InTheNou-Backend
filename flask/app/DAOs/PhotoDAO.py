@@ -14,7 +14,7 @@ class PhotoDAO(MasterDAO):
         Returns:
             Tuple: the photoID of the photo in the Photos table, as an SQL result
         """
-        if photourl is not None and photourl != "":
+        if photourl is not None and photourl != "" and not photourl.isspace():
             cursor = cursor
             query = sql.SQL("insert into {table1} "
                             "({insert_field})"
