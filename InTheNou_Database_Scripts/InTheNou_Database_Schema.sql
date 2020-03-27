@@ -66,8 +66,22 @@ Create table Rooms( rid serial primary key,
                     rLongitude decimal(10,6) NOT NULL,
                     rLatitude decimal(10,6) NOT NULL,
                     rAltitude decimal(10,6) NOT NULL,
-                    photoID int references Photos(photoID));
-                    
+                    photoID int references Photos(photoID),
+                    rdescription_tokens tsvector);
+
+/* For searching the tokens of rooms, use both languages:
+where rdescription_tokens @@ to_tsquery('spanish','cuarto')
+or  rdescription_tokens @@ to_tsquery('cuarto') */
+
+/* Trigger to automatically update a room vector */
+create or replace function vectorizeRoomDescription() returns trigger as $$
+begin
+	new.rdescription_tokens = to_tsvector('spanish', new.rDescription);
+	return new;
+end $$ language plpgsql;
+
+create trigger vectorizeRoomDescription before insert or update
+on rooms for each row execute procedure vectorizeRoomDescription();
                     
 /* Create Services */                    
 Create table Services( sid serial primary key,
@@ -80,6 +94,7 @@ Create table Services( sid serial primary key,
                        sname_tokens tsvector,
                        sdescription_tokens tsvector);
 
+/* Triggers to automatically vectorize Services */
 create or replace function vectorizeService() returns trigger as $$
 begin
 	new.sname_tokens = to_tsvector(new.sname);
