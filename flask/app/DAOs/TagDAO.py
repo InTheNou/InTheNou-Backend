@@ -152,7 +152,9 @@ class TagDAO(MasterDAO):
         cursor.execute(query, (int(eid), int(tid)))
 
     def setUserTag(self, uid, tid, weight, cursor):
-        """DOES NOT COMMIT CHAGES TO DATABASE
+        """
+        Sets the weight for the users's tag.
+        DOES NOT COMMIT CHAGES TO DATABASE
         """
         cursor = cursor
         query = sql.SQL("insert into {table}({fields}) "
@@ -193,5 +195,23 @@ class TagDAO(MasterDAO):
             self.conn.commit()
         except errors.ForeignKeyViolation as badkey:
             return badkey
+        return result
+
+    def getCoreUserTagsFromEventID(self, uid, eid, cursor):
+        """
+        Gets the weights for the given user, for the given event, even if null.
+        DOES NOT COMMIT CHANGES TO DATABASE
+        """
+        cursor = cursor
+        query = sql.SQL("select et.tid, cuser.tagweight from "
+                        "eventtags as et "
+                        "left outer join "
+                        "(select * from usertags where uid = %s) as cuser "
+                        "on et.tid = cuser.tid "
+                        "where et.eid = %s")
+        cursor.execute(query, (str(uid), int(eid)))
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
 
