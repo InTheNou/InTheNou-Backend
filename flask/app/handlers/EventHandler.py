@@ -143,7 +143,7 @@ class EventHandler:
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
-                   searchstring: string with search terms separated by whitespaces
+                   json: json object with string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
                    limit: Max number of result rows to return. Default=10.
                Return:
@@ -165,6 +165,33 @@ class EventHandler:
                     "itype": row[11],
                     "recommendstatus": row[12]
                 }
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit):
+        """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
+               Parameters:
+                   uid: User ID
+                   json: json object with string with search terms separated by whitespaces
+                   offset: Number of result rows to ignore from top of query results.
+                   limit: Max number of result rows to return. Default=10.
+               Return:
+                   JSON Response Object: JSON containing limit-defined number of upcoming, active events.
+                       """
+        # Process keywords to be filtered and separated by pipes.
+        keywords = self.processSearchString(searchstring=json['searchstring'])
+
+        dao = EventDAO()
+        events = dao.getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                # TODO: consider re-developing Response builders for more flexibility.
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_entry['itype'] = row[11]
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
