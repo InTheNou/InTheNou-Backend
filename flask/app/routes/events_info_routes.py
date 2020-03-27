@@ -24,6 +24,13 @@ def getAllEventsSegmented(offset, limit):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# automated test not set up
+@app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllDeletedEventsSegmented(offset, limit):
+    if request.method == 'GET': return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # TODO: verify the user has event creator + privileges
 # TODO: Pass uid from session.
 @app.route("/App/Events/Create", methods=['POST'])
