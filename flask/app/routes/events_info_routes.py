@@ -18,6 +18,12 @@ def getEventByID(eid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+@app.route("/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllEventsSegmented(offset, limit):
+    if request.method == 'GET': return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # TODO: verify the user has event creator + privileges
 # TODO: Pass uid from session.
 @app.route("/App/Events/Create", methods=['POST'])

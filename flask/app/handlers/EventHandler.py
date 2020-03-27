@@ -72,6 +72,19 @@ class EventHandler:
             response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
 
+    def getAllEventsSegmented(self, offset, limit=20):
+        dao = EventDAO()
+        events = dao.getAllEventsSegmented(offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
         Parameters:

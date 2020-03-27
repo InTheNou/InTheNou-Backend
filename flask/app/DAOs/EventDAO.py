@@ -47,6 +47,45 @@ class EventDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
+    def getAllEventsSegmented(self, offset, limit):
+        """
+        Query Database for an all event information limited and offset.
+        Parameters:
+             offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "offset %s "
+                        "limit %s").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate'),
+                sql.Identifier('photourl')
+            ]),
+            table1=sql.Identifier('events'),
+            table2=sql.Identifier('photos'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'),
+            pkey=sql.Identifier('eid'))
+        cursor.execute(query, (int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that are active, that have not ended,
@@ -112,7 +151,6 @@ class EventDAO(MasterDAO):
         Returns:
             List[Tuple]: SQL result of Query as a list of tuples.
         """
-
 
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from ("
