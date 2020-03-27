@@ -67,7 +67,6 @@ class WebsiteDAO(MasterDAO):
             result.append(row)
         return result
     
-    
     def createWebsite(self,url):
         """
         """
@@ -96,7 +95,6 @@ class WebsiteDAO(MasterDAO):
         """Inserts a website into the website table DOES NOT COMMIT CHANGES TO DB.
         Parameters:
             url: the url for the website
-            wdescription: a description for the website
             cursor: createEvent method call connection cursor to database.
         Returns:
             wid: website ID
@@ -105,17 +103,15 @@ class WebsiteDAO(MasterDAO):
             cursor = cursor
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
-                            "values (%s, %s, %s) "
+                            "values (%s) "
                             "on CONFLICT (url) do update "
                             "set url=%s"
                             "returning wid;").format(
                 table1=sql.Identifier('websites'),
                 insert_fields=sql.SQL(',').join([
-                    sql.Identifier('url'),
-                    sql.Identifier('wdescription'),
-                    sql.Identifier('isdeleted')
+                    sql.Identifier('url')
                 ]))
-            cursor.execute(query, (str(url), wdescription, False, str(url)))
+            cursor.execute(query, (str(url), str(url)))
             result = cursor.fetchone()
         else:
             result = [None, None]
@@ -169,25 +165,27 @@ class WebsiteDAO(MasterDAO):
    
    
    
-    def addWebsitesToEvent(self, eid, wid, cursor):
+    def addWebsitesToEvent(self, eid, wid,wdescription, cursor):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
         DB.
         Parameters:
             eid: newly created Event ID.
             wid: website IDs
+            wdescription: description of website
             cursor: createEvent method call connection cursor to database.
         """
         cursor = cursor
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
-                        "values (%s, %s);").format(
+                        "values (%s, %s, %s);").format(
             table1=sql.Identifier('eventwebsites'),
             insert_fields=sql.SQL(',').join([
                 sql.Identifier('eid'),
-                sql.Identifier('wid')
+                sql.Identifier('wid'),
+                sql.Identifier('wdescription')
             ]))
-        cursor.execute(query, (int(eid), int(wid)))
+        cursor.execute(query, (int(eid), int(wid), wdescription))
         return
 
 
