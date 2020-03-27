@@ -5,6 +5,11 @@ class UserDAO(MasterDAO):
 
     def changeRole(self,id,uid,roleid):
         """
+        Query database to update roleid value in a row that matches a given uid
+        Parameters :
+        id- user id of who is making the change, for log purposes and to check if the user can make the change 
+        uid- The Id of the user to change roles 
+        roleid- The new role to give to the user 
         """
         cursor = self.conn.cursor()
         query = sql.SQL(

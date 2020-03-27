@@ -19,8 +19,7 @@ def _buildUserResponse(user_tuple):
     response['email']      = user_tuple[1]
     response['first_name'] = user_tuple[2]
     response['last_name']  = user_tuple[3]
-    response['type']       = user_tuple[4]
-    response['roleid']     = user_tuple[5]
+    response['roleid']     = user_tuple[4]
 
     return response
 

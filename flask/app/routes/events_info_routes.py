@@ -130,12 +130,6 @@ def getBuildingByID(bid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
-@app.route("/App/Services/sid=<int:sid>", methods=['GET'])
-def getServiceByID(sid):
-    if request.method == 'GET': return ServiceHandler().getServiceByID(sid=sid)
-    else: return jsonify(Error="Method not allowed."), 405
-
 
 @app.route("/App/Tags", methods=['GET'])
 def getAllTags():
