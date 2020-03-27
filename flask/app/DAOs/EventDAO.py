@@ -99,6 +99,62 @@ class EventDAO(MasterDAO):
             result.append(row)
         return result
 
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, keywords, offset, limit):
+        """
+         Query Database for events that are active, that have not ended,
+            ordered by closest start date, offset by a set number of rows,
+             returning a limited number of rows after offset.
+        Parameters:
+            uid: user ID.
+            keywords: string of keywords separated by a pipe "|"
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+
+
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from ("
+                        "(select * from events "
+                        "where estatus='active' and eend>CURRENT_TIMESTAMP "
+                        "and (title_tokens @@ to_tsquery(%s) or description_tokens @@ to_tsquery(%s))"
+                        "and eid not in("
+                        "select eid from eventuserinteractions "
+                        "where uid=%s and itype='dismissed')) "
+                        "as uevents	"
+                        "left outer join photos "
+                        "on uevents.photoid = photos.photoid) "
+                        "as undismissed_events "
+                        "left outer join ("
+                        "select * from eventuserinteractions "
+                        "where uid=%s) "
+                        "as users_interactions "
+                        "on undismissed_events.eid = users_interactions.eid "
+                        "order by estart "
+                        "offset %s "
+                        "limit %s").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier("undismissed_events", 'eid'),
+                sql.Identifier("undismissed_events", 'ecreator'),
+                sql.Identifier("undismissed_events", 'roomid'),
+                sql.Identifier("undismissed_events", 'etitle'),
+                sql.Identifier("undismissed_events", 'edescription'),
+                sql.Identifier("undismissed_events", 'estart'),
+                sql.Identifier("undismissed_events", 'eend'),
+                sql.Identifier("undismissed_events", 'ecreation'),
+                sql.Identifier("undismissed_events", 'estatus'),
+                sql.Identifier("undismissed_events", 'estatusdate'),
+                sql.Identifier("undismissed_events", 'photourl'),
+                sql.Identifier("users_interactions", 'itype'),
+                sql.Identifier("users_interactions", 'recommendstatus')
+            ]))
+        cursor.execute(query, (str(keywords), str(keywords), int(uid), int(uid), int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def getUpcomingFollowedEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that the user is following, are active,
@@ -150,6 +206,9 @@ class EventDAO(MasterDAO):
         for row in cursor:
             result.append(row)
         return result
+
+
+
 
     def getDismissedEvents(self, uid, offset, limit):
         """

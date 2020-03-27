@@ -67,6 +67,12 @@ def getUpcomingGeneralEventsSegmented(uid, offset, limit):
     if request.method == 'GET': return EventHandler().getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
+# Automated test not fully set up
+@app.route("/App/Events/General/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getUpcomingGeneralEventsByKeywordsSegmented(offset, limit):                                 # Make this with session!
+    if request.method == 'GET': return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=request.json['uid'], json=request.json, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
 
 # Automated test not set up
 @app.route("/App/Events/Recommended/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])

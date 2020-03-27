@@ -122,6 +122,38 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit):
+        """Return the upcoming, active event entries specified by offset and limit parameters.
+               Parameters:
+                   uid: User ID
+                   searchstring: string with search terms separated by whitespaces
+                   offset: Number of result rows to ignore from top of query results.
+                   limit: Max number of result rows to return. Default=10.
+               Return:
+                   JSON Response Object: JSON containing limit-defined number of upcoming, active events.
+                       """
+
+        # split the searchstring by spaces and join them with pipes.
+        keyword_list = str.split(json['searchstring'])
+        keywords = " | ".join(keyword_list)
+        dao = EventDAO()
+        events = dao.getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            print(events)
+            event_list = []
+            for row in events:
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                # TODO: Consider reworking generalEventsSegmented and builder.
+                event_entry['interaction'] = {
+                    "itype": row[11],
+                    "recommendstatus": row[12]
+                }
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
     def getDismissedEvents(self, uid, offset, limit=20):
         """Return the dismissed event entries specified by offset and limit parameters.
         Parameters:
