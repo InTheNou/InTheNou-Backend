@@ -120,7 +120,20 @@ Create table Events( eid serial primary key,
                      eStatus text NOT NULL CHECK (eStatus <> ''),
                      eStatusDate timestamp,
                      photoID int references Photos(photoID),
-                     CONSTRAINT no_duplicate_events_at_same_time_place UNIQUE (roomID, eTitle, eStart));
+                     CONSTRAINT no_duplicate_events_at_same_time_place UNIQUE (roomID, eTitle, eStart),
+                     title_tokens tsvector,
+                     description_tokens tsvector);
+
+/* Function and trigger to automatically set the tsvectors for the events. */
+create or replace function vectorizeEvent() returns trigger as $$
+begin
+	new.title_tokens = to_tsvector(new.etitle);
+	new.description_tokens = to_tsvector(new.edescription);
+	return new;
+end $$ language plpgsql;
+
+create trigger vectorizeEvent before insert
+on events for each row execute procedure vectorizeEvent();
 
 /*  Relate Events with Websites */
 Create table EventWebsites( eid integer references Events(eid) NOT NULL,
