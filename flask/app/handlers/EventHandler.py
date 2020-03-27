@@ -224,13 +224,15 @@ class EventHandler:
             JSON Response Object: JSON containing successful post response.
                 """
         dao = EventDAO()
-        uid_eid_pair = dao.setInteraction(uid=uid, eid=eid, itype=itype)
+        result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
         # TODO: Consider a better way to do this error handling.
         try:
-            return jsonify({"uid": uid_eid_pair[0],
-                            "eid": uid_eid_pair[1]}), 201
+            new_usertags = []
+            for row in result:
+                new_usertags.append(TagHandler().buildCoreUserTagResponse(tag_tuple=row))
+            return jsonify({"tags": new_usertags}), 201
         except TypeError:
-            return jsonify(Error=str(uid_eid_pair)), 400
+            return jsonify(Error=str(result)), 400
 
     def setRecommendation(self, uid, eid, recommendstatus):
         """Set an eventuserinteractions entry that states if the specified event

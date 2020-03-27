@@ -392,6 +392,7 @@ class EventDAO(MasterDAO):
                                                           cursor=cursor)
         # Determine how to set the usertag weight.
         try:
+            updated_usertags = []
             for t_w in tag_weights:
                 tid = t_w[0]
                 new_weight=-1
@@ -415,7 +416,7 @@ class EventDAO(MasterDAO):
                         pass  # Entry would be negative, so pass.
                 if new_weight >= 0:
                     # If the new weight was set above, run the query to set user tag.
-                    TagDAO().setUserTag(uid=uid, tid=tid, weight=new_weight, cursor=cursor)
+                    updated_usertags.append(TagDAO().setUserTag(uid=uid, tid=tid, weight=new_weight, cursor=cursor))
         except errors.ForeignKeyViolation as fke:
             return fke
 
@@ -440,8 +441,8 @@ class EventDAO(MasterDAO):
             ukey1=sql.Identifier('itype'))
         try:
             cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
-            result = cursor.fetchone()
             self.conn.commit()
+            result = updated_usertags
         except errors.ForeignKeyViolation as e:
             result = e
         return result
