@@ -38,6 +38,13 @@ def getAllEventsSegmented(offset, limit):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up
+@app.route("/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllPastEventsSegmented(offset, limit):
+    if request.method == 'GET': return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # automated test not set up
 @app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getAllDeletedEventsSegmented(offset, limit):
@@ -127,11 +134,23 @@ def getPastFollowedEventsSegmented(uid, offset, limit):
     if request.method == 'GET': return EventHandler().getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
-
+# Use session instead of uri for uid.
 # Automated test not set up
 @app.route("/App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getEventsCreatedByUser(uid, offset, limit):
     if request.method == 'GET': return EventHandler().getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+# Use session to authorize, but get UID to check from json
+# Automated test not set up
+@app.route("/Dashboard/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getEventsCreatedByOtherUser(offset, limit):
+    if request.method == 'GET':
+        # TODO: VERIFY IF SESSION USER IS AUTHORIZED FOR THE USER THEY ARE SEARCHING.
+        if 'uid' in request.json:
+            return EventHandler().getEventsCreatedByUser(uid=request.json['uid'], offset=offset, limit=limit)
+        else: return jsonify(Error="Missing key: uid."), 401
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -203,7 +222,13 @@ def getTagsByUserID(uid):
 
 
 # Automated test not set up
-@app.route("/App/Tags/User/Remove", methods=['DELETE'])
+@app.route("/App/Tags/User/Remove", methods=['POST'])
 def setUserTagsToZero():
-    if request.method == 'DELETE': return TagHandler().batchSetUserTags(json=request.json, weight=0)
+    if request.method == 'POST': return TagHandler().batchSetUserTags(json=request.json, weight=0)
+    else: return jsonify(Error="Method not allowed."), 405
+
+# Automated test not set up
+@app.route("/App/Tags/User/Add", methods=['POST'])
+def setUserTagsToDefault():
+    if request.method == 'POST': return TagHandler().batchSetUserTags(json=request.json, weight=100)
     else: return jsonify(Error="Method not allowed."), 405
