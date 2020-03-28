@@ -197,7 +197,7 @@ class EventDAO(MasterDAO):
         query = sql.SQL("select {fields} from ("
                         "(select * from events "
                         "where estatus='active' and eend>CURRENT_TIMESTAMP "
-                        "and (title_tokens @@ to_tsquery(%s) or description_tokens @@ to_tsquery(%s))"
+                        "and (etitle_tokens @@ to_tsquery(%s) or edescription_tokens @@ to_tsquery(%s))"
                         "and eid not in("
                         "select eid from eventuserinteractions "
                         "where uid=%s and itype='dismissed')) "
@@ -408,7 +408,7 @@ class EventDAO(MasterDAO):
                         "natural join {table3} "
                         "where {pkey1}= %s and {pkey2} > CURRENT_TIMESTAMP "
                         "and {pkey3}=%s and {pkey4} = %s and {pkey5} <> %s "
-                        "and (title_tokens @@ to_tsquery(%s) or description_tokens @@ to_tsquery(%s))"
+                        "and (etitle_tokens @@ to_tsquery(%s) or edescription_tokens @@ to_tsquery(%s))"
                         "order by {table1Identifier2} "
                         "offset %s "
                         "limit %s;").format(
