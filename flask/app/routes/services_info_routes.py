@@ -6,8 +6,8 @@ from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
 from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
-
-
+from app.handlers.PhoneHandler import PhoneHandler
+from app.handlers.WebsiteHandler import WebsiteHandler
 # Automated test not set up
 @app.route("/App/Services/sid=<int:sid>", methods=['GET'])
 def getServiceByID(sid):
@@ -23,12 +23,22 @@ def createService():
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/website/remove", methods=['DELETE'])
-def removeServiceWebsite():
-    if request.method == 'DELETE': return ServiceHandler().removeServiceWebsite(request.json)
+@app.route("/Dashboard/Services/sid=<int:sid>/website/remove", methods=['POST'])
+def removeServiceWebsite(sid):
+    if request.method == 'POST': return WebsiteHandler().removeServiceWebsite(sid=sid,json=request.json)
     else: return jsonify(Error="Method not allowed."), 405
 
 @app.route("/Dashboard/Services/sid=<int:sid>/website/add",methods=['GET'])
-def getServiceWebsite(sid):
-    if request.method == 'GET': return ServiceHandler().insertServiceWebsite(sid=sid,json= request.json)
+def addServiceWebsite(sid):
+    if request.method == 'GET': return WebsiteHandler().insertServiceWebsite(sid=sid,json= request.json)
+    else: return jsonify(Error="Method not allowed."), 405
+
+@app.route("/Dashboard/Services/sid=<int:sid>/phone/add",methods=['GET'])
+def addServicePhone(sid):
+    if request.method == 'GET': return PhoneHandler().insertServicePhone(sid=sid,json= request.json)
+    else: return jsonify(Error="Method not allowed."), 405
+    
+@app.route("/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
+def removeServicePhone(sid):
+    if request.method == 'POST': return PhoneHandler().removePhoneByServiceID(sid=sid,json=request.json)
     else: return jsonify(Error="Method not allowed."), 405
