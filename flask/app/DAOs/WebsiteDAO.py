@@ -98,7 +98,7 @@ class WebsiteDAO(MasterDAO):
         Returns:
             wid: website ID
             """
-        if url is not None and url != "":
+        if url is not None and url != "" and not url.isspace():
             cursor = cursor
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
