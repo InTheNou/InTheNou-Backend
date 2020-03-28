@@ -26,7 +26,14 @@ Create table Users( uid serial primary key,
                     type text NOT NULL CHECK (type <> ''),
                     roleID integer REFERENCES Roles(roleID) NOT NULL,
                     roleIssuer integer REFERENCES Users (uid) CHECK (roleIssuer <> uid));
-                    
+
+/* Create oAuth table for volatile session information */
+Create table oAuth (access_token text NOT NULL CHECK (access_token <> ''),
+                    refresh_token text CHECK (refresh_token <> ''),
+                    provider text NOT NULL CHECK (provider <> ''),
+                    uid int references Users(uid) NOT NULL,
+                    primary key (access_token, uid));
+
 /* Create Photos table */
 /* NOTE: Should we allow duplicate photo urls? */
 Create table Photos( photoID serial primary key,
