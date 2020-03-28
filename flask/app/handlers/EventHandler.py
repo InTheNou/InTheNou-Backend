@@ -106,6 +106,19 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
+    def getAllPastEventsSegmented(self, offset, limit=20):
+        dao = EventDAO()
+        events = dao.getAllPastEventsSegmented(offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
     def getNewDeletedEvents(self, json):
         if TIMESTAMP not in json:
             return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
