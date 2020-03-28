@@ -222,7 +222,13 @@ def getTagsByUserID(uid):
 
 
 # Automated test not set up
-@app.route("/App/Tags/User/Remove", methods=['DELETE'])
+@app.route("/App/Tags/User/Remove", methods=['POST'])
 def setUserTagsToZero():
-    if request.method == 'DELETE': return TagHandler().batchSetUserTags(json=request.json, weight=0)
+    if request.method == 'POST': return TagHandler().batchSetUserTags(json=request.json, weight=0)
+    else: return jsonify(Error="Method not allowed."), 405
+
+# Automated test not set up
+@app.route("/App/Tags/User/Add", methods=['POST'])
+def setUserTagsToDefault():
+    if request.method == 'POST': return TagHandler().batchSetUserTags(json=request.json, weight=100)
     else: return jsonify(Error="Method not allowed."), 405
