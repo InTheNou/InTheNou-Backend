@@ -137,6 +137,37 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
+    def getEventsCreatedAfterTimestamp(self, json, uid=None):
+        """
+        Get the upcoming active event IDs that a user has not interacted with,
+        along with the tags for that event.
+        Parameters:
+            json: JSON object with timestamp key.
+            uid: the user's ID.
+        Return:
+            JSON: json response with event IDs and tags for each event.
+        """
+        if json is None:
+            return jsonify(Error='No JSON sent.'), 401
+        if TIMESTAMP not in json:
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+        timestamp = json[TIMESTAMP]
+        if (timestamp.lower()).islower():
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        if uid is None:
+            uid=json['uid']
+        dao = EventDAO()
+        event_ids = dao.getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
+        if not event_ids:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in event_ids:
+                event_entry = {"eid": row[0], "tags": TagHandler().safeGetTagsByEventID(eid=row[0])}
+                event_list.append(event_entry)
+            response={'events': event_list}
+        return jsonify(response)
+
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
         Parameters:

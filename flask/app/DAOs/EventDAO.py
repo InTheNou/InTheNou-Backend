@@ -526,6 +526,34 @@ class EventDAO(MasterDAO):
             result.append(row)
         return result
 
+    def getEventIDsCreatedAfterTimestamp(self, uid, timestamp):
+        """
+         Query Database for events that have been created after the given timestamp.
+        Parameters:
+            uid: user ID
+            timestamp: string representing the time after which to search for deleted events.
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from events "
+                        "where ecreation >= %s "
+                        "and estatus='active' "
+                        "and eend>CURRENT_TIMESTAMP "
+                        "and eid not in("
+                        "select eid "
+                        "from eventuserinteractions "
+                        "where uid=%s);").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('eid')
+            ]),
+            table1=sql.Identifier('events'))
+        cursor.execute(query, (str(timestamp), int(uid)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def getEventsCreatedByUser(self, uid, offset, limit):
         """
          Query Database for events created by a user,
