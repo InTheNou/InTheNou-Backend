@@ -20,7 +20,9 @@ class WebsiteDAO(MasterDAO):
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e
-        return result
+        if result is None:
+            return None
+        return result[0]
    
     def getWebsitesByServiceID(self, sid):
         cursor = self.conn.cursor()
