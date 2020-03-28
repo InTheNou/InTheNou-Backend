@@ -7,6 +7,7 @@ from app.handlers.TagHandler import TagHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
+TIMESTAMP = 'timestamp'
 
 def _buildEventResponse(event_tuple):
     """
@@ -58,7 +59,27 @@ def _buildCoreEventResponse(event_tuple):
     return response
 
 
+def _buildTinyEventResponse(event_tuple):
+    """
+        Private Method to build tiny event dictionary to be JSONified.
+        Parameters:
+            event_tuple: response tuple from SQL query
+        Returns:
+            Dict: Event information.
+        """
+    response = {}
+    response['eid'] = event_tuple[0]
+    response['estart'] = event_tuple[5]
+    response['eend'] = event_tuple[6]
+    response['ecreation'] = event_tuple[7]
+    response['estatus'] = event_tuple[8]
+    response['estatusdate'] = event_tuple[9]
+    return response
+
+
 class EventHandler:
+    # TODO: verify all jsons to make sure they have the required keys.
+    # todo: extract all/most of hardcoded key names to variables.
 
     def getEventByID(self, eid):
         """Return the event entry belonging to the specified eid.
@@ -81,6 +102,24 @@ class EventHandler:
             event_list = []
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getNewDeletedEvents(self, json):
+        if TIMESTAMP not in json:
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+        timestamp = json[TIMESTAMP]
+        if (timestamp.lower()).islower():
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        dao = EventDAO()
+        events = dao.getNewDeletedEvents(timestamp=timestamp)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildTinyEventResponse(event_tuple=row)
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)

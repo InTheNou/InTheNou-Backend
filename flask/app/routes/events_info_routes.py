@@ -18,6 +18,14 @@ def getEventByID(eid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up
+@app.route("/App/Events/Deleted/New", methods=['GET'])
+def getNewDeletedEvents():
+    if request.method == 'GET': return EventHandler().getNewDeletedEvents(json=request.json)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+
 @app.route("/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getAllEventsSegmented(offset, limit):
     if request.method == 'GET': return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)

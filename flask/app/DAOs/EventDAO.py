@@ -495,6 +495,37 @@ class EventDAO(MasterDAO):
             result.append(row)
         return result
 
+    def getNewDeletedEvents(self, timestamp):
+        """
+         Query Database for events that have been deleted after the given timestamp.
+        Parameters:
+            timestamp: string represeting the time after which to search for deleted events.
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "where estatus= %s "
+                        "and estatusdate >= %s").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate')
+            ]),
+            table1=sql.Identifier('events'))
+        cursor.execute(query, (DELETED_STRING, str(timestamp)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def getEventsCreatedByUser(self, uid, offset, limit):
         """
          Query Database for events created by a user,
@@ -676,6 +707,8 @@ class EventDAO(MasterDAO):
             result = e
         return result
 
+
+# todo: Conisder setting the statusdate via trigger.
     def setEventStatus(self, eid, estatus):
         """
          Sets the estatus for a given event.
@@ -687,7 +720,8 @@ class EventDAO(MasterDAO):
         """
         cursor = self.conn.cursor()
         query = sql.SQL("update {table1} "
-                        "set {ukey1} = %s "
+                        "set {ukey1} = %s,"
+                        "estatusdate = CURRENT_TIMESTAMP  "
                         "where {pkey1}= %s "
                         "returning {pkey1}").format(
             table1=sql.Identifier('events'),
