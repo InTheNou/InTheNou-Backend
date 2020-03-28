@@ -69,7 +69,6 @@ class WebsiteDAO(MasterDAO):
     def createWebsite(self,url):
         """
         """
-       
         if url is not None and url != "":
             cursor = self.conn.cursor()
             query = sql.SQL("insert into {table1} "
@@ -113,7 +112,7 @@ class WebsiteDAO(MasterDAO):
                     sql.Identifier('url')
                 ]))
             cursor.execute(query, (str(url), str(url)))
-            self.conn.commit()
+            
             result = cursor.fetchone()
         else:
             result = [None, None]
