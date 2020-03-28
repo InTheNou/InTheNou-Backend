@@ -761,9 +761,10 @@ class EventDAO(MasterDAO):
         if websites is not None:
             try:
                 for website in websites:
-                    wid = WebsiteDAO().insertWebsite(url=website['url'], wdescription=website['wdescription'], cursor=cursor)[0]
+                    wid = WebsiteDAO().insertWebsite(url=website['url'], cursor=cursor)[0]
 
-                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, cursor=cursor)
+                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, wdescription=website['wdescription'],
+                                                    cursor=cursor)
             # Do not know if this is the right error to expect.
             except TypeError as e:
                 return e
