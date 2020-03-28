@@ -26,7 +26,14 @@ Create table Users( uid serial primary key,
                     type text NOT NULL CHECK (type <> ''),
                     roleID integer REFERENCES Roles(roleID) NOT NULL,
                     roleIssuer integer REFERENCES Users (uid) CHECK (roleIssuer <> uid));
-                    
+
+/* Create oAuth table for volatile session information */
+Create table oAuth (access_token text NOT NULL CHECK (access_token <> ''),
+                    refresh_token text CHECK (refresh_token <> ''),
+                    provider text NOT NULL CHECK (provider <> ''),
+                    uid int references Users(uid) NOT NULL,
+                    primary key (access_token, uid));
+
 /* Create Photos table */
 /* NOTE: Should we allow duplicate photo urls? */
 Create table Photos( photoID serial primary key,
@@ -66,8 +73,22 @@ Create table Rooms( rid serial primary key,
                     rLongitude decimal(10,6) NOT NULL,
                     rLatitude decimal(10,6) NOT NULL,
                     rAltitude decimal(10,6) NOT NULL,
-                    photoID int references Photos(photoID));
-                    
+                    photoID int references Photos(photoID),
+                    rdescription_tokens tsvector);
+
+/* For searching the tokens of rooms, use both languages:
+where rdescription_tokens @@ to_tsquery('spanish','cuarto')
+or  rdescription_tokens @@ to_tsquery('cuarto') */
+
+/* Trigger to automatically update a room vector */
+create or replace function vectorizeRoomDescription() returns trigger as $$
+begin
+	new.rdescription_tokens = to_tsvector('spanish', new.rDescription);
+	return new;
+end $$ language plpgsql;
+
+create trigger vectorizeRoomDescription before insert or update
+on rooms for each row execute procedure vectorizeRoomDescription();
                     
 /* Create Services */                    
 Create table Services( sid serial primary key,
@@ -76,7 +97,21 @@ Create table Services( sid serial primary key,
                        sDescription text,
                        sSchedule text,
                        isDeleted boolean NOT NULL,
-                       CONSTRAINT unique_room_services UNIQUE(rid, sName));
+                       CONSTRAINT unique_room_services UNIQUE(rid, sName),
+                       sname_tokens tsvector,
+                       sdescription_tokens tsvector);
+
+/* Triggers to automatically vectorize Services */
+create or replace function vectorizeService() returns trigger as $$
+begin
+	new.sname_tokens = to_tsvector(new.sname);
+	new.sdescription_tokens = to_tsvector(new.sdescription);
+	return new;
+end $$ language plpgsql;
+
+create trigger vectorizeService before insert or update
+on services for each row execute procedure vectorizeService();
+
             
 /* Create Phones */
 /* pnumber format: XXX-XXX-XXX | XXX-XXX-XXX,XXX
@@ -84,25 +119,25 @@ Create table Services( sid serial primary key,
  */
 Create table Phones( phoneID serial primary key,
                      pNumber text NOT NULL UNIQUE CHECK (pNumber <> ''),
-                     pType char(1) NOT NULL,
-                     isDeleted boolean NOT NULL);
+                     pType char(1) NOT NULL);
           
 /* Relate Phones with Services */   
 /* NOTE: Could this relationship be one to many? Ergo, every phone belongs to only one service? 
    NOTE: Discussed with Diego, should remain many to many. Same with websites.*/
 Create table ServicePhones( sid integer references Services(sid) NOT NULL,
                             phoneID integer references Phones(phoneID) NOT NULL,
+                            isDeleted boolean NOT NULL,
                             primary key (sid, phoneID));
                       
 /* Create Websites */                      
 Create table Websites( wid serial primary key,
-                       url text NOT NULL UNIQUE CHECK (url <> ''),
-                       wDescription text,
-                       isDeleted boolean NOT NULL);
+                       url text NOT NULL UNIQUE CHECK (url <> ''));
                        
 /* Relate Websites with Services */          
 Create table ServiceWebsites( sid integer references Services(sid) NOT NULL,
                               wid integer references Websites(wid) NOT NULL,
+                              wDescription text,
+                              isDeleted boolean NOT NULL,
                               primary key (sid,wid));
 
 /* Create Events, related with Users, Rooms, Photos, and Websites. */    
@@ -120,11 +155,25 @@ Create table Events( eid serial primary key,
                      eStatus text NOT NULL CHECK (eStatus <> ''),
                      eStatusDate timestamp,
                      photoID int references Photos(photoID),
-                     CONSTRAINT no_duplicate_events_at_same_time_place UNIQUE (roomID, eTitle, eStart));
+                     CONSTRAINT no_duplicate_events_at_same_time_place UNIQUE (roomID, eTitle, eStart),
+                     etitle_tokens tsvector,
+                     edescription_tokens tsvector);
+
+/* Function and trigger to automatically set the tsvectors for the events. */
+create or replace function vectorizeEvent() returns trigger as $$
+begin
+	new.etitle_tokens = to_tsvector(new.etitle);
+	new.edescription_tokens = to_tsvector(new.edescription);
+	return new;
+end $$ language plpgsql;
+
+create trigger vectorizeEvent before insert or update
+on events for each row execute procedure vectorizeEvent();
 
 /*  Relate Events with Websites */
 Create table EventWebsites( eid integer references Events(eid) NOT NULL,
                             wid integer references Websites(wid) NOT NULL,
+                            wDescription text,
                             primary key (eid,wid));
 
 /* Relate Events with Users through interactions other than creation/deletion. */
@@ -155,11 +204,12 @@ Create table UserTags( uid int references Users(uid) NOT NULL,
                        primary key (uid, tid),
                        tagWeight int NOT NULL CHECK (tagWeight BETWEEN 0 AND 200));
                         
-/* Create Audit Table */                        
-Create table Audit( auditID serial primary key,
-                    aTime timestamp NOT NULL,
-                    changedTable text NOT NULL CHECK (changedTable <> ''),
-                    changeType text NOT NULL CHECK (changeType <> ''),
-                    oldValue text NOT NULL,
-                    newValue text NOT NULL,
-                    uid int references Users(uid) NOT NULL);
+/* Create Audit Table */
+/* Removed due to COVID-19 Curriculum changes. */
+--Create table Audit( auditID serial primary key,
+--                    aTime timestamp NOT NULL,
+--                    changedTable text NOT NULL CHECK (changedTable <> ''),
+--                    changeType text NOT NULL CHECK (changeType <> ''),
+--                    oldValue text NOT NULL,
+--                    newValue text NOT NULL,
+--                    uid int references Users(uid) NOT NULL);

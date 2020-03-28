@@ -101,6 +101,35 @@ class TagDAO(MasterDAO):
             result.append(row)
         return result
 
+    def getUserTagsByEventID(self, uid, eid):
+        """
+         Query Database for all the tags belonging
+            to a User, given the user's ID.
+        Parameters:
+            uid: User ID
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "natural join {table2} "
+                        "natural join {table3} "
+                        "where {pkey}= %s and tagweight > 0;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('tid'),
+                sql.Identifier('tname'),
+                sql.Identifier('tagweight')
+            ]),
+            table1=sql.Identifier('users'),
+            table2=sql.Identifier('usertags'),
+            table3=sql.Identifier('tags'),
+            pkey=sql.Identifier('uid'))
+        cursor.execute(query, (int(uid),))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def tagEvent(self, eid, tid, cursor):
         """
         Tag the specified event with the specified tag. DOES NOT COMMIT CHANGES TO
@@ -122,8 +151,12 @@ class TagDAO(MasterDAO):
             ]))
         cursor.execute(query, (int(eid), int(tid)))
 
-    def setUserTag(self, uid, tid, weight):
-        cursor = self.conn.cursor()
+    def setUserTag(self, uid, tid, weight, cursor):
+        """
+        Sets the weight for the users's tag.
+        DOES NOT COMMIT CHAGES TO DATABASE
+        """
+        cursor = cursor
         query = sql.SQL("insert into {table}({fields}) "
                         "values (%s, %s, %s) "
                         "on Conflict(uid,tid) "
@@ -162,5 +195,23 @@ class TagDAO(MasterDAO):
             self.conn.commit()
         except errors.ForeignKeyViolation as badkey:
             return badkey
+        return result
+
+    def getCoreUserTagsFromEventID(self, uid, eid, cursor):
+        """
+        Gets the weights for the given user, for the given event, even if null.
+        DOES NOT COMMIT CHANGES TO DATABASE
+        """
+        cursor = cursor
+        query = sql.SQL("select et.tid, cuser.tagweight from "
+                        "eventtags as et "
+                        "left outer join "
+                        "(select * from usertags where uid = %s) as cuser "
+                        "on et.tid = cuser.tid "
+                        "where et.eid = %s")
+        cursor.execute(query, (str(uid), int(eid)))
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
 

@@ -7,6 +7,7 @@ from app.handlers.TagHandler import TagHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
+TIMESTAMP = 'timestamp'
 
 def _buildEventResponse(event_tuple):
     """
@@ -58,7 +59,27 @@ def _buildCoreEventResponse(event_tuple):
     return response
 
 
+def _buildTinyEventResponse(event_tuple):
+    """
+        Private Method to build tiny event dictionary to be JSONified.
+        Parameters:
+            event_tuple: response tuple from SQL query
+        Returns:
+            Dict: Event information.
+        """
+    response = {}
+    response['eid'] = event_tuple[0]
+    response['estart'] = event_tuple[5]
+    response['eend'] = event_tuple[6]
+    response['ecreation'] = event_tuple[7]
+    response['estatus'] = event_tuple[8]
+    response['estatusdate'] = event_tuple[9]
+    return response
+
+
 class EventHandler:
+    # TODO: verify all jsons to make sure they have the required keys.
+    # todo: extract all/most of hardcoded key names to variables.
 
     def getEventByID(self, eid):
         """Return the event entry belonging to the specified eid.
@@ -71,6 +92,81 @@ class EventHandler:
         else:
             response = _buildEventResponse(event_tuple=event)
             return jsonify(response)
+
+    def getAllEventsSegmented(self, offset, limit=20):
+        dao = EventDAO()
+        events = dao.getAllEventsSegmented(offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getNewDeletedEvents(self, json):
+        if TIMESTAMP not in json:
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+        timestamp = json[TIMESTAMP]
+        if (timestamp.lower()).islower():
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        dao = EventDAO()
+        events = dao.getNewDeletedEvents(timestamp=timestamp)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildTinyEventResponse(event_tuple=row)
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getAllDeletedEventsSegmented(self, offset, limit=20):
+        dao = EventDAO()
+        events = dao.getAllDeletedEventsSegmented(offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getEventsCreatedAfterTimestamp(self, json, uid=None):
+        """
+        Get the upcoming active event IDs that a user has not interacted with,
+        along with the tags for that event.
+        Parameters:
+            json: JSON object with timestamp key.
+            uid: the user's ID.
+        Return:
+            JSON: json response with event IDs and tags for each event.
+        """
+        if json is None:
+            return jsonify(Error='No JSON sent.'), 401
+        if TIMESTAMP not in json:
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+        timestamp = json[TIMESTAMP]
+        if (timestamp.lower()).islower():
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        if uid is None:
+            uid=json['uid']
+        dao = EventDAO()
+        event_ids = dao.getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
+        if not event_ids:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in event_ids:
+                event_entry = {"eid": row[0], "tags": TagHandler().safeGetTagsByEventID(eid=row[0])}
+                event_list.append(event_entry)
+            response={'events': event_list}
+        return jsonify(response)
 
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
@@ -86,7 +182,6 @@ class EventHandler:
         if not events:
             response = {'events': None}
         else:
-            print(events)
             event_list = []
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
@@ -118,6 +213,81 @@ class EventHandler:
                 # TODO: consider re-developing Response builders for more flexibility.
                 event_entry = _buildCoreEventResponse(event_tuple=row)
                 event_entry['recommendstatus'] = row[11]
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def processSearchString(self, searchstring):
+        """
+        Splits a string by its spaces, filters non-alpha-numeric symbols out,
+        and joins the keywords by space-separated pipes.
+        """
+        keyword_list = str.split(searchstring)
+        filtered_words = []
+        for word in keyword_list:
+            filtered_string = ""
+            for character in word:
+                if character.isalnum():
+                    filtered_string += character
+            if not filtered_string.isspace() and filtered_string != "":
+                filtered_words.append(filtered_string)
+        keywords = " | ".join(filtered_words)
+        return keywords
+
+
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit):
+        """Return the upcoming, active event entries specified by offset and limit parameters.
+               Parameters:
+                   uid: User ID
+                   json: json object with string with search terms separated by whitespaces
+                   offset: Number of result rows to ignore from top of query results.
+                   limit: Max number of result rows to return. Default=10.
+               Return:
+                   JSON Response Object: JSON containing limit-defined number of upcoming, active events.
+                       """
+        # Process keywords to be filtered and separated by pipes.
+        keywords = self.processSearchString(searchstring=json['searchstring'])
+
+        dao = EventDAO()
+        events = dao.getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                # TODO: Consider reworking generalEventsSegmented and builder.
+                event_entry['interaction'] = {
+                    "itype": row[11],
+                    "recommendstatus": row[12]
+                }
+                event_list.append(event_entry)
+            response = {'events': event_list}
+        return jsonify(response)
+
+    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit):
+        """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
+               Parameters:
+                   uid: User ID
+                   json: json object with string with search terms separated by whitespaces
+                   offset: Number of result rows to ignore from top of query results.
+                   limit: Max number of result rows to return. Default=10.
+               Return:
+                   JSON Response Object: JSON containing limit-defined number of upcoming, active events.
+                       """
+        # Process keywords to be filtered and separated by pipes.
+        keywords = self.processSearchString(searchstring=json['searchstring'])
+
+        dao = EventDAO()
+        events = dao.getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
+        if not events:
+            response = {'events': None}
+        else:
+            event_list = []
+            for row in events:
+                # TODO: consider re-developing Response builders for more flexibility.
+                event_entry = _buildCoreEventResponse(event_tuple=row)
+                event_entry['itype'] = row[11]
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
@@ -224,13 +394,15 @@ class EventHandler:
             JSON Response Object: JSON containing successful post response.
                 """
         dao = EventDAO()
-        uid_eid_pair = dao.setInteraction(uid=uid, eid=eid, itype=itype)
+        result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
         # TODO: Consider a better way to do this error handling.
         try:
-            return jsonify({"uid": uid_eid_pair[0],
-                            "eid": uid_eid_pair[1]}), 201
+            new_usertags = []
+            for row in result:
+                new_usertags.append(TagHandler().buildCoreUserTagResponse(tag_tuple=row))
+            return jsonify({"tags": new_usertags}), 201
         except TypeError:
-            return jsonify(Error=str(uid_eid_pair)), 400
+            return jsonify(Error=str(result)), 400
 
     def setRecommendation(self, uid, eid, recommendstatus):
         """Set an eventuserinteractions entry that states if the specified event

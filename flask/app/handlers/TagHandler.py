@@ -27,6 +27,12 @@ class TagHandler:
                 tags.append(tag['tid'])
         return tags
 
+    def buildCoreUserTagResponse(self, tag_tuple):
+        response = {}
+        response['tid'] = tag_tuple[1]
+        response['tagweight'] = tag_tuple[2]
+        return response
+
 
     def getTagByID(self, tid, no_json=False):
         """
