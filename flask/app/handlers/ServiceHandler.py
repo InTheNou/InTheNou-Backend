@@ -52,21 +52,19 @@ class ServiceHandler:
     def createService(self,json):
         """
         """
-       
+       ##TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
         for key in CREATESERVICEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-       
+       ##TODO: NO LIMIT REQUIERED?
         websites = WebsiteHandler().unpackWebsites(json=json['Websites'])
-        if len(websites) < 1 or len(websites) > 10:
+        if  len(websites) > 10:
             return jsonify(Error="Improper number of websites provided: "+ str(len(websites))), 400
-        # TODO: pass uid not through json
-
         phones=PhoneHandler().unpackPhones(json=json['PNumbers'])
-        if len(phones) < 1 or len(websites) > 10:
+        if len(websites) > 10:
             return jsonify(Error="Improper number of websites provided: "+ str(len(websites))), 400
 
-
+        ##MAKE DICTIONARY TO CRREATE THESE 
         user=json['uid']
         roomID =json['rid']
         name =json['sname']
@@ -79,7 +77,6 @@ class ServiceHandler:
                                 sname=name,
                                 sdescription=description,
                                 sschedule=schedule,
-                                isdeleted=False,
                                 websites=websites,
                                 numbers = phones
                                 )
@@ -89,7 +86,6 @@ class ServiceHandler:
             return jsonify(Error=str(sid)), 400
 
         return jsonify({"sid": sid}), 201
-
 
     def getServiceByID(self, sid, no_json=False):
         """
@@ -129,7 +125,6 @@ class ServiceHandler:
                 service_list.append(_buildServiceResponse(row))
             response={'Services':service_list}
             return jsonify(response)
-
 
     def updateServiceInformation(self,sid,json):
         """

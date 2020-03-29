@@ -9,6 +9,9 @@ from app.DAOs.PhoneDAO import PhoneDAO
 class ServiceDAO(MasterDAO):
 
     def serviceInfoArgs(self,service):
+        """
+        """
+        
         fields=[]
         for key in service:
             if key=='rid':
@@ -21,7 +24,7 @@ class ServiceDAO(MasterDAO):
                 fields.append(key+ " = " + "'"+str(service[key])+"'")
         return fields
     
-    def createService(self,uid,rid,sname,sdescription,sschedule,isdeleted,websites,numbers):
+    def createService(self,uid,rid,sname,sdescription,sschedule,websites,numbers):
         """
         """
         cursor = self.conn.cursor()
@@ -122,30 +125,3 @@ class ServiceDAO(MasterDAO):
             return None
         return result[0]       
        
-    # def getServiceWebsites(self,sid):
-    #     """
-    #      Query Database for all the website entries belonging
-    #         to a Service, given the Service's ID.
-    #     Parameters:
-    #         sid: Service ID
-    #     Returns:
-    #         Tuple: SQL result of Query as a tuple.
-    #     """
-    #     cursor = self.conn.cursor()
-    #     query = sql.SQL("select {fields} from {table1} "
-    #                     "natural join {table2} "
-    #                     "where {pkey}= %s;").format(
-    #         fields=sql.SQL(',').join([
-    #             sql.Identifier('wid'),
-    #             sql.Identifier('url'),
-    #             sql.Identifier('wdescription'),
-    #             sql.Identifier('isdeleted'),
-    #         ]),
-    #         table1=sql.Identifier('servicewebsites'),
-    #         table2=sql.Identifier('websites'),
-    #         pkey=sql.Identifier('sid'))
-    #     cursor.execute(query, (int(sid),))
-    #     result = []
-    #     for row in cursor:
-    #         result.append(row)
-    #     return result
