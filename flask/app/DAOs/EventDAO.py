@@ -863,7 +863,7 @@ class EventDAO(MasterDAO):
         if websites is not None:
             try:
                 for website in websites:
-                    wid = WebsiteDAO().insertWebsite(url=website['url'], cursor=cursor)[0]
+                    wid = WebsiteDAO().addWebsite(url=website['url'], cursor=cursor)[0]
 
                     WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, wdescription=website['wdescription'],
                                                     cursor=cursor)

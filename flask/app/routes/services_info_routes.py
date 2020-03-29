@@ -33,9 +33,9 @@ def removeServiceWebsite(sid):
     if request.method == 'POST': return WebsiteHandler().removeServiceWebsite(sid=sid,json=request.json)
     else: return jsonify(Error="Method not allowed."), 405
 
-@app.route("/Dashboard/Services/sid=<int:sid>/website/add",methods=['GET'])
+@app.route("/Dashboard/Services/sid=<int:sid>/website/add",methods=['POST'])
 def addServiceWebsite(sid):
-    if request.method == 'GET': return WebsiteHandler().insertServiceWebsite(sid=sid,json= request.json)
+    if request.method == 'POST': return WebsiteHandler().insertServiceWebsite(sid=sid,json= request.json)
     else: return jsonify(Error="Method not allowed."), 405
 
 @app.route("/Dashboard/Services/sid=<int:sid>/phone/add",methods=['GET'])

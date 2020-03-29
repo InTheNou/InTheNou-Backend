@@ -49,7 +49,7 @@ class ServiceDAO(MasterDAO):
 
        
         for  site in websites:
-           WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.insertWebsite(self,url=site['url'],cursor=cursor)),wdescription=site['wdescription'] ,cursor=cursor)
+           WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,url=site['url'],cursor=cursor)),wdescription=site['wdescription'] ,cursor=cursor)
 
         
         for  num in numbers:

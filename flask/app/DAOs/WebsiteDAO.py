@@ -89,7 +89,7 @@ class WebsiteDAO(MasterDAO):
             result = [None, None]
         return result[0]
           
-    def insertWebsite(self, url, cursor):
+    def addWebsite(self, url, cursor):
         """Inserts a website into the website table DOES NOT COMMIT CHANGES TO DB.
         Parameters:
             url: the url for the website
