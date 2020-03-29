@@ -8,8 +8,8 @@ from app.handlers.WebsiteHandler import WebsiteHandler
 from app.handlers.PhoneHandler import PhoneHandler
 
 
-CREATESERVICEKEYS =['uid','rid','sname','sdescription','sschedule','PNumbers','Websites']
-
+CREATESERVICEKEYS   =   ['uid','rid','sname','sdescription','sschedule','PNumbers','Websites']
+UPDATESERVICEKEYS   =   ['sname','sdescription','sschedule','rid']
 
 
 
@@ -114,25 +114,31 @@ class ServiceHandler:
                 return response
             return jsonify(response)
 
-   
-    # def getServiceWebsite(self, sid, no_json=False):
-    #     """
-    #         Return the Website entries belonging to the specified Service sid.
-    #         Parameters:
-    #             sid: Service ID.
-    #             no_json: states if the response should be returned as JSON or not.
-    #         Returns:
-    #             JSON: containing room information. Error JSON otherwise.
-    #         """
-    #     dao = WebsiteDAO()
-    #     websites = dao.getWebsitesByServiceID(sid=sid)
-    #     if not websites:
-    #         response = {"websites": None}
-    #     else:
-    #         website_list = []
-    #         for row in websites:
-    #             website_list.append(_buildWebsiteResponse(website_tuple=row))
-    #         response = {"websites": website_list}
-    #     if no_json:
-    #         return response
-    #     return jsonify(response)
+    def getServicesSegmented(self,offset,limit):
+        """
+        """
+        
+        dao=ServiceDAO()
+        
+        services = dao.getServicesSegmented(offset=offset,limit=limit)
+        if not services:
+            response = {'Services':None}
+        else:
+            service_list=[]
+            for row in services:
+                service_list.append(_buildServiceResponse(row))
+            response={'Services':service_list}
+            return jsonify(response)
+
+
+    def updateServiceInformation(self,sid,json):
+        """
+        """
+        service ={}
+        for key in json:
+            if key  in UPDATESERVICEKEYS:
+                service[key]=(json[key])  
+    
+        dao=ServiceDAO()
+        response = _buildServiceResponse(dao.getServiceByID(dao.updateServiceInformation(service=service,sid=sid)))
+        return jsonify(response) 

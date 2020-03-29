@@ -4,9 +4,22 @@ from app.handlers.WebsiteHandler import WebsiteHandler
 from app.DAOs.WebsiteDAO import WebsiteDAO
 from app.DAOs.PhoneDAO import PhoneDAO
 
-
-
+    
+    
 class ServiceDAO(MasterDAO):
+
+    def serviceInfoArgs(self,service):
+        fields=[]
+        for key in service:
+            if key=='rid':
+                fields.append(key+ " = " + str(service[key]))
+            if key=='sname':
+                fields.append(key+ " = " + "'"+str(service[key])+"'")
+            if key=='sdescription':
+                fields.append(key+ " = " + "'"+str(service[key])+"'")
+            if key=='sschedule':
+                fields.append(key+ " = " + "'"+str(service[key])+"'")
+        return fields
     
     def createService(self,uid,rid,sname,sdescription,sschedule,isdeleted,websites,numbers):
         """
@@ -73,31 +86,66 @@ class ServiceDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
-    
-    # def getServiceWebsites(self,sid)
+    def getServicesSegmented(self,offset,limit):
         """
-         Query Database for all the website entries belonging
-            to a Service, given the Service's ID.
+        Query Database for all users and their basic information
         Parameters:
-            sid: Service ID
+            offset:Number of records to ignore , ordered by user ID biggest first
+            limit:maximum number of records to recieve
         Returns:
-            Tuple: SQL result of Query as a tuple.
+            Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table1} "
-                        "natural join {table2} "
-                        "where {pkey}= %s;").format(
-            fields=sql.SQL(',').join([
-                sql.Identifier('wid'),
-                sql.Identifier('url'),
-                sql.Identifier('wdescription'),
-                sql.Identifier('isdeleted'),
-            ]),
-            table1=sql.Identifier('servicewebsites'),
-            table2=sql.Identifier('websites'),
-            pkey=sql.Identifier('sid'))
-        cursor.execute(query, (int(sid),))
+        query = sql.SQL("select * from services WHERE isdeleted = false "
+                        "offset %s "
+                        "limit %s ").format()
+        cursor.execute(query, (offset,limit))
         result = []
         for row in cursor:
             result.append(row)
         return result
+    
+    def updateServiceInformation(self,sid,service):
+        cursor = self.conn.cursor()   
+        fields_list=self.serviceInfoArgs(service)        
+        query = sql.SQL("update {table1} set {fields}  "
+                        "where  {pkey1} = %s "
+                        "returning {pkey1}  ").format(
+            table1=sql.Identifier('services'),
+            fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
+            pkey1=sql.Identifier('sid'))
+        cursor.execute(query, (int(sid), ))
+        result = cursor.fetchone()
+        self.conn.commit()
+       
+        if result is None:
+            return None
+        return result[0]       
+       
+    # def getServiceWebsites(self,sid):
+    #     """
+    #      Query Database for all the website entries belonging
+    #         to a Service, given the Service's ID.
+    #     Parameters:
+    #         sid: Service ID
+    #     Returns:
+    #         Tuple: SQL result of Query as a tuple.
+    #     """
+    #     cursor = self.conn.cursor()
+    #     query = sql.SQL("select {fields} from {table1} "
+    #                     "natural join {table2} "
+    #                     "where {pkey}= %s;").format(
+    #         fields=sql.SQL(',').join([
+    #             sql.Identifier('wid'),
+    #             sql.Identifier('url'),
+    #             sql.Identifier('wdescription'),
+    #             sql.Identifier('isdeleted'),
+    #         ]),
+    #         table1=sql.Identifier('servicewebsites'),
+    #         table2=sql.Identifier('websites'),
+    #         pkey=sql.Identifier('sid'))
+    #     cursor.execute(query, (int(sid),))
+    #     result = []
+    #     for row in cursor:
+    #         result.append(row)
+    #     return result

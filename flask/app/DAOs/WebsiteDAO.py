@@ -207,9 +207,6 @@ class WebsiteDAO(MasterDAO):
             fields=sql.SQL(',').join([
                 sql.Identifier('wid'),
                 sql.Identifier('url')
-                
-                
-
               
             ]),
             table1=sql.Identifier('websites'),

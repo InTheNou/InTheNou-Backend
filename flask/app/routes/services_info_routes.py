@@ -16,7 +16,12 @@ def getServiceByID(sid):
 
 
 ###DASHBOARD ROUTES####
-
+@app.route("/Dashboard/Services/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getServicesSegmented(limit,offset):
+    if request.method == 'GET': return ServiceHandler().getServicesSegmented(limit=limit,offset=offset)
+    else: return jsonify(Error="Method not allowed."), 405
+    
+    
 @app.route("/Dashboard/Services/create", methods=['POST'])
 def createService():
     if request.method == 'POST': return ServiceHandler().createService(json=request.json)
@@ -41,4 +46,9 @@ def addServicePhone(sid):
 @app.route("/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
 def removeServicePhone(sid):
     if request.method == 'POST': return PhoneHandler().removePhoneByServiceID(sid=sid,json=request.json)
+    else: return jsonify(Error="Method not allowed."), 405
+    
+@app.route("/Dashboard/Services/sid=<int:sid>/update", methods=['POST'])
+def updateService(sid):
+    if request.method == 'POST': return ServiceHandler().updateServiceInformation(sid=sid,json=request.json)
     else: return jsonify(Error="Method not allowed."), 405

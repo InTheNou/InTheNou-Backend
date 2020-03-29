@@ -72,7 +72,6 @@ def google_logged_in(blueprint, token):
     
     return UserHandler().getUserByID(int(user.id))
 
-
 # notify on OAuth provider error
 @oauth_error.connect_via(blueprint)
 def google_error(blueprint, message, response):

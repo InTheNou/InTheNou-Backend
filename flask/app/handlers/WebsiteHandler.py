@@ -21,8 +21,8 @@ def _buildCoreWebsiteResponse(website_tuple):
 def _buildWebsiteResponse(website_tuple):
     response = {}
     response['wid'] = website_tuple[0]
-    response['wdescription'] = website_tuple[3]
-    response['isdeleted'] = website_tuple[2]
+    response['wdescription'] = website_tuple[2]
+    response['isdeleted'] = website_tuple[3]
     return response
 
 def _buildWebsiteIDResponse(website_tuple):
@@ -64,7 +64,7 @@ class WebsiteHandler:
             site_list = None
         else:
             for row in sites:
-                site_list.append(_buildCoreWebsiteResponse(website_tuple=row))
+                site_list.append(_buildWebsiteResponse(website_tuple=row))
         response = {"websites": site_list}
         if no_json:
             return response
@@ -78,7 +78,7 @@ class WebsiteHandler:
             site_list = None
         else:
             for row in sites:
-                site_list.append(_buildCoreWebsiteResponse(website_tuple=row))
+                site_list.append(_buildWebsiteResponse(website_tuple=row))
         response = {"Websites": site_list}
         if no_json:
             return response
