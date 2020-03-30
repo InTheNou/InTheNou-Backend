@@ -22,7 +22,10 @@ def _buildWebsiteResponse(website_tuple):
     response = {}
     response['wid'] = website_tuple[0]
     response['wdescription'] = website_tuple[2]
-    response['isdeleted'] = website_tuple[3]
+
+    # Verify that changes to schema reflect properly;
+    # changes cause following property to be handled externally.
+    # response['isdeleted'] = website_tuple[3]
     return response
 
 def _buildWebsiteIDResponse(website_tuple):

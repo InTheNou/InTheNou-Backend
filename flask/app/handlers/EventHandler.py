@@ -4,6 +4,7 @@ from app.DAOs.EventDAO import EventDAO
 from app.DAOs.TagDAO import TagDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.TagHandler import TagHandler
+from app.handlers.UserHandler import UserHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
@@ -20,8 +21,8 @@ def _buildEventResponse(event_tuple):
     response = {}
     response['eid'] = event_tuple[0]
 
-    # TODO: Add user information Once Diego creates routes (uid, name, lastname)
-    response['ecreator'] = event_tuple[1]
+    # This SHOULD not break, since every event SHOULD have a user.
+    response['ecreator'] = UserHandler().getUserByID(uid=event_tuple[1], no_json=True)
     response['room'] = RoomHandler().safeGetRoomByID(rid=event_tuple[2])
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
