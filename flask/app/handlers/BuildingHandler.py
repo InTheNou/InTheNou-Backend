@@ -12,6 +12,7 @@ def _buildBuildingResponse(building_tuple):
     response['bcommonname'] = building_tuple[4]
     response['btype'] = building_tuple[5]
     response['photourl'] = building_tuple[6]
+    response['distinctfloors'] = _getDistinctFloorNumbersByBuildingID(bid=building_tuple[0])
     return response
 
 
@@ -22,6 +23,17 @@ def _buildCoreBuildingResponse(building_tuple):
     response['bname'] = building_tuple[1]
     response['babbrev'] = building_tuple[2]
     return response
+
+def _getDistinctFloorNumbersByBuildingID(bid):
+    floors = BuildingDAO().getDistinctFloorNumbersByBuildingID(bid=bid)
+    floor_array=[]
+    if not floors:
+        pass
+    else:
+        for floor in floors:
+            floor_array.append(floor[0])
+    return floor_array
+
 
 
 class BuildingHandler:
