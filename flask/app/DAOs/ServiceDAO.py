@@ -136,6 +136,40 @@ class ServiceDAO(MasterDAO):
             result.append(row)
         return result
 
+    def getServicesByKeywords(self, searchstring, offset, limit):
+        """
+         Query Database for services whose names or descriptions match a search string.
+        Parameters:
+            searchstring: pipe-separated string of keywords to search for.
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table} "
+                        "where isdeleted = False and "
+                        "({pkey1} @@ to_tsquery(%s) "
+                        "or {pkey2} @@ to_tsquery(%s)) "
+                        "offset %s "
+                        "limit %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('sid'),
+                sql.Identifier('rid'),
+                sql.Identifier('sname'),
+                sql.Identifier('sdescription'),
+                sql.Identifier('sschedule'),
+                sql.Identifier('isdeleted')
+            ]),
+            table=sql.Identifier('services'),
+            pkey1=sql.Identifier('sname_tokens'),
+            pkey2=sql.Identifier('sdescription_tokens'))
+        cursor.execute(query, (str(searchstring), str(searchstring), int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def updateServiceInformation(self, sid, service):
         cursor = self.conn.cursor()
         fields_list = self.serviceInfoArgs(service)

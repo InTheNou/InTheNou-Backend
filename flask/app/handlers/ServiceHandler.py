@@ -12,6 +12,7 @@ CREATESERVICEKEYS = ['uid', 'rid', 'sname',
                      'sdescription', 'sschedule', 'PNumbers', 'Websites']
 UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
 
+SEARCHSTRING_VALUE = 'searchstring'
 
 def _buildPhoneResponse(phone_tuple):
     response = {}
@@ -179,4 +180,47 @@ class ServiceHandler:
         dao = ServiceDAO()
         response = _buildServiceResponse(dao.getServiceByID(
             dao.updateServiceInformation(service=service, sid=sid)))
+        return jsonify(response)
+
+    def processSearchString(self, searchstring):
+        """
+        Splits a string by its spaces, filters non-alpha-numeric symbols out,
+        and joins the keywords by space-separated pipes.
+        """
+        keyword_list = str.split(searchstring)
+        filtered_words = []
+        for word in keyword_list:
+            filtered_string = ""
+            for character in word:
+                if character.isalnum():
+                    filtered_string += character
+            if not filtered_string.isspace() and filtered_string != "":
+                filtered_words.append(filtered_string)
+        keywords = " | ".join(filtered_words)
+        return keywords
+
+    def getServicesByKeywords(self, json, offset, limit=20):
+        """
+        Get non-deleted services whose names or descriptions match a search string.
+        Parameters:
+            json: JSON object with a "searchstring" key.
+            offset: Number of result rows to ignore from top of query results.
+            limit: Max number of result rows to return. Default=20.
+        """
+
+        if not json:
+            return jsonify(Error='No JSON Provided.'), 401
+        if SEARCHSTRING_VALUE not in json:
+            return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 401
+        # TODO: abstract this so multiple handlers can share it.
+        keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+        dao = ServiceDAO()
+        services = dao.getServicesByKeywords(searchstring=keywords, offset=offset, limit=limit)
+        if not services:
+            response = {'services': None}
+        else:
+            service_list=[]
+            for row in services:
+                service_list.append(_buildServiceResponse(service_tuple=row))
+            response = {'services': service_list}
         return jsonify(response)

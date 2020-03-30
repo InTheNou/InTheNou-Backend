@@ -215,6 +215,15 @@ def getRoomByID(rid):
         return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up;
+@app.route("/App/Rooms/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getRoomsBySearch(offset, limit):
+    if request.method == 'GET':
+        return RoomHandler().getRoomsBySearch(json=request.json, offset=offset, limit=limit)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
 # TODO: Update Automated tests
 @app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 def getRoomsByBuildingAndFloor(bid, rfloor):
@@ -237,6 +246,16 @@ def getAllBuildings():
 def getBuildingByID(bid):
     if request.method == 'GET':
         return BuildingHandler().getBuildingByID(bid=bid)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+# Automated test not set up
+@app.route("/App/Services/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getServicesByKeywords(offset, limit):
+    if request.method == 'GET':
+        return ServiceHandler().getServicesByKeywords(json=request.json,
+                                                      offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -281,6 +300,7 @@ def setUserTagsToZero():
         return TagHandler().batchSetUserTags(json=request.json, weight=0)
     else:
         return jsonify(Error="Method not allowed."), 405
+
 
 # Automated test not set up
 @app.route("/App/Tags/User/Add", methods=['POST'])

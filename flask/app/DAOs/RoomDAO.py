@@ -106,4 +106,96 @@ class RoomDAO(MasterDAO):
 
         if result is None:
             return None
+
+    def getRoomsByKeywordSegmented(self, keywords, offset, limit):
+        """
+         Query Database for an Room's information by description keywords.
+        Parameters:
+            keywords: string of keywords separated by a pipe "|"
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "where rdescription_tokens @@ to_tsquery('spanish', %s) "
+                        "or rdescription_tokens @@ to_tsquery(%s)"
+                        "offset %s "
+                        "limit %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('rid'),
+                sql.Identifier('bid'),
+                sql.Identifier('rcode'),
+                sql.Identifier('rfloor'),
+                sql.Identifier('rdescription'),
+                sql.Identifier('roccupancy'),
+                sql.Identifier('rdept'),
+                sql.Identifier('rcustodian'),
+                sql.Identifier('rlongitude'),
+                sql.Identifier('rlatitude'),
+                sql.Identifier('raltitude'),
+                sql.Identifier('photourl')
+            ]),
+            table1=sql.Identifier('rooms'),
+            table2=sql.Identifier('photos'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'),
+            pkey=sql.Identifier('rid'))
+        cursor.execute(query, (str(keywords), str(
+            keywords), int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    # TODO: IMPLEMENT THE PROPER QUERY
+    def getRoomsByCodeSearchSegmented(self, babbrev, rcode, offset, limit):
+        """
+         Query Database for an Room's information by description keywords.
+        Parameters:
+            keywords: string of keywords separated by a pipe "|"
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        babbrev = '%' + babbrev + '%'
+        rcode = '%' + rcode + "%"
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from ("
+                        "select rid, rooms.bid, rcode, "
+                        "rfloor, rdescription, roccupancy, "
+                        "rdept, rcustodian, rlongitude, rlatitude, "
+                        "raltitude, rooms.photoid "
+                        "from rooms "
+                        "left join buildings "
+                        "on rooms.bid=buildings.bid "
+                        "where (babbrev like %s and rcode like %s) "
+                        "or rcode like %s) as fr "
+                        "left outer join photos "
+                        "on fr.photoid=photos.photoid "
+                        "offset %s "
+                        "limit %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('rid'),
+                sql.Identifier('bid'),
+                sql.Identifier('rcode'),
+                sql.Identifier('rfloor'),
+                sql.Identifier('rdescription'),
+                sql.Identifier('roccupancy'),
+                sql.Identifier('rdept'),
+                sql.Identifier('rcustodian'),
+                sql.Identifier('rlongitude'),
+                sql.Identifier('rlatitude'),
+                sql.Identifier('raltitude'),
+                sql.Identifier('photourl')
+            ]))
+        cursor.execute(query, (str(babbrev), str(rcode), str(
+            babbrev+rcode), int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
         return result

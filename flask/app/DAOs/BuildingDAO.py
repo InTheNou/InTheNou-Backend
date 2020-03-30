@@ -64,3 +64,20 @@ class BuildingDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
+    def getDistinctFloorNumbersByBuildingID(self, bid):
+        cursor = self.conn.cursor()
+        query = sql.SQL("select distinct rfloor "
+                        "from {table} "
+                        "where {pkey}=%s "
+                        "order by rfloor;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('rfloor')
+            ]),
+            table=sql.Identifier('rooms'),
+            pkey=sql.Identifier('bid'))
+        cursor.execute(query, (int(bid),))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+

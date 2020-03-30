@@ -4,6 +4,7 @@ from app.DAOs.EventDAO import EventDAO
 from app.DAOs.TagDAO import TagDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.TagHandler import TagHandler
+from app.handlers.UserHandler import UserHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
@@ -20,8 +21,8 @@ def _buildEventResponse(event_tuple):
     response = {}
     response['eid'] = event_tuple[0]
 
-    # TODO: Add user information Once Diego creates routes (uid, name, lastname)
-    response['ecreator'] = event_tuple[1]
+    # This SHOULD not break, since every event SHOULD have a user.
+    response['ecreator'] = UserHandler().getUserByID(uid=event_tuple[1], no_json=True)
     response['room'] = RoomHandler().safeGetRoomByID(rid=event_tuple[2])
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
@@ -47,7 +48,7 @@ def _buildCoreEventResponse(event_tuple):
     response = {}
     response['eid'] = event_tuple[0]
     response['ecreator'] = event_tuple[1]
-    response['room'] = RoomHandler().getCoreRoomByID(rid=event_tuple[2], no_json=True)
+    response['room'] = RoomHandler().getTinyRoomByID(rid=event_tuple[2], no_json=True)
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
     response['estart'] = event_tuple[5]
@@ -248,7 +249,7 @@ class EventHandler:
         return keywords
 
 
-    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit):
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
@@ -278,13 +279,13 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit):
+    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit=20):
         """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
                    json: json object with string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
-                   limit: Max number of result rows to return. Default=10.
+                   limit: Max number of result rows to return. Default=20.
                Return:
                    JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                        """
@@ -408,12 +409,23 @@ class EventHandler:
                 """
         dao = EventDAO()
         result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
-        # TODO: Consider a better way to do this error handling.
+
+        # TODO: Implement a better way to do this error handling.
         try:
             new_usertags = []
             for row in result:
                 new_usertags.append(TagHandler().buildCoreUserTagResponse(tag_tuple=row))
-            return jsonify({"tags": new_usertags}), 201
+
+            # Calling this within the try block, because if the setInteraction call fails,
+            # psql will block all transactions until current one finishes, and will cause
+            # a 500 error instead of the intended 400 below.
+            event = dao.getEventByID(eid=eid)
+            tiny_event = _buildTinyEventResponse(event_tuple=event)
+
+            response = {}
+            response['tags'] = new_usertags
+            response['event'] = tiny_event
+            return jsonify(response), 201
         except TypeError:
             return jsonify(Error=str(result)), 400
 

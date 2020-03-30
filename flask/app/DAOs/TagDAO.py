@@ -127,6 +127,7 @@ class TagDAO(MasterDAO):
             result.append(row)
         return result
 
+    # TODO: Look into why eid is  not used.
     def getUserTagsByEventID(self, uid, eid):
         """
          Query Database for all the tags belonging
