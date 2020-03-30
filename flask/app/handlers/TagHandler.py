@@ -17,6 +17,12 @@ def _buildWeightedTagResponse(tag_tuple):
     response['tagweight'] = tag_tuple[2]
     return response
 
+def _buildCoreWeightedTagResponse(tag_tuple):
+    response = {}
+    response['tid'] = tag_tuple[1]
+    response['tagweight'] = tag_tuple[2]
+    return response
+
 
 class TagHandler:
 
@@ -155,7 +161,7 @@ class TagHandler:
         rows = TagDAO().batchSetUserTags(uid=uid, tags=tags, weight=weight)
         try:
             for user_tag in rows:
-                updated_usertags.append(_buildWeightedTagResponse(tag_tuple=user_tag))
+                updated_usertags.append(_buildCoreWeightedTagResponse(tag_tuple=user_tag))
         except TypeError:
             return jsonify(Error=str(rows)), 400
 
