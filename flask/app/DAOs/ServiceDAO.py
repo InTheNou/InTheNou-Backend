@@ -23,6 +23,21 @@ class ServiceDAO(MasterDAO):
                 fields.append(key + " = " + "'"+str(service[key])+"'")
         return fields
 
+    def deleteService(self, sid):
+        cursor = self.conn.cursor()
+
+        query = sql.SQL("update {table1} set isdeleted = true  "
+                        "where  {pkey1} = %s "
+                        "returning sid,rid,sname,sdescription,sschedule  ").format(
+            table1=sql.Identifier('services'),
+            pkey1=sql.Identifier('sid'))
+        cursor.execute(query, (int(sid), ))
+        result = cursor.fetchone()
+        self.conn.commit()
+        if result is None:
+            return None
+        return result
+
     def createService(self, uid, rid, sname, sdescription, sschedule, websites, numbers):
         """
         """
@@ -125,7 +140,7 @@ class ServiceDAO(MasterDAO):
         cursor = self.conn.cursor()
         fields_list = self.serviceInfoArgs(service)
         query = sql.SQL("update {table1} set {fields}  "
-                        "where  {pkey1} = %s "
+                        "where  {pkey1} = %s AND isdeleted=false  "
                         "returning {pkey1}  ").format(
             table1=sql.Identifier('services'),
             fields=sql.SQL(",").join(map(sql.SQL, fields_list)),

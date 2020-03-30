@@ -33,6 +33,17 @@ def _buildServiceResponse(service_tuple):
     return response
 
 
+def _buildCoreServiceResponse(service_tuple):
+    response = {}
+    response['sid'] = service_tuple[0]
+    response['rid'] = service_tuple[1]
+    response['sname'] = service_tuple[2]
+    response['sdescription'] = service_tuple[3]
+    response['sschedule'] = service_tuple[4]
+
+    return response
+
+
 def _buildServiceByRoomResponse(service_tuple):
     response = {}
     response['sid'] = service_tuple[0]
@@ -99,6 +110,13 @@ class ServiceHandler:
 
         return jsonify({"sid": sid}), 201
 
+    def deleteService(self, sid):
+        dao = ServiceDAO()
+        service = dao.deleteService(sid)
+        if service is not None:
+            return jsonify(_buildCoreServiceResponse(service))
+        return jsonify(Error="No service with that ID"), 404
+
     def getServiceByID(self, sid, no_json=False):
         """
         Return the Service entry belonging to the specified sid.
@@ -146,7 +164,7 @@ class ServiceHandler:
         else:
             service_list = []
             for row in services:
-                service_list.append(_buildServiceResponse(row))
+                service_list.append(_buildCoreServiceResponse(row))
             response = {'Services': service_list}
             return jsonify(response)
 
