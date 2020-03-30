@@ -248,7 +248,7 @@ class EventHandler:
         return keywords
 
 
-    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit):
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
@@ -278,13 +278,13 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit):
+    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit=20):
         """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
                    json: json object with string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
-                   limit: Max number of result rows to return. Default=10.
+                   limit: Max number of result rows to return. Default=20.
                Return:
                    JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                        """

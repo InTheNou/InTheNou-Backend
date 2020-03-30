@@ -203,6 +203,14 @@ def getServiceByID(sid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up
+@app.route("/App/Services/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getServicesByKeywords(offset, limit):
+    if request.method == 'GET': return ServiceHandler().getServicesByKeywords(json=request.json,
+                                                                              offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Tags", methods=['GET'])
 def getAllTags():
     if request.method == 'GET': return TagHandler().getAllTags()
@@ -233,6 +241,7 @@ def getTagsByUserID(uid):
 def setUserTagsToZero():
     if request.method == 'POST': return TagHandler().batchSetUserTags(json=request.json, weight=0)
     else: return jsonify(Error="Method not allowed."), 405
+
 
 # Automated test not set up
 @app.route("/App/Tags/User/Add", methods=['POST'])

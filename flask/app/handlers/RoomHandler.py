@@ -141,6 +141,8 @@ class RoomHandler:
                 with values "description" or "roomCode". If "description" is the value,
                 the JSON should also have key "searchstring". If "roomCode" is the value,
                 the JSON should also have the keys "babbrev" and "rcode".
+            offset: Number of result rows to ignore from top of query results.
+            limit: Max number of result rows to return. Default=10.
         Returns:
             JSON: containing room information. Error JSON otherwise.
         """
