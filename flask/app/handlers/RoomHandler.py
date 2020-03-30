@@ -3,7 +3,12 @@ from psycopg2 import IntegrityError
 from app.DAOs.RoomDAO import RoomDAO
 from app.handlers.BuildingHandler import BuildingHandler
 
+SEARCH_CRITERIA_KEY = 'searchCriteria'
+SEARCHSTRING_VALUE = 'searchstring'
+ROOMCODE_VALUE = 'rcode'
+BABBREV_VALUE = 'babbrev'
 
+# TODO: ADD SERVICES TO A ROOM
 def _buildRoomResponse(room_tuple):
     response = {}
     response['rid'] = room_tuple[0]
@@ -107,3 +112,79 @@ class RoomHandler:
             if no_json:
                 return response
             return jsonify(response)
+
+    # copied from Event handler because importing it caused ImportError loop.
+    # TODO: merge this, event handler, and others into one importable place.
+    def processSearchString(self, searchstring):
+        """
+        Splits a string by its spaces, filters non-alpha-numeric symbols out,
+        and joins the keywords by space-separated pipes.
+        """
+        keyword_list = str.split(searchstring)
+        filtered_words = []
+        for word in keyword_list:
+            filtered_string = ""
+            for character in word:
+                if character.isalnum():
+                    filtered_string += character
+            if not filtered_string.isspace() and filtered_string != "":
+                filtered_words.append(filtered_string)
+        keywords = " | ".join(filtered_words)
+        return keywords
+
+    #TODO: FINISH THIS METHOD, AND MISSING DAO AND ROUTE
+    def getRoomsBySearch(self, json, offset, limit=20):
+        """
+        Return the room entries matching the search parameters.
+        Parameters:
+            json: JSON object with the key "searchCriteria"
+                with values "description" or "roomCode". If "description" is the value,
+                the JSON should also have key "searchstring". If "roomCode" is the value,
+                the JSON should also have the keys "babbrev" and "rcode".
+        Returns:
+            JSON: containing room information. Error JSON otherwise.
+        """
+        # Verifying json (needs improvement)
+        if json is None:
+            return jsonify(Error='No JSON provided'), 401
+        if SEARCH_CRITERIA_KEY not in json:
+            return jsonify(Error='Key not found: ' + str(SEARCH_CRITERIA_KEY)), 401
+        if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
+            if SEARCHSTRING_VALUE not in json:
+                return jsonify(Error='Key not found: ' + str(SEARCHSTRING_VALUE)), 401
+            search_method = SEARCHSTRING_VALUE
+        elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
+            if ROOMCODE_VALUE not in json:
+                return jsonify(Error='Key not found: ' + str(ROOMCODE_VALUE)), 401
+            if BABBREV_VALUE not in json:
+                return jsonify(Error='Key not found: ' + str(BABBREV_VALUE)), 401
+            search_method = ROOMCODE_VALUE
+        else:
+            return jsonify(Error='Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY])), 401
+
+        dao = RoomDAO()
+        if search_method == SEARCHSTRING_VALUE:
+            keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+            rooms = dao.getRoomsByKeywordSegmented(keywords=keywords, limit=limit, offset=offset)
+        else:
+            # filtering symbols and spaces out to try and prevent SQL injection.
+            # TODO: go over other string routes and check for similar injection vulnerability.
+            babbrev = str(json[BABBREV_VALUE]).upper()
+            rcode = str(json[ROOMCODE_VALUE])
+
+            alphanumeric_filter = filter(str.isalnum, rcode)
+            rcode = "".join(alphanumeric_filter)
+            alphanumeric_filter = filter(str.isalnum, babbrev)
+            babbrev = "".join(alphanumeric_filter)
+
+            rooms = dao.getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode,
+                                                      limit=limit, offset=offset)
+        if not rooms:
+            response = {"rooms": None}
+        else:
+            room_list = []
+            for row in rooms:
+                room_list.append(_buildRoomResponse(room_tuple=row))
+            # TODO:  every room should probably have their building in it.
+            response = {"rooms": room_list}
+        return jsonify(response)

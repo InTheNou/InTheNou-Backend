@@ -169,6 +169,13 @@ def getRoomByID(rid):
     else: return jsonify(Error="Method not allowed."), 405
 
 
+# Automated test not set up;
+@app.route("/App/Rooms/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getRoomsBySearch(offset, limit):
+    if request.method == 'GET': return RoomHandler().getRoomsBySearch(json=request.json, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 # TODO: Update Automated tests
 @app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 def getRoomsByBuildingAndFloor(bid, rfloor):
