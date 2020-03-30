@@ -409,12 +409,19 @@ class EventHandler:
                 """
         dao = EventDAO()
         result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
-        # TODO: Consider a better way to do this error handling.
+        # if the above fails, I understand the below should fail as well?
+        event = dao.getEventByID(eid=eid)
+
+        # TODO: Implement a better way to do this error handling.
         try:
             new_usertags = []
             for row in result:
                 new_usertags.append(TagHandler().buildCoreUserTagResponse(tag_tuple=row))
-            return jsonify({"tags": new_usertags}), 201
+            tiny_event = _buildTinyEventResponse(event_tuple=event)
+            response = {}
+            response['tags'] = new_usertags
+            response['event'] = tiny_event
+            return jsonify(response), 201
         except TypeError:
             return jsonify(Error=str(result)), 400
 
