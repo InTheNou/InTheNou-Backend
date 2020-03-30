@@ -242,6 +242,24 @@ def getAllBuildings():
         return jsonify(Error="Method not allowed."), 405
 
 
+@app.route("/App/Buildings/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllBuildingsSegmented(offset, limit):
+    if request.method == 'GET':
+        return BuildingHandler().getAllBuildingsSegmented(offset=offset, limit=limit)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+# Automated test not set up
+@app.route("/App/Buildings/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getBuildingsByKeywords(offset, limit):
+    if request.method == 'GET':
+        return BuildingHandler().getBuildingsByKeyword(json=request.json,
+                                                       offset=offset, limit=limit)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
 def getBuildingByID(bid):
     if request.method == 'GET':
