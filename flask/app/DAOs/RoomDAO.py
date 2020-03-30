@@ -3,6 +3,14 @@ from psycopg2 import sql
 
 
 class RoomDAO(MasterDAO):
+    def roomInfoArgs(self, roomKeys):
+        """
+        """
+
+        fields = []
+        for key in roomKeys:
+            fields.append(key + " = " + str(roomKeys[key]))
+        return fields
 
     def getRoomByID(self, rid):
         """
@@ -80,4 +88,22 @@ class RoomDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        return result
+
+    def changeRoomCoordinates(self, rid, roomKeys):
+        cursor = self.conn.cursor()
+        fields_list = self.roomInfoArgs(roomKeys=roomKeys)
+
+        query = sql.SQL("update {table1} set {fields}  "
+                        "where  {pkey1} = %s  "
+                        "returning rid,rcode,rfloor,rlongitude,rlatitude,raltitude ").format(
+            table1=sql.Identifier('rooms'),
+            fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
+            pkey1=sql.Identifier('rid'))
+        cursor.execute(query, (int(rid), ))
+        result = cursor.fetchone()
+        self.conn.commit()
+
+        if result is None:
+            return None
         return result

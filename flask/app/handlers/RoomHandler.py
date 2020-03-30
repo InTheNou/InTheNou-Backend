@@ -3,6 +3,8 @@ from psycopg2 import IntegrityError
 from app.DAOs.RoomDAO import RoomDAO
 from app.handlers.BuildingHandler import BuildingHandler
 
+CHANGEROOMCOORDINATESKEYS = ['rlongitude', 'raltitude', 'rlatitude']
+
 
 def _buildRoomResponse(room_tuple):
     response = {}
@@ -34,6 +36,19 @@ def _buildCoreRoomResponse(room_tuple):
     return response
 
 
+def _buildChangeCoordinatesRoomResponse(room_tuple):
+    # Currently using the getRoomByID() method
+    response = {}
+    response['rid'] = room_tuple[0]
+    response['rcode'] = room_tuple[1]
+    response['rfloor'] = room_tuple[2]
+    response['rlongitude'] = float(room_tuple[3])
+    response['rlatitude'] = float(room_tuple[4])
+    response['raltitude'] = float(room_tuple[5])
+
+    return response
+
+
 class RoomHandler:
 
     def getRoomByID(self, rid, no_json=False):
@@ -51,7 +66,8 @@ class RoomHandler:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
             response = _buildRoomResponse(room_tuple=room)
-            response['building'] = BuildingHandler().safeGetBuildingByID(bid=room[1])
+            response['building'] = BuildingHandler(
+            ).safeGetBuildingByID(bid=room[1])
             if no_json:
                 return response
             return jsonify(response)
@@ -103,7 +119,23 @@ class RoomHandler:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
             response = _buildCoreRoomResponse(room_tuple=room)
-            response['building'] = BuildingHandler().getCoreBuildingByID(bid=room[1], no_json=True)
+            response['building'] = BuildingHandler(
+            ).getCoreBuildingByID(bid=room[1], no_json=True)
             if no_json:
                 return response
             return jsonify(response)
+
+    def changeRoomCoordinates(self, rid, json):
+        roomKeys = {}
+        for key in json:
+            if key in CHANGEROOMCOORDINATESKEYS:
+                roomKeys[key] = (json[key])
+
+        dao = RoomDAO()
+
+        response = _buildChangeCoordinatesRoomResponse(
+            dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys))
+        if response is not None:
+            return jsonify(response)
+        else:
+            return jsonify(Error="no room was found "), 404

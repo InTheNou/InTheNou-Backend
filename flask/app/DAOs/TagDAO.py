@@ -4,6 +4,32 @@ from psycopg2 import sql, errors
 
 class TagDAO(MasterDAO):
 
+    def createTag(self, tname):
+        cursor = self.conn.cursor()
+        # Build the query to create an event entry.
+        query = sql.SQL("insert into {table1} (tname)  "
+                        "VALUES (  %s ) "
+                        "ON CONFLICT (tname) do update set tname = %s "
+                        "returning tid, tname ").format(
+            table1=sql.Identifier('tags'))
+        cursor.execute(query, (str(tname), str(tname)))
+        result = cursor.fetchone()
+        self.conn.commit()
+        return result
+
+    def editTagName(self, tid, tname):
+        cursor = self.conn.cursor()
+        # Build the query to create an event entry.
+        query = sql.SQL("update  {table1} SET   "
+                        "tname =  %s  "
+                        "WHERE tid = %s "
+                        "returning tid, tname ").format(
+            table1=sql.Identifier('tags'))
+        cursor.execute(query, (str(tname), int(tid)))
+        result = cursor.fetchone()
+        self.conn.commit()
+        return result
+
     def getTagByID(self, tid):
         """
          Query Database for an Tag's information by its tid.
@@ -190,7 +216,8 @@ class TagDAO(MasterDAO):
                         sql.Identifier('tagweight')
                     ]),
                     table=sql.Identifier('usertags'))
-                cursor.execute(query, (int(uid), int(tid), int(weight), int(weight)))
+                cursor.execute(query, (int(uid), int(
+                    tid), int(weight), int(weight)))
                 result.append(cursor.fetchone())
             self.conn.commit()
         except errors.ForeignKeyViolation as badkey:
@@ -214,4 +241,3 @@ class TagDAO(MasterDAO):
         for row in cursor:
             result.append(row)
         return result
-
