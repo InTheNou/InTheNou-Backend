@@ -67,3 +67,5 @@ docs/_build/
 
 # PyBuilder
 target/
+flask/app/routes/__pycache__/events_info_routes.cpython-36.pyc
+flask/app/handlers/__pycache__/EventHandler.cpython-36.pyc
