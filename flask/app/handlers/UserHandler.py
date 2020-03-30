@@ -155,6 +155,16 @@ class UserHandler:
             response = {"Users": user_list}
             return jsonify(response)
 
+    def getAllUsersByRoleIDSegmented(self, roleid, offset, limit):
+        dao = UserDAO()
+
+        users = dao.getAllUsersByRoleID(
+            roleid=roleid, offset=offset, limit=limit)
+        result = []
+        for row in users:
+            result.append(_buildCoreUserResponse(row))
+        return jsonify(result)
+
     def getUsersSegmented(self, offset, limit):
         """Return a list of users , segmented.
         offset: value of first rows to ignore
