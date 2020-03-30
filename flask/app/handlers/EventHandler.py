@@ -409,15 +409,19 @@ class EventHandler:
                 """
         dao = EventDAO()
         result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
-        # if the above fails, I understand the below should fail as well?
-        event = dao.getEventByID(eid=eid)
 
         # TODO: Implement a better way to do this error handling.
         try:
             new_usertags = []
             for row in result:
                 new_usertags.append(TagHandler().buildCoreUserTagResponse(tag_tuple=row))
+
+            # Calling this within the try block, because if the setInteraction call fails,
+            # psql will block all transactions until current one finishes, and will cause
+            # a 500 error instead of the intended 400 below.
+            event = dao.getEventByID(eid=eid)
             tiny_event = _buildTinyEventResponse(event_tuple=event)
+
             response = {}
             response['tags'] = new_usertags
             response['event'] = tiny_event
