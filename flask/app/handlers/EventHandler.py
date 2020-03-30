@@ -122,10 +122,10 @@ class EventHandler:
 
     def getNewDeletedEvents(self, json):
         if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
         timestamp = json[TIMESTAMP]
-        if (timestamp.lower()).islower():
-            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        if not isinstance(timestamp,str) or (timestamp.lower()).islower():
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         dao = EventDAO()
         events = dao.getNewDeletedEvents(timestamp=timestamp)
         if not events:
@@ -162,12 +162,12 @@ class EventHandler:
             JSON: json response with event IDs and tags for each event.
         """
         if json is None:
-            return jsonify(Error='No JSON sent.'), 401
+            return jsonify(Error='No JSON sent.'), 400
         if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
         timestamp = json[TIMESTAMP]
         if (timestamp.lower()).islower():
-            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         if uid is None:
             uid=json['uid']
         dao = EventDAO()
@@ -200,10 +200,8 @@ class EventHandler:
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
                 # TODO: Consider reworking generalEventsSegmented and builder.
-                event_entry['interaction'] = {
-                    "itype": row[11],
-                    "recommendstatus": row[12]
-                }
+                event_entry['itype'] = row[11]
+                event_entry['recommendstatus'] = row[12]
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
@@ -271,10 +269,8 @@ class EventHandler:
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
                 # TODO: Consider reworking generalEventsSegmented and builder.
-                event_entry['interaction'] = {
-                    "itype": row[11],
-                    "recommendstatus": row[12]
-                }
+                event_entry['itype'] = row[11]
+                event_entry['recommendstatus'] = row[12]
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)

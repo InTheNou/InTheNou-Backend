@@ -191,9 +191,9 @@ class ServiceHandler:
         """
 
         if not json:
-            return jsonify(Error='No JSON Provided.'), 401
+            return jsonify(Error='No JSON Provided.'), 400
         if SEARCHSTRING_VALUE not in json:
-            return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 401
+            return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 400
         # TODO: abstract this so multiple handlers can share it.
         keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
         dao = ServiceDAO()

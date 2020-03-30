@@ -181,21 +181,21 @@ class RoomHandler:
         """
         # Verifying json (needs improvement)
         if json is None:
-            return jsonify(Error='No JSON provided'), 401
+            return jsonify(Error='No JSON provided'), 400
         if SEARCH_CRITERIA_KEY not in json:
-            return jsonify(Error='Key not found: ' + str(SEARCH_CRITERIA_KEY)), 401
+            return jsonify(Error='Key not found: ' + str(SEARCH_CRITERIA_KEY)), 400
         if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
             if SEARCHSTRING_VALUE not in json:
-                return jsonify(Error='Key not found: ' + str(SEARCHSTRING_VALUE)), 401
+                return jsonify(Error='Key not found: ' + str(SEARCHSTRING_VALUE)), 400
             search_method = SEARCHSTRING_VALUE
         elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
             if ROOMCODE_VALUE not in json:
-                return jsonify(Error='Key not found: ' + str(ROOMCODE_VALUE)), 401
+                return jsonify(Error='Key not found: ' + str(ROOMCODE_VALUE)), 400
             if BABBREV_VALUE not in json:
-                return jsonify(Error='Key not found: ' + str(BABBREV_VALUE)), 401
+                return jsonify(Error='Key not found: ' + str(BABBREV_VALUE)), 400
             search_method = ROOMCODE_VALUE
         else:
-            return jsonify(Error='Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY])), 401
+            return jsonify(Error='Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY])), 400
 
         dao = RoomDAO()
         if search_method == SEARCHSTRING_VALUE:
@@ -219,7 +219,9 @@ class RoomHandler:
         else:
             room_list = []
             for row in rooms:
-                room_list.append(_buildCoreRoomResponse(room_tuple=row))
+                room_result = _buildCoreRoomResponse(room_tuple=row)
+                room_result['building'] = BuildingHandler().getCoreBuildingByID(bid=row[1], no_json=True)
+                room_list.append(room_result)
             # TODO:  every room should probably have their building in it.
             response = {"rooms": room_list}
         return jsonify(response)
