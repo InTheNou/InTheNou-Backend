@@ -3,10 +3,12 @@ from psycopg2 import IntegrityError
 from app.DAOs.RoomDAO import RoomDAO
 from app.handlers.BuildingHandler import BuildingHandler
 
+
 SEARCH_CRITERIA_KEY = 'searchCriteria'
 SEARCHSTRING_VALUE = 'searchstring'
 ROOMCODE_VALUE = 'rcode'
 BABBREV_VALUE = 'babbrev'
+
 
 # TODO: ADD SERVICES TO A ROOM
 def _buildRoomResponse(room_tuple):
@@ -25,10 +27,38 @@ def _buildRoomResponse(room_tuple):
     response['rlatitude'] = float(room_tuple[9])
     response['raltitude'] = float(room_tuple[10])
     response['photourl'] = room_tuple[11]
+
+    # Merging Diego's Service Code into Brian's Room builder.
+    # TODO: remove circular dependencies so this import does not occur in here.
+    # TODO: Extract error handling.
+    from app.handlers.ServiceHandler import ServiceHandler
+    services = ServiceHandler().getServicesByRoomID(rid=room_tuple[0], no_json=True)
+    if not isinstance(services, list):
+        services=None
+    response['services'] = services
     return response
 
 
 def _buildCoreRoomResponse(room_tuple):
+    response = {}
+    response['rid'] = room_tuple[0]
+    # Skipping bid so that it may be added either internally
+    # as part of a single room, or externally, as part of a
+    # list of rooms. Use _safeGetBuiildingByID(bid).
+    response['rcode'] = room_tuple[2]
+    response['rfloor'] = room_tuple[3]
+    response['rdescription'] = room_tuple[4]
+    response['roccupancy'] = room_tuple[5]
+    response['rdept'] = room_tuple[6]
+    response['rcustodian'] = room_tuple[7]
+    response['rlongitude'] = float(room_tuple[8])
+    response['rlatitude'] = float(room_tuple[9])
+    response['raltitude'] = float(room_tuple[10])
+    response['photourl'] = room_tuple[11]
+    return response
+
+
+def _buildTinyRoomResponse(room_tuple):
     # Currently using the getRoomByID() method
     response = {}
     response['rid'] = room_tuple[0]
@@ -55,7 +85,10 @@ class RoomHandler:
         if not room:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
-            response = _buildRoomResponse(room_tuple=room)
+            if no_json:
+                response = _buildCoreRoomResponse(room_tuple=room)
+            else:
+                response = _buildRoomResponse(room_tuple=room)
             response['building'] = BuildingHandler().safeGetBuildingByID(bid=room[1])
             if no_json:
                 return response
@@ -79,7 +112,7 @@ class RoomHandler:
         else:
             room_list = []
             for row in rooms:
-                room_list.append(_buildRoomResponse(room_tuple=row))
+                room_list.append(_buildCoreRoomResponse(room_tuple=row))
             response = {"rooms": room_list,
                         'building': BuildingHandler().safeGetBuildingByID(bid=bid)}
         if no_json:
@@ -93,7 +126,7 @@ class RoomHandler:
             room = str(room)
         return room
 
-    def getCoreRoomByID(self, rid, no_json=False):
+    def getTinyRoomByID(self, rid, no_json=False):
         """
         Return the room entry belonging to the specified rid.
         Parameters:
@@ -107,7 +140,7 @@ class RoomHandler:
         if not room:
             return jsonify(Error='Room does not exist: ' + str(rid)), 404
         else:
-            response = _buildCoreRoomResponse(room_tuple=room)
+            response = _buildTinyRoomResponse(room_tuple=room)
             response['building'] = BuildingHandler().getCoreBuildingByID(bid=room[1], no_json=True)
             if no_json:
                 return response
@@ -186,7 +219,7 @@ class RoomHandler:
         else:
             room_list = []
             for row in rooms:
-                room_list.append(_buildRoomResponse(room_tuple=row))
+                room_list.append(_buildCoreRoomResponse(room_tuple=row))
             # TODO:  every room should probably have their building in it.
             response = {"rooms": room_list}
         return jsonify(response)
