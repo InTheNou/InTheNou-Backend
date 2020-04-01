@@ -6,7 +6,12 @@ from flask_login import login_required, logout_user, current_user
 from app.oauth import admin_role_required, mod_role_required
 
 
+@app.errorhandler(404)
+def not_found(Error):
+    """Page not found."""
+    return jsonify(Error='NOT FOUND'), 404
 ##APP ROUTES##
+
 
 @app.route("/App/Users/uid=<int:uid>", methods=['GET'])
 # @login_required
@@ -14,6 +19,7 @@ from app.oauth import admin_role_required, mod_role_required
 def getUserByID(uid):
     if request.method == 'GET':
         return UserHandler().getUserByID(uid=uid)
+
     else:
         return jsonify(Error='Method not allowed.'), 405
 

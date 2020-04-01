@@ -92,8 +92,13 @@ class UserHandler:
         """Return the user entry belonging to the specified uid.
         uid -- user ID.
         """
+        print(uid)
         dao = UserDAO()
-        user = dao.getUserByID(uid)
+        if(isinstance(uid, int) and uid > 0):
+            user = dao.getUserByID(uid)
+        else:
+            return jsonify(Error='User does not exist: uid=' + str(uid)), 404
+
         if not user:
             return jsonify(Error='User does not exist: uid=' + str(uid)), 404
         else:

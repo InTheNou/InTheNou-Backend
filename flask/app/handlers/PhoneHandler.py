@@ -4,17 +4,16 @@ from app.DAOs.PhoneDAO import PhoneDAO
 from app.DAOs.ServiceDAO import ServiceDAO
 
 
-SERVICEPHONEKEYS=['PNumbers']
+SERVICEPHONEKEYS = ['PNumbers']
+
 
 def _buildPhoneResponse(phone_tuple):
     response = {}
     response['phoneid'] = phone_tuple[0]
     response['pnumber'] = phone_tuple[1]
     response['ptype'] = phone_tuple[2]
-    
+
     return response
-
-
 
 
 class PhoneHandler:
@@ -25,32 +24,30 @@ class PhoneHandler:
             numbers.append(num['number'])
         return numbers
 
-    def insertServicePhone(self,sid,json):
+    def insertServicePhone(self, sid, json):
         """
-        """ 
+        """
         for key in SERVICEPHONEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-        handler =PhoneHandler()
+        handler = PhoneHandler()
 
-        
-        phones=[]
-        phoneInfo= []
-        phones= (handler.unpackPhones(json['PNumbers']))
-        dao =PhoneDAO()
-       
-       
+        phones = []
+        phoneInfo = []
+        phones = (handler.unpackPhones(json['PNumbers']))
+        dao = PhoneDAO()
+
         if not phones:
             phoneInfo = None
         else:
             for row in phones:
-                phoneInfo.append(( _buildPhoneResponse (dao.getPhoneByID(
-                  (dao.addPhoneToService(cursor=None,sid=sid,pid=(dao.insertPhone
-                  (cursor=None, pnumber=row['pnumber'],ptype=row['ptype'])))))))
+                phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(
+                    (dao.addPhoneToService(cursor=None, sid=sid, pid=(dao.insertPhone
+                                                                      (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'])))))))
                 )
 
         return jsonify(phoneInfo)
-    
+
     def getPhonesByServiceID(self, sid, no_json=False):
         """
         Return the Phone entries belonging to the specified Service sid.
@@ -68,38 +65,37 @@ class PhoneHandler:
             phone_list = []
             for row in phones:
                 phone_list.append(_buildPhoneResponse(phone_tuple=row))
-            response = {"phones": phone_list}
+            response = phone_list
         if no_json:
             return response
         return jsonify(response)
 
-    def removePhoneByServiceID(self,sid,json):
+    def removePhoneByServiceID(self, sid, json):
         """
-        """ 
+        """
         for key in SERVICEPHONEKEYS:
             if key not in json:
-                return jsonify(Error='Missing credentials from submission: ' + key), 400 
-        
-        phones    = []
-        phoneIDs =  []
+                return jsonify(Error='Missing credentials from submission: ' + key), 400
+
+        phones = []
+        phoneIDs = []
         phoneInfo = []
-        phones    = (self.unpackPhones(json['PNumbers']))
-        dao       = PhoneDAO()
-        
+        phones = (self.unpackPhones(json['PNumbers']))
+        dao = PhoneDAO()
+
         if not phones:
             phoneInfo = None
         else:
-            
+
             for x in phones:
-                    
-                ID=(dao.removePhonesByServiceID(sid=sid, phoneid=x['phoneid']))
-                    #print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
+
+                ID = (dao.removePhonesByServiceID(
+                    sid=sid, phoneid=x['phoneid']))
+                #print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
-                    return jsonify(Error="Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: '+ (str(x['phoneid']))), 400
+                    return jsonify(Error="Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid']))), 400
                 phoneIDs.append(int(ID))
-                    #print('Phones deleted IDs: '+ str(phoneIDs))
+                #print('Phones deleted IDs: '+ str(phoneIDs))
             for row in phoneIDs:
-                phoneInfo.append(( _buildPhoneResponse(dao.getPhoneByID(row)) )) 
-        return jsonify(phoneInfo) 
-        
-        
+                phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(row))))
+        return jsonify(phoneInfo)

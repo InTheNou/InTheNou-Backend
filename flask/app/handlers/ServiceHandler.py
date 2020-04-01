@@ -14,6 +14,7 @@ UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
 
 SEARCHSTRING_VALUE = 'searchstring'
 
+
 def _buildPhoneResponse(phone_tuple):
     response = {}
     response['phoneid'] = phone_tuple[0]
@@ -135,10 +136,10 @@ class ServiceHandler:
             return jsonify(Error='Service does not exist: sid=' + str(sid)), 404
         else:
             response = _buildServiceResponse(service_tuple=service)
-            response['PNumbers'] = Phonehandler.getPhonesByServiceID(sid=sid, no_json=True)[
-                'phones']
+            response['PNumbers'] = Phonehandler.getPhonesByServiceID(
+                sid=sid, no_json=True)
             response['Websites'] = Websitehandler.getWebistesByServiceID(
-                sid=sid, no_json=True)['Websites']
+                sid=sid, no_json=True)
             if no_json:
                 return response
             return jsonify(response)
@@ -213,13 +214,15 @@ class ServiceHandler:
         if SEARCHSTRING_VALUE not in json:
             return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 401
         # TODO: abstract this so multiple handlers can share it.
-        keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+        keywords = self.processSearchString(
+            searchstring=json[SEARCHSTRING_VALUE])
         dao = ServiceDAO()
-        services = dao.getServicesByKeywords(searchstring=keywords, offset=offset, limit=limit)
+        services = dao.getServicesByKeywords(
+            searchstring=keywords, offset=offset, limit=limit)
         if not services:
             response = {'services': None}
         else:
-            service_list=[]
+            service_list = []
             for row in services:
                 service_list.append(_buildServiceResponse(service_tuple=row))
             response = {'services': service_list}
