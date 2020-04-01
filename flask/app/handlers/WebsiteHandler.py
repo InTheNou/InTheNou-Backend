@@ -21,6 +21,7 @@ def _buildCoreWebsiteResponse(website_tuple):
 def _buildWebsiteResponse(website_tuple):
     response = {}
     response['wid'] = website_tuple[0]
+    response['url'] = website_tuple[1]
     response['wdescription'] = website_tuple[2]
 
     # Verify that changes to schema reflect properly;

@@ -11,6 +11,10 @@ from app.handlers.WebsiteHandler import WebsiteHandler
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
 TIMESTAMP = 'timestamp'
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+ITYPES = ["following", "unfollowed", "dismissed"]
+RECOMMENDATION_TYPES = ["R", "N"]
+ESTATUS_TYPES = ['active', 'deleted']
+SEARCHSTRING = 'searchstring'
 
 
 def _validateTimestamp(datestring):
@@ -107,6 +111,10 @@ class EventHandler:
             return jsonify(response)
 
     def getAllEventsSegmented(self, offset, limit=20):
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
         dao = EventDAO()
         events = dao.getAllEventsSegmented(offset=offset, limit=limit)
         if not events:
@@ -120,6 +128,10 @@ class EventHandler:
         return jsonify(response)
 
     def getAllPastEventsSegmented(self, offset, limit=20):
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
         dao = EventDAO()
         events = dao.getAllPastEventsSegmented(offset=offset, limit=limit)
         if not events:
@@ -151,6 +163,10 @@ class EventHandler:
         return jsonify(response)
 
     def getAllDeletedEventsSegmented(self, offset, limit=20):
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
         dao = EventDAO()
         events = dao.getAllDeletedEventsSegmented(offset=offset, limit=limit)
         if not events:
@@ -203,6 +219,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                 """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = EventDAO()
         events = dao.getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
@@ -227,6 +250,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                 """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = EventDAO()
         events = dao.getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
@@ -246,18 +276,19 @@ class EventHandler:
         Splits a string by its spaces, filters non-alpha-numeric symbols out,
         and joins the keywords by space-separated pipes.
         """
-        keyword_list = str.split(searchstring)
-        filtered_words = []
-        for word in keyword_list:
-            filtered_string = ""
-            for character in word:
-                if character.isalnum():
-                    filtered_string += character
-            if not filtered_string.isspace() and filtered_string != "":
-                filtered_words.append(filtered_string)
-        keywords = " | ".join(filtered_words)
-        return keywords
-
+        if isinstance(searchstring, str):
+            keyword_list = str.split(searchstring)
+            filtered_words = []
+            for word in keyword_list:
+                filtered_string = ""
+                for character in word:
+                    if character.isalnum():
+                        filtered_string += character
+                if not filtered_string.isspace() and filtered_string != "":
+                    filtered_words.append(filtered_string)
+            keywords = " | ".join(filtered_words)
+            return keywords
+        raise ValueError("Invalid search string: " + str(searchstring))
 
     def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
@@ -269,8 +300,16 @@ class EventHandler:
                Return:
                    JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                        """
-        # Process keywords to be filtered and separated by pipes.
-        keywords = self.processSearchString(searchstring=json['searchstring'])
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        if SEARCHSTRING not in json:
+            return jsonify(Error="Missing key in JSON: " + str(SEARCHSTRING)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+            # Process keywords to be filtered and separated by pipes.
+            keywords = self.processSearchString(searchstring=json[SEARCHSTRING])
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
 
         dao = EventDAO()
         events = dao.getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
@@ -297,8 +336,16 @@ class EventHandler:
                Return:
                    JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                        """
-        # Process keywords to be filtered and separated by pipes.
-        keywords = self.processSearchString(searchstring=json['searchstring'])
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        if SEARCHSTRING not in json:
+            return jsonify(Error="Missing key in JSON: " + str(SEARCHSTRING)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+            # Process keywords to be filtered and separated by pipes.
+            keywords = self.processSearchString(searchstring=json[SEARCHSTRING])
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
 
         dao = EventDAO()
         events = dao.getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
@@ -323,6 +370,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing limit-defined number of dismissed events.
                 """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = EventDAO()
         events = dao.getDismissedEvents(uid=uid, offset=offset, limit=limit)
         if not events:
@@ -337,6 +391,12 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
+    def validate_offset_limit(self, offset, limit):
+        if not isinstance(offset, int) or not offset >= 0:
+            raise ValueError("Invalid Offset: " + str(offset))
+        if not isinstance(limit, int) or not limit > 0:
+            raise ValueError("Invalid limit: " + str(limit))
+
     def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, recommended event entries specified by offset and limit parameters.
         Parameters:
@@ -346,6 +406,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing limit-defined number of upcoming, active events.
                 """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = EventDAO()
         events = dao.getUpcomingRecommendedEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
@@ -369,6 +436,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing limit-defined number past, followed events.
                 """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = EventDAO()
         events = dao.getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
@@ -392,6 +466,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing limit-defined number of events created by a user.
                 """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = EventDAO()
         events = dao.getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
         if not events:
@@ -405,6 +486,17 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
+    def validateItype(self, itype):
+        if itype not in ITYPES:
+            return False
+        return True
+
+    def validate_uid_eid(self, uid, eid):
+        if not isinstance(uid, int) or uid < 0:
+            raise ValueError("Invalid uid: " + str(uid))
+        if not isinstance(eid, int) or eid < 0:
+            raise ValueError("Invalid eid: " + str(eid))
+
     def setInteraction(self, uid, eid, itype):
         """Set an eventuserinteractions entry that states the user has interacted with
         the specified event.
@@ -415,6 +507,13 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing successful post response.
                 """
+        try:
+            self.validate_uid_eid(uid=uid, eid=eid)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+        if not isinstance(itype, str) or not self.validateItype(itype=itype):
+            return jsonify(Error="Invalid itype: " + str(itype)), 400
+
         dao = EventDAO()
         result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
 
@@ -447,16 +546,21 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing successful post response.
                 """
-        if recommendstatus == 'R' or recommendstatus == 'N':
-            dao = EventDAO()
-            uid_eid_pair = dao.setRecommendation(uid=uid, eid=eid, recommendstatus=recommendstatus)
-            # TODO: Consider a better way to do this error handling.
-            try:
-                return jsonify({"uid": uid_eid_pair[0],
-                                "eid": uid_eid_pair[1]}), 201
-            except TypeError:
-                return jsonify(Error=str(uid_eid_pair)), 400
-        return jsonify(Error='Invalid recommendstatus = ' + str(recommendstatus)), 400
+        try:
+            self.validate_uid_eid(uid=uid, eid=eid)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+        if not isinstance(recommendstatus, str) or recommendstatus not in RECOMMENDATION_TYPES:
+            return jsonify(Error='Invalid recommendstatus = ' + str(recommendstatus)), 400
+
+        dao = EventDAO()
+        uid_eid_pair = dao.setRecommendation(uid=uid, eid=eid, recommendstatus=recommendstatus)
+
+        try:
+            return jsonify({"uid": uid_eid_pair[0],
+                            "eid": uid_eid_pair[1]}), 201
+        except TypeError:
+            return jsonify(Error=str(uid_eid_pair)), 400
 
     def setEventStatus(self, uid, eid, estatus):
         """Set the estatus of an event entry to the specified value.
@@ -467,17 +571,21 @@ class EventHandler:
         Return:
             JSON Response Object: JSON containing successful post response.
                 """
+        try:
+            self.validate_uid_eid(uid=uid, eid=eid)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+        if not isinstance(estatus, str) or estatus not in ESTATUS_TYPES:
+            return jsonify(Error='Invalid estatus = ' + str(estatus)), 400
         # TODO: During integration, add user verification from Diego's Handlers.
         # if userCanModifyEvent(uid, eid)
-        if estatus == 'active' or estatus == 'deleted':
-            dao = EventDAO()
-            uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus)
-            # TODO: Consider a better way to do this error handling.
-            try:
-                return jsonify({"eid": uid_eid_pair[0]}), 201
-            except TypeError:
-                return jsonify(Error=str(uid_eid_pair)), 400
-        return jsonify(Error='Unsupported event status = ' + str(estatus)), 400
+
+        dao = EventDAO()
+        uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus)
+        try:
+            return jsonify({"eid": uid_eid_pair[0]}), 201
+        except TypeError:
+            return jsonify(Error=str(uid_eid_pair)), 400
 
     def validateStartEndDates(self, start, end):
         if datetime.strptime(start, DATETIME_FORMAT) < datetime.strptime(end, DATETIME_FORMAT):
@@ -503,7 +611,6 @@ class EventHandler:
             if not isinstance(json['photourl'], str) or json['photourl'].isspace() or json['photourl'] =='':
                 raise ValueError("photourl value not valid: " + str(json['photourl']))
         if not isinstance(json['tags'], list):
-            # Do better handling for these last two.
             raise ValueError("Array of tags provided improperly: " + str(json['tags']))
         if json['websites'] is not None:
             if not isinstance(json['websites'], list):
