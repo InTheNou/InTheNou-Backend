@@ -2,6 +2,7 @@ from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.RoomDAO import RoomDAO
 from app.handlers.BuildingHandler import BuildingHandler
+import app.handlers.SharedValidationFunctions as SVF
 
 
 SEARCH_CRITERIA_KEY = 'searchCriteria'
@@ -10,7 +11,7 @@ ROOMCODE_VALUE = 'rcode'
 BABBREV_VALUE = 'babbrev'
 
 
-# TODO: ADD SERVICES TO A ROOM
+# TODO: remove circular dependencies so this import does not occur in here.
 def _buildRoomResponse(room_tuple):
     response = {}
     response['rid'] = room_tuple[0]
@@ -29,7 +30,6 @@ def _buildRoomResponse(room_tuple):
     response['photourl'] = room_tuple[11]
 
     # Merging Diego's Service Code into Brian's Room builder.
-    # TODO: remove circular dependencies so this import does not occur in here.
     # TODO: Extract error handling.
     from app.handlers.ServiceHandler import ServiceHandler
     services = ServiceHandler().getServicesByRoomID(rid=room_tuple[0], no_json=True)
@@ -68,6 +68,24 @@ def _buildTinyRoomResponse(room_tuple):
     response['rcode'] = room_tuple[2]
     return response
 
+
+def _verify_room_search_params(json):
+    if json is None:
+        raise ValueError('No JSON provided')
+    if SEARCH_CRITERIA_KEY not in json:
+        raise KeyError('Key not found: ' + str(SEARCH_CRITERIA_KEY))
+    if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
+        if SEARCHSTRING_VALUE not in json:
+            raise KeyError('Key not found: ' + str(SEARCHSTRING_VALUE))
+        return SEARCHSTRING_VALUE
+    elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
+        if ROOMCODE_VALUE not in json:
+            raise KeyError('Key not found: ' + str(ROOMCODE_VALUE))
+        if BABBREV_VALUE not in json:
+            raise KeyError('Key not found: ' + str(BABBREV_VALUE))
+        return ROOMCODE_VALUE
+    else:
+        raise ValueError('Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY]))
 
 class RoomHandler:
 
@@ -146,45 +164,6 @@ class RoomHandler:
                 return response
             return jsonify(response)
 
-    # copied from Event handler because importing it caused ImportError loop.
-    # TODO: merge this, with event handler raising valueerror, and others into one importable place.
-    def processSearchString(self, searchstring):
-        """
-        Splits a string by its spaces, filters non-alpha-numeric symbols out,
-        and joins the keywords by space-separated pipes.
-        """
-        if isinstance(searchstring, str):
-            keyword_list = str.split(searchstring)
-            filtered_words = []
-            for word in keyword_list:
-                filtered_string = ""
-                for character in word:
-                    if character.isalnum():
-                        filtered_string += character
-                if not filtered_string.isspace() and filtered_string != "":
-                    filtered_words.append(filtered_string)
-            keywords = " | ".join(filtered_words)
-            return keywords
-        raise ValueError("Invalid search string: " + str(searchstring))
-
-    def verify_room_search_params(self, json):
-        if json is None:
-            raise ValueError('No JSON provided')
-        if SEARCH_CRITERIA_KEY not in json:
-            raise KeyError('Key not found: ' + str(SEARCH_CRITERIA_KEY))
-        if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
-            if SEARCHSTRING_VALUE not in json:
-                raise KeyError('Key not found: ' + str(SEARCHSTRING_VALUE))
-            return SEARCHSTRING_VALUE
-        elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
-            if ROOMCODE_VALUE not in json:
-                raise KeyError('Key not found: ' + str(ROOMCODE_VALUE))
-            if BABBREV_VALUE not in json:
-                raise KeyError('Key not found: ' + str(BABBREV_VALUE))
-            return ROOMCODE_VALUE
-        else:
-            raise ValueError('Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY]))
-
     def getRoomsBySearch(self, json, offset, limit=20):
         """
         Return the room entries matching the search parameters.
@@ -200,7 +179,8 @@ class RoomHandler:
         """
         # Verifying json (needs improvement)
         try:
-            search_method = self.verify_room_search_params(json=json)
+            SVF.validate_offset_limit(offset=offset, limit=limit)
+            search_method = _verify_room_search_params(json=json)
         except KeyError as e:
             return jsonify(Error=str(e)), 400
         except ValueError as e:
@@ -209,7 +189,7 @@ class RoomHandler:
         dao = RoomDAO()
         if search_method == SEARCHSTRING_VALUE:
             try:
-                keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+                keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
             except ValueError as ve:
                 return jsonify(Error=str(ve)), 400
 

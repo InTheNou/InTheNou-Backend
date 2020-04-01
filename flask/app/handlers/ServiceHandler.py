@@ -6,13 +6,14 @@ from app.DAOs.PhoneDAO import PhoneDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.handlers.PhoneHandler import PhoneHandler
+import app.handlers.SharedValidationFunctions as SVF
 
 
 CREATESERVICEKEYS = ['uid', 'rid', 'sname',
                      'sdescription', 'sschedule', 'PNumbers', 'Websites']
 UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
-
 SEARCHSTRING_VALUE = 'searchstring'
+
 
 def _buildPhoneResponse(phone_tuple):
     response = {}
@@ -138,6 +139,10 @@ class ServiceHandler:
     def getServicesSegmented(self, offset, limit):
         """
         """
+        try:
+            SVF.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
 
         dao = ServiceDAO()
 
@@ -164,31 +169,6 @@ class ServiceHandler:
             dao.updateServiceInformation(service=service, sid=sid)))
         return jsonify(response)
 
-    def processSearchString(self, searchstring):
-        """
-        Splits a string by its spaces, filters non-alpha-numeric symbols out,
-        and joins the keywords by space-separated pipes.
-        """
-        if isinstance(searchstring, str):
-            keyword_list = str.split(searchstring)
-            filtered_words = []
-            for word in keyword_list:
-                filtered_string = ""
-                for character in word:
-                    if character.isalnum():
-                        filtered_string += character
-                if not filtered_string.isspace() and filtered_string != "":
-                    filtered_words.append(filtered_string)
-            keywords = " | ".join(filtered_words)
-            return keywords
-        raise ValueError("Invalid search string: " + str(searchstring))
-
-    def validate_offset_limit(self, offset, limit):
-        if not isinstance(offset, int) or not offset >= 0:
-            raise ValueError("Invalid Offset: " + str(offset))
-        if not isinstance(limit, int) or not limit > 0:
-            raise ValueError("Invalid limit: " + str(limit))
-
     def getServicesByKeywords(self, json, offset, limit=20):
         """
         Get non-deleted services whose names or descriptions match a search string.
@@ -203,8 +183,8 @@ class ServiceHandler:
         if SEARCHSTRING_VALUE not in json:
             return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 400
         try:
-            self.validate_offset_limit(offset=offset, limit=limit)
-            keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+            SVF.validate_offset_limit(offset=offset, limit=limit)
+            keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
