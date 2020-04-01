@@ -27,10 +27,22 @@ def _buildCoreWeightedTagResponse(tag_tuple):
 class TagHandler:
 
     def unpackTags(self, json_tags):
+        """
+        Validate that a list of jsons containing key 'tid' is valid,
+        and returns a list of ints of the tid's
+        Returns:
+            List[int]: List of tid's
+        Raises:
+            ValueError
+            KeyError
+        """
         tags = []
         for tag in json_tags:
-            if tag['tid'] not in tags:
-                tags.append(tag['tid'])
+            tid = tag['tid']
+            if not isinstance(tid, int) or tid < 0:
+                raise ValueError("Invalid tid: " + str(tid))
+            if tid not in tags:
+                tags.append(tid)
         return tags
 
     def buildCoreUserTagResponse(self, tag_tuple):
