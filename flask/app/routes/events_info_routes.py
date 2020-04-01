@@ -8,10 +8,25 @@ from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
 
 
+@app.errorhandler(400)
+def bad_request_error(error):
+    return jsonify(Error=str(error)), 400
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify(Error="Invalid URI parameters: " + str(request.url)), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify(Error="Internal Server Error while accessing route: " +
+                         str(request.url) + " : " + str(error)), 500
+
+
 # TODO: Add Event Creator information to event routes during integration.
 # TODO: Change parameter passing from URI to URI + JSON + Session during integration.
 # NOTE: all personal uid's will be sent via sessions, or json during integration.
-# Automated test not set up
 @app.route("/App/Events/eid=<int:eid>", methods=['GET'])
 def getEventByID(eid):
     if request.method == 'GET':
@@ -20,19 +35,21 @@ def getEventByID(eid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Events/Deleted/New", methods=['GET'])
 def getNewDeletedEvents():
     if request.method == 'GET':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return EventHandler().getNewDeletedEvents(json=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Events/CAT", methods=['GET'])
 def getEventsCreatedAfterTimestamp():
     if request.method == 'GET':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return EventHandler().getEventsCreatedAfterTimestamp(json=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -46,7 +63,6 @@ def getAllEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getAllPastEventsSegmented(offset, limit):
     if request.method == 'GET':
@@ -55,7 +71,6 @@ def getAllPastEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# automated test not set up
 @app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getAllDeletedEventsSegmented(offset, limit):
     if request.method == 'GET':
@@ -69,6 +84,8 @@ def getAllDeletedEventsSegmented(offset, limit):
 @app.route("/App/Events/Create", methods=['POST'])
 def createEvent():
     if request.method == 'POST':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return EventHandler().createEvent(json=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -102,15 +119,13 @@ def dismissEvent(eid, uid):
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
 def setRecommendation(eid, uid, recommendstatus):
     if request.method == 'POST':
-        return EventHandler().setRecommendation(eid=eid, uid=uid,
-                                                recommendstatus=recommendstatus)
+        return EventHandler().setRecommendation(eid=eid, uid=uid, recommendstatus=recommendstatus)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
 # TODO: use UID to verify user's permission to delete an event.
 # TODO: Make estatus pass parameters via JSON
-# Automated test not set up
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>", methods=['POST'])
 def setEventStatus(eid, uid, estatus):
     if request.method == 'POST':
@@ -119,7 +134,6 @@ def setEventStatus(eid, uid, estatus):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingGeneralEventsSegmented(uid, offset, limit):
     if request.method == 'GET':
@@ -127,27 +141,31 @@ def getUpcomingGeneralEventsSegmented(uid, offset, limit):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# Automated test not fully set up
+
 @app.route("/App/Events/General/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 # Make this with session!
 def getUpcomingGeneralEventsByKeywordsSegmented(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=request.json['uid'], json=request.json, offset=offset, limit=limit)
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=request.json['uid'], json=request.json,
+                                                                          offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not fully set up
 @app.route("/App/Events/Recommended/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 # Make this with session!
 def getUpcomingRecommendedEventsByKeywordSegmented(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=request.json['uid'], json=request.json, offset=offset, limit=limit)
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=request.json['uid'], json=request.json,
+                                                                             offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Events/Recommended/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getUpcomingRecommendedEventsSegmented(uid, offset, limit):
     if request.method == 'GET':
@@ -164,7 +182,6 @@ def getUpcomingFollowedEventsSegmented(uid, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getPastFollowedEventsSegmented(uid, offset, limit):
     if request.method == 'GET':
@@ -172,8 +189,8 @@ def getPastFollowedEventsSegmented(uid, offset, limit):
     else:
         return jsonify(Error="Method not allowed."), 405
 
+
 # Use session instead of uri for uid.
-# Automated test not set up
 @app.route("/App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getEventsCreatedByUser(uid, offset, limit):
     if request.method == 'GET':
@@ -183,7 +200,6 @@ def getEventsCreatedByUser(uid, offset, limit):
 
 
 # Use session to authorize, but get UID to check from json
-# Automated test not set up
 @app.route("/Dashboard/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getEventsCreatedByOtherUser(offset, limit):
     if request.method == 'GET':
@@ -196,7 +212,6 @@ def getEventsCreatedByOtherUser(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 # TODO: test further when event insert routes are functional.
 # TODO: Consider what information should belong in JSONS.
 @app.route("/App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
@@ -215,16 +230,16 @@ def getRoomByID(rid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up;
 @app.route("/App/Rooms/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getRoomsBySearch(offset, limit):
     if request.method == 'GET':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return RoomHandler().getRoomsBySearch(json=request.json, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Update Automated tests
 @app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 def getRoomsByBuildingAndFloor(bid, rfloor):
     if request.method == 'GET':
@@ -268,12 +283,12 @@ def getBuildingByID(bid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Services/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getServicesByKeywords(offset, limit):
     if request.method == 'GET':
-        return ServiceHandler().getServicesByKeywords(json=request.json,
-                                                      offset=offset, limit=limit)
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return ServiceHandler().getServicesByKeywords(json=request.json, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -286,7 +301,6 @@ def getAllTags():
         return jsonify(Error="Method not allowed."), 405
 
 
-# Test Route
 @app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
 def getTagByID(tid):
     if request.method == 'GET':
@@ -311,16 +325,16 @@ def getTagsByUserID(uid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Tags/User/Remove", methods=['POST'])
 def setUserTagsToZero():
     if request.method == 'POST':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return TagHandler().batchSetUserTags(json=request.json, weight=0)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# Automated test not set up
 @app.route("/App/Tags/User/Add", methods=['POST'])
 def setUserTagsToDefault():
     if request.method == 'POST':
@@ -341,5 +355,10 @@ def createTag():
 def editTagName(tid):
     if request.method == 'POST':
         return TagHandler().editTagName(tid=tid, json=request.json)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return TagHandler().batchSetUserTags(json=request.json, weight=100)
     else:
         return jsonify(Error="Method not allowed."), 405

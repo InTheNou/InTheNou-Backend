@@ -10,6 +10,8 @@ FOLLOWING_STRING = 'following'
 DISMISSED_STRING = 'dismissed'
 UNFOLLOWED_STRING = 'unfollowed'
 DELETED_STRING = 'deleted'
+
+
 class EventDAO(MasterDAO):
 
 

@@ -146,3 +146,20 @@ class WebsiteHandler:
                     website_tuple=dao.getWebsiteByID(row)))
 
         return jsonify(websiteInfo)
+
+    def validateWebsites(self, list_of_websites):
+        """
+        Validate that a list of json websites consisting of keys "url" and
+        "wdescription" are valid strings.
+        Raises:
+            ValueError
+            KeyError
+        """
+        if list_of_websites:
+            for site in list_of_websites:
+                if not isinstance(site['url'], str) or site['url'].isspace() or site['url'] == "":
+                    raise ValueError("Invalid url value: " + str(site['url']))
+                if site['wdescription'] is not None:
+                    if not isinstance(site['wdescription'], str) or site['wdescription'].isspace() or site['wdescription'] == "":
+                        raise ValueError(
+                            "Invalid wdescription value: " + str(site['wdescription']))

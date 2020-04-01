@@ -1,5 +1,6 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
+from datetime import datetime
 from app.DAOs.EventDAO import EventDAO
 from app.DAOs.TagDAO import TagDAO
 from app.handlers.RoomHandler import RoomHandler
@@ -9,6 +10,17 @@ from app.handlers.WebsiteHandler import WebsiteHandler
 
 CREATEEVENTKEYS = ['roomid', 'etitle', 'edescription', 'estart', 'eend', 'photourl', 'tags', 'websites']
 TIMESTAMP = 'timestamp'
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
+def _validateTimestamp(datestring):
+    try:
+        if datestring != datetime.strptime(datestring, DATETIME_FORMAT).strftime(DATETIME_FORMAT):
+            raise ValueError
+        return True
+    except ValueError:
+        return False
+
 
 def _buildEventResponse(event_tuple):
     """
@@ -122,10 +134,10 @@ class EventHandler:
 
     def getNewDeletedEvents(self, json):
         if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
         timestamp = json[TIMESTAMP]
-        if (timestamp.lower()).islower():
-            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         dao = EventDAO()
         events = dao.getNewDeletedEvents(timestamp=timestamp)
         if not events:
@@ -162,12 +174,12 @@ class EventHandler:
             JSON: json response with event IDs and tags for each event.
         """
         if json is None:
-            return jsonify(Error='No JSON sent.'), 401
+            return jsonify(Error='No JSON sent.'), 400
         if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 401
+            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
         timestamp = json[TIMESTAMP]
-        if (timestamp.lower()).islower():
-            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 401
+        if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
+            return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         if uid is None:
             uid=json['uid']
         dao = EventDAO()
@@ -200,10 +212,8 @@ class EventHandler:
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
                 # TODO: Consider reworking generalEventsSegmented and builder.
-                event_entry['interaction'] = {
-                    "itype": row[11],
-                    "recommendstatus": row[12]
-                }
+                event_entry['itype'] = row[11]
+                event_entry['recommendstatus'] = row[12]
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
@@ -271,10 +281,8 @@ class EventHandler:
             for row in events:
                 event_entry = _buildCoreEventResponse(event_tuple=row)
                 # TODO: Consider reworking generalEventsSegmented and builder.
-                event_entry['interaction'] = {
-                    "itype": row[11],
-                    "recommendstatus": row[12]
-                }
+                event_entry['itype'] = row[11]
+                event_entry['recommendstatus'] = row[12]
                 event_list.append(event_entry)
             response = {'events': event_list}
         return jsonify(response)
@@ -471,6 +479,36 @@ class EventHandler:
                 return jsonify(Error=str(uid_eid_pair)), 400
         return jsonify(Error='Unsupported event status = ' + str(estatus)), 400
 
+    def validateStartEndDates(self, start, end):
+        if datetime.strptime(start, DATETIME_FORMAT) < datetime.strptime(end, DATETIME_FORMAT):
+            return True
+        return False
+
+    def validateEventParameters(self, json, uid):
+        if not isinstance(uid, int) or uid <= 0:
+            raise ValueError("ecreator uid value not valid: " + str(uid))
+        if not isinstance(json['roomid'], int) or json['roomid'] <= 0:
+            raise ValueError("roomid value not valid: " + str(json['roomid']))
+        if not isinstance(json['etitle'], str) or json['etitle'].isspace() or json['etitle'] =='':
+            raise ValueError("etitle value not valid: " + str(json['etitle']))
+        if not isinstance(json['edescription'], str) or json['edescription'].isspace() or json['edescription'] =='':
+            raise ValueError("edescription value not valid: " + str(json['edescription']))
+        if not isinstance(json['estart'], str) or not _validateTimestamp(datestring=json['estart']):
+            raise ValueError("estart value not valid: " + str(json['estart']))
+        if not isinstance(json['eend'], str) or not _validateTimestamp(datestring=json['eend']):
+            raise ValueError("eend value not valid: " + str(json['eend']))
+        if not self.validateStartEndDates(start=json['estart'], end=json['eend']):
+            raise ValueError("eend [{end}] must be greater than estart [{start}]".format(end=json['eend'], start=json['estart']))
+        if json['photourl'] is not None:
+            if not isinstance(json['photourl'], str) or json['photourl'].isspace() or json['photourl'] =='':
+                raise ValueError("photourl value not valid: " + str(json['photourl']))
+        if not isinstance(json['tags'], list):
+            # Do better handling for these last two.
+            raise ValueError("Array of tags provided improperly: " + str(json['tags']))
+        if json['websites'] is not None:
+            if not isinstance(json['websites'], list):
+                raise ValueError("Array of websites provided improperly: " + str(json['websites']))
+
     def createEvent(self, json, uid=None):
         """Attempt to create an event.
         Parameters:
@@ -484,8 +522,15 @@ class EventHandler:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
         # TODO: pass uid not through json.
+        try:
+            self.validateEventParameters(json=json, uid=json['ecreator'])
+            tags = TagHandler().unpackTags(json_tags=json['tags'])
+            WebsiteHandler().validateWebsites(list_of_websites=json['websites'])
+        except ValueError as e:
+            return jsonify(Error=str(e)), 400
+        except KeyError as ke:
+            return jsonify(Error= "Missing Key in JSON: " + str(ke)), 400
 
-        tags = TagHandler().unpackTags(json_tags=json['tags'])
         if len(tags) < 3 or len(tags) > 10:
             return jsonify(Error="Improper number of unique tags provided: "+ str(len(tags))), 400
 

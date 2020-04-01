@@ -18,6 +18,13 @@ def _buildWeightedTagResponse(tag_tuple):
     return response
 
 
+def _buildCoreWeightedTagResponse(tag_tuple):
+    response = {}
+    response['tid'] = tag_tuple[1]
+    response['tagweight'] = tag_tuple[2]
+    return response
+
+
 class TagHandler:
 
     def createTags(self, jsonTags):
@@ -55,10 +62,22 @@ class TagHandler:
             return jsonify(Error="Wrong Json parameters "), 401
 
     def unpackTags(self, json_tags):
+        """
+        Validate that a list of jsons containing key 'tid' is valid,
+        and returns a list of ints of the tid's
+        Returns:
+            List[int]: List of tid's
+        Raises:
+            ValueError
+            KeyError
+        """
         tags = []
         for tag in json_tags:
-            if tag['tid'] not in tags:
-                tags.append(tag['tid'])
+            tid = tag['tid']
+            if not isinstance(tid, int) or tid < 0:
+                raise ValueError("Invalid tid: " + str(tid))
+            if tid not in tags:
+                tags.append(tid)
         return tags
 
     def buildCoreUserTagResponse(self, tag_tuple):
@@ -189,7 +208,7 @@ class TagHandler:
         try:
             for user_tag in rows:
                 updated_usertags.append(
-                    _buildWeightedTagResponse(tag_tuple=user_tag))
+                    _buildCoreWeightedTagResponse(tag_tuple=user_tag))
         except TypeError:
             return jsonify(Error=str(rows)), 400
 
