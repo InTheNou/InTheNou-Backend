@@ -24,21 +24,11 @@ def internal_server_error(error):
                          str(request.url) + " : " + str(error)), 500
 
 
-# TODO: Add Event Creator information to event routes during integration.
 # TODO: Change parameter passing from URI to URI + JSON + Session during integration.
 # NOTE: all personal uid's will be sent via sessions, or json during integration.
 @app.route("/App/Events/eid=<int:eid>", methods=['GET'])
 def getEventByID(eid):
     if request.method == 'GET': return EventHandler().getEventByID(eid=eid)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/App/Events/Deleted/New", methods=['GET'])
-def getNewDeletedEvents():
-    if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getNewDeletedEvents(json=request.json)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -48,24 +38,6 @@ def getEventsCreatedAfterTimestamp():
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
         return EventHandler().getEventsCreatedAfterTimestamp(json=request.json)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getAllEventsSegmented(offset, limit):
-    if request.method == 'GET': return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getAllPastEventsSegmented(offset, limit):
-    if request.method == 'GET': return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getAllDeletedEventsSegmented(offset, limit):
-    if request.method == 'GET': return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -80,25 +52,46 @@ def createEvent():
     else: return jsonify(Error="Method not allowed."), 405
 
 
+@app.route("/App/Events/Deleted/New", methods=['GET'])
+def getNewDeletedEvents():
+    if request.method == 'GET':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return EventHandler().getNewDeletedEvents(json=request.json)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Follow", methods=['POST'])
 def followEvent(eid, uid):
-    if request.method == 'POST': return EventHandler().setInteraction(eid=eid, uid=uid, itype="following")
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Unfollow", methods=['POST'])
-def unfollowEvent(eid, uid):
-    if request.method == 'POST': return EventHandler().setInteraction(eid=eid, uid=uid, itype="unfollowed")
-    else: return jsonify(Error="Method not allowed."), 405
+    if request.method == 'POST':
+        return EventHandler().setInteraction(eid=eid, uid=uid, itype="following")
+    else:
+        return jsonify(Error="Method not allowed."), 405
 
 
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Dismiss", methods=['POST'])
 def dismissEvent(eid, uid):
-    if request.method == 'POST': return EventHandler().setInteraction(eid=eid, uid=uid, itype="dismissed")
+    if request.method == 'POST':
+        return EventHandler().setInteraction(eid=eid, uid=uid, itype="dismissed")
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Unfollow", methods=['POST'])
+def unfollowEvent(eid, uid):
+    if request.method == 'POST':
+        return EventHandler().setInteraction(eid=eid, uid=uid, itype="unfollowed")
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+# TODO: use UID to verify user's permission to delete an event.
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>", methods=['POST'])
+def setEventStatus(eid, uid, estatus):
+    if request.method == 'POST': return EventHandler().setEventStatus(eid=eid, uid=uid, estatus=estatus)
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Make recommendstatus pass parameters via JSON
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
 def setRecommendation(eid, uid, recommendstatus):
     if request.method == 'POST':
@@ -106,11 +99,23 @@ def setRecommendation(eid, uid, recommendstatus):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: use UID to verify user's permission to delete an event.
-# TODO: Make estatus pass parameters via JSON
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>", methods=['POST'])
-def setEventStatus(eid, uid, estatus):
-    if request.method == 'POST': return EventHandler().setEventStatus(eid=eid, uid=uid, estatus=estatus)
+# Use session instead of uri for uid.
+@app.route("/App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getEventsCreatedByUser(uid, offset, limit):
+    if request.method == 'GET': return EventHandler().getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getDismissedEvents(uid, offset, limit):
+    if request.method == 'GET': return EventHandler().getDismissedEvents(uid=uid, offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getUpcomingFollowedEventsSegmented(uid, offset, limit):
+    if request.method == 'GET':
+        return EventHandler().getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -131,13 +136,10 @@ def getUpcomingGeneralEventsByKeywordsSegmented(offset, limit):                 
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Recommended/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getUpcomingRecommendedEventsByKeywordSegmented(offset, limit):                           # Make this with session!
+@app.route("/App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getPastFollowedEventsSegmented(uid, offset, limit):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=request.json['uid'], json=request.json,
-                                                                             offset=offset, limit=limit)
+        return EventHandler().getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -148,24 +150,19 @@ def getUpcomingRecommendedEventsSegmented(uid, offset, limit):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getUpcomingFollowedEventsSegmented(uid, offset, limit):
+@app.route("/App/Events/Recommended/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getUpcomingRecommendedEventsByKeywordSegmented(offset, limit):                           # Make this with session!
     if request.method == 'GET':
-        return EventHandler().getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=request.json['uid'], json=request.json,
+                                                                             offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getPastFollowedEventsSegmented(uid, offset, limit):
-    if request.method == 'GET':
-        return EventHandler().getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-# Use session instead of uri for uid.
-@app.route("/App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getEventsCreatedByUser(uid, offset, limit):
-    if request.method == 'GET': return EventHandler().getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+@app.route("/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllEventsSegmented(offset, limit):
+    if request.method == 'GET': return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -180,11 +177,21 @@ def getEventsCreatedByOtherUser(offset, limit):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: test further when event insert routes are functional.
-# TODO: Consider what information should belong in JSONS.
-@app.route("/App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getDismissedEvents(uid, offset, limit):
-    if request.method == 'GET': return EventHandler().getDismissedEvents(uid=uid, offset=offset, limit=limit)
+@app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllDeletedEventsSegmented(offset, limit):
+    if request.method == 'GET': return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getAllPastEventsSegmented(offset, limit):
+    if request.method == 'GET': return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
+def getRoomsByBuildingAndFloor(bid, rfloor):
+    if request.method == 'GET': return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -203,9 +210,9 @@ def getRoomsBySearch(offset, limit):
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
-def getRoomsByBuildingAndFloor(bid, rfloor):
-    if request.method == 'GET': return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
+@app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
+def getBuildingByID(bid):
+    if request.method == 'GET': return BuildingHandler().getBuildingByID(bid=bid)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -213,12 +220,6 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
 @app.route("/Dev/Buildings", methods=['GET'])
 def getAllBuildings():
     if request.method == 'GET': return BuildingHandler().getAllBuildings()
-    else: return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
-def getBuildingByID(bid):
-    if request.method == 'GET': return BuildingHandler().getBuildingByID(bid=bid)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -237,15 +238,15 @@ def getAllTags():
     else: return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
-def getTagByID(tid):
-    if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
-    else: return jsonify(Error="Method not allowed."), 405
-
-
 @app.route("/App/Tags/eid=<int:eid>", methods=['GET'])
 def getTagsByEventID(eid):
     if request.method == 'GET': return TagHandler().getTagsByEventID(eid=eid)
+    else: return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
+def getTagByID(tid):
+    if request.method == 'GET': return TagHandler().getTagByID(tid=tid)
     else: return jsonify(Error="Method not allowed."), 405
 
 
