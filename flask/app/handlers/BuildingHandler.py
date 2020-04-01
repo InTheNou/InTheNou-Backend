@@ -24,6 +24,7 @@ def _buildCoreBuildingResponse(building_tuple):
     response['babbrev'] = building_tuple[2]
     return response
 
+
 def _getDistinctFloorNumbersByBuildingID(bid):
     floors = BuildingDAO().getDistinctFloorNumbersByBuildingID(bid=bid)
     floor_array=[]
@@ -33,7 +34,6 @@ def _getDistinctFloorNumbersByBuildingID(bid):
         for floor in floors:
             floor_array.append(floor[0])
     return floor_array
-
 
 
 class BuildingHandler:

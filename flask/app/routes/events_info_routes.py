@@ -260,7 +260,7 @@ def setUserTagsToZero():
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().batchSetUserTags(json=request.json, weight=0)
+        return TagHandler().batchSetUserTags(json=request.json, weight=0, uid=None)
     else: return jsonify(Error="Method not allowed."), 405
 
 
@@ -269,5 +269,5 @@ def setUserTagsToDefault():
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().batchSetUserTags(json=request.json, weight=100)
+        return TagHandler().batchSetUserTags(json=request.json, weight=100, uid=None)
     else: return jsonify(Error="Method not allowed."), 405

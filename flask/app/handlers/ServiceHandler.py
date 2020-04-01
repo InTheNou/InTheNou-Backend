@@ -169,17 +169,25 @@ class ServiceHandler:
         Splits a string by its spaces, filters non-alpha-numeric symbols out,
         and joins the keywords by space-separated pipes.
         """
-        keyword_list = str.split(searchstring)
-        filtered_words = []
-        for word in keyword_list:
-            filtered_string = ""
-            for character in word:
-                if character.isalnum():
-                    filtered_string += character
-            if not filtered_string.isspace() and filtered_string != "":
-                filtered_words.append(filtered_string)
-        keywords = " | ".join(filtered_words)
-        return keywords
+        if isinstance(searchstring, str):
+            keyword_list = str.split(searchstring)
+            filtered_words = []
+            for word in keyword_list:
+                filtered_string = ""
+                for character in word:
+                    if character.isalnum():
+                        filtered_string += character
+                if not filtered_string.isspace() and filtered_string != "":
+                    filtered_words.append(filtered_string)
+            keywords = " | ".join(filtered_words)
+            return keywords
+        raise ValueError("Invalid search string: " + str(searchstring))
+
+    def validate_offset_limit(self, offset, limit):
+        if not isinstance(offset, int) or not offset >= 0:
+            raise ValueError("Invalid Offset: " + str(offset))
+        if not isinstance(limit, int) or not limit > 0:
+            raise ValueError("Invalid limit: " + str(limit))
 
     def getServicesByKeywords(self, json, offset, limit=20):
         """
@@ -194,8 +202,12 @@ class ServiceHandler:
             return jsonify(Error='No JSON Provided.'), 400
         if SEARCHSTRING_VALUE not in json:
             return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 400
-        # TODO: abstract this so multiple handlers can share it.
-        keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+        try:
+            self.validate_offset_limit(offset=offset, limit=limit)
+            keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = ServiceDAO()
         services = dao.getServicesByKeywords(searchstring=keywords, offset=offset, limit=limit)
         if not services:

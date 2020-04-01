@@ -38,6 +38,8 @@ class TagHandler:
         """
         tags = []
         for tag in json_tags:
+            if 'tid' not in tag:
+                raise KeyError("Key not found: tid")
             tid = tag['tid']
             if not isinstance(tid, int) or tid < 0:
                 raise ValueError("Invalid tid: " + str(tid))
@@ -50,7 +52,6 @@ class TagHandler:
         response['tid'] = tag_tuple[1]
         response['tagweight'] = tag_tuple[2]
         return response
-
 
     def getTagByID(self, tid, no_json=False):
         """
@@ -100,7 +101,6 @@ class TagHandler:
             tags = str(tags)
         return tags
 
-    # TODO: Add safe version of this method when needed.
     def getTagsByUserID(self, uid, no_json=False):
         """
         Return the tag entries belonging to a user specified by their uid.
@@ -163,12 +163,26 @@ class TagHandler:
         """
         Set the weight for the given tags in a JSON to a specified value
         """
-        if uid is None:
-            uid = json['uid']
-        if weight < 0 or weight > 200:
-            return jsonify(Error='Tag Weight outside range of 0-200: ' + str(weight)), 400
+        try:
+            # Temporary until Merge with Diego's Code
+            if uid is None:
+                if 'uid' not in json:
+                    raise KeyError("Key not found in JSON: uid.")
+                uid = json['uid']
+                if not isinstance(uid, int) or uid <= 0:
+                    raise ValueError("Invalid uid: " + str(uid))
 
-        tags = self.unpackTags(json_tags=json['tags'])
+            if weight < 0 or weight > 200:
+                raise ValueError('Tag Weight outside range of 0-200: ' + str(weight))
+            if 'tags' not in json:
+                raise KeyError("Key not found in JSON: tags")
+
+            tags = self.unpackTags(json_tags=json['tags'])
+        except ValueError as e:
+            return jsonify(Error=str(e)), 400
+        except KeyError as e:
+            return jsonify(Error=str(e)), 400
+
         updated_usertags = []
         rows = TagDAO().batchSetUserTags(uid=uid, tags=tags, weight=weight)
         try:

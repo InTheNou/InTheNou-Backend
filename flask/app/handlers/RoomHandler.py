@@ -147,25 +147,44 @@ class RoomHandler:
             return jsonify(response)
 
     # copied from Event handler because importing it caused ImportError loop.
-    # TODO: merge this, event handler, and others into one importable place.
+    # TODO: merge this, with event handler raising valueerror, and others into one importable place.
     def processSearchString(self, searchstring):
         """
         Splits a string by its spaces, filters non-alpha-numeric symbols out,
         and joins the keywords by space-separated pipes.
         """
-        keyword_list = str.split(searchstring)
-        filtered_words = []
-        for word in keyword_list:
-            filtered_string = ""
-            for character in word:
-                if character.isalnum():
-                    filtered_string += character
-            if not filtered_string.isspace() and filtered_string != "":
-                filtered_words.append(filtered_string)
-        keywords = " | ".join(filtered_words)
-        return keywords
+        if isinstance(searchstring, str):
+            keyword_list = str.split(searchstring)
+            filtered_words = []
+            for word in keyword_list:
+                filtered_string = ""
+                for character in word:
+                    if character.isalnum():
+                        filtered_string += character
+                if not filtered_string.isspace() and filtered_string != "":
+                    filtered_words.append(filtered_string)
+            keywords = " | ".join(filtered_words)
+            return keywords
+        raise ValueError("Invalid search string: " + str(searchstring))
 
-    #TODO: FINISH THIS METHOD, AND MISSING DAO AND ROUTE
+    def verify_room_search_params(self, json):
+        if json is None:
+            raise ValueError('No JSON provided')
+        if SEARCH_CRITERIA_KEY not in json:
+            raise KeyError('Key not found: ' + str(SEARCH_CRITERIA_KEY))
+        if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
+            if SEARCHSTRING_VALUE not in json:
+                raise KeyError('Key not found: ' + str(SEARCHSTRING_VALUE))
+            return SEARCHSTRING_VALUE
+        elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
+            if ROOMCODE_VALUE not in json:
+                raise KeyError('Key not found: ' + str(ROOMCODE_VALUE))
+            if BABBREV_VALUE not in json:
+                raise KeyError('Key not found: ' + str(BABBREV_VALUE))
+            return ROOMCODE_VALUE
+        else:
+            raise ValueError('Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY]))
+
     def getRoomsBySearch(self, json, offset, limit=20):
         """
         Return the room entries matching the search parameters.
@@ -180,40 +199,33 @@ class RoomHandler:
             JSON: containing room information. Error JSON otherwise.
         """
         # Verifying json (needs improvement)
-        if json is None:
-            return jsonify(Error='No JSON provided'), 400
-        if SEARCH_CRITERIA_KEY not in json:
-            return jsonify(Error='Key not found: ' + str(SEARCH_CRITERIA_KEY)), 400
-        if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
-            if SEARCHSTRING_VALUE not in json:
-                return jsonify(Error='Key not found: ' + str(SEARCHSTRING_VALUE)), 400
-            search_method = SEARCHSTRING_VALUE
-        elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
-            if ROOMCODE_VALUE not in json:
-                return jsonify(Error='Key not found: ' + str(ROOMCODE_VALUE)), 400
-            if BABBREV_VALUE not in json:
-                return jsonify(Error='Key not found: ' + str(BABBREV_VALUE)), 400
-            search_method = ROOMCODE_VALUE
-        else:
-            return jsonify(Error='Invalid Search Criteria: ' + str(json[SEARCH_CRITERIA_KEY])), 400
+        try:
+            search_method = self.verify_room_search_params(json=json)
+        except KeyError as e:
+            return jsonify(Error=str(e)), 400
+        except ValueError as e:
+            return jsonify(Error=str(e)), 400
 
         dao = RoomDAO()
         if search_method == SEARCHSTRING_VALUE:
-            keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+            try:
+                keywords = self.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+            except ValueError as ve:
+                return jsonify(Error=str(ve)), 400
+
             rooms = dao.getRoomsByKeywordSegmented(keywords=keywords, limit=limit, offset=offset)
         else:
-            # filtering symbols and spaces out to try and prevent SQL injection.
-            # TODO: go over other string routes and check for similar injection vulnerability.
+            # Filter strings.
+            # Force sent abbrev and rcode to be strings appropriate for LIKE query.
             babbrev = str(json[BABBREV_VALUE]).upper()
             rcode = str(json[ROOMCODE_VALUE])
 
-            alphanumeric_filter = filter(str.isalnum, rcode)
-            rcode = "".join(alphanumeric_filter)
-            alphanumeric_filter = filter(str.isalnum, babbrev)
-            babbrev = "".join(alphanumeric_filter)
+            # Remove symbols and spaces from strings. Leave only numbers and letters.
+            rcode = "".join(filter(str.isalnum, rcode))
+            babbrev = "".join(filter(str.isalnum, babbrev))
 
-            rooms = dao.getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode,
-                                                      limit=limit, offset=offset)
+            rooms = dao.getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode, limit=limit, offset=offset)
+
         if not rooms:
             response = {"rooms": None}
         else:
@@ -222,6 +234,5 @@ class RoomHandler:
                 room_result = _buildCoreRoomResponse(room_tuple=row)
                 room_result['building'] = BuildingHandler().getCoreBuildingByID(bid=row[1], no_json=True)
                 room_list.append(room_result)
-            # TODO:  every room should probably have their building in it.
             response = {"rooms": room_list}
         return jsonify(response)
