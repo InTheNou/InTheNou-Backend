@@ -13,6 +13,8 @@ flask/app/__pycache__/config.cpython-36.pyc
 flask/app/__pycache__/models.cpython-36.pyc
 flask/app/__pycache__/oauth.cpython-36.pyc
 flask/app/__pycache__/routes.cpython-36.pyc
+flask/app/routes/__pycache__
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -67,3 +69,5 @@ docs/_build/
 
 # PyBuilder
 target/
+flask/app/routes/__pycache__/events_info_routes.cpython-36.pyc
+flask/app/handlers/__pycache__/EventHandler.cpython-36.pyc

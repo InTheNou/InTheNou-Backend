@@ -10,6 +10,8 @@ FOLLOWING_STRING = 'following'
 DISMISSED_STRING = 'dismissed'
 UNFOLLOWED_STRING = 'unfollowed'
 DELETED_STRING = 'deleted'
+
+
 class EventDAO(MasterDAO):
 
 
@@ -326,56 +328,6 @@ class EventDAO(MasterDAO):
             result.append(row)
         return result
 
-    def getDismissedEvents(self, uid, offset, limit):
-        """
-         Query Database for events that the user has dismissed,
-          ordered by closest start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
-        """
-        cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table1} "
-                        "left outer join {table2} "
-                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
-                        "natural join {table3} "
-                        "where {pkey1}= %s and {pkey2} = %s and {pkey3} <> %s"
-                        "order by {table1Identifier2} desc "
-                        "offset %s "
-                        "limit %s;").format(
-            fields=sql.SQL(',').join([
-                sql.Identifier('eid'),
-                sql.Identifier('ecreator'),
-                sql.Identifier('roomid'),
-                sql.Identifier('etitle'),
-                sql.Identifier('edescription'),
-                sql.Identifier('estart'),
-                sql.Identifier('eend'),
-                sql.Identifier('ecreation'),
-                sql.Identifier('estatus'),
-                sql.Identifier('estatusdate'),
-                sql.Identifier('photourl'),
-                sql.Identifier('recommendstatus')
-            ]),
-            table1=sql.Identifier('events'),
-            table2=sql.Identifier('photos'),
-            table3=sql.Identifier('eventuserinteractions'),
-            table1Identifier=sql.Identifier('photoid'),
-            table2Identifier=sql.Identifier('photoid'),
-            pkey1=sql.Identifier('uid'),
-            pkey2=sql.Identifier('itype'),
-            pkey3=sql.Identifier('estatus'),
-            table1Identifier2=sql.Identifier('estart'))
-        cursor.execute(query, (int(uid), 'dismissed', 'deleted', int(offset), int(limit)))
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
-
     def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that have been recommended to the user,
@@ -530,6 +482,56 @@ class EventDAO(MasterDAO):
             pkey3=sql.Identifier('itype'),
             table1Identifier2=sql.Identifier('estart'))
         cursor.execute(query, (int(uid), 'following', int(offset), int(limit)))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getDismissedEvents(self, uid, offset, limit):
+        """
+         Query Database for events that the user has dismissed,
+          ordered by closest start date, offset by
+            a set number of rows, returning a limited number of rows after offset.
+        Parameters:
+            uid: User ID,
+            offset: Number of rows to ignore from top results.
+            limit: Maximum number of rows to return from query results.
+        Returns:
+            List[Tuple]: SQL result of Query as a list of tuples.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "left outer join {table2} "
+                        "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "natural join {table3} "
+                        "where {pkey1}= %s and {pkey2} = %s and {pkey3} <> %s"
+                        "order by {table1Identifier2} desc "
+                        "offset %s "
+                        "limit %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('eid'),
+                sql.Identifier('ecreator'),
+                sql.Identifier('roomid'),
+                sql.Identifier('etitle'),
+                sql.Identifier('edescription'),
+                sql.Identifier('estart'),
+                sql.Identifier('eend'),
+                sql.Identifier('ecreation'),
+                sql.Identifier('estatus'),
+                sql.Identifier('estatusdate'),
+                sql.Identifier('photourl'),
+                sql.Identifier('recommendstatus')
+            ]),
+            table1=sql.Identifier('events'),
+            table2=sql.Identifier('photos'),
+            table3=sql.Identifier('eventuserinteractions'),
+            table1Identifier=sql.Identifier('photoid'),
+            table2Identifier=sql.Identifier('photoid'),
+            pkey1=sql.Identifier('uid'),
+            pkey2=sql.Identifier('itype'),
+            pkey3=sql.Identifier('estatus'),
+            table1Identifier2=sql.Identifier('estart'))
+        cursor.execute(query, (int(uid), 'dismissed', 'deleted', int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
@@ -863,7 +865,7 @@ class EventDAO(MasterDAO):
         if websites is not None:
             try:
                 for website in websites:
-                    wid = WebsiteDAO().insertWebsite(url=website['url'], cursor=cursor)[0]
+                    wid = WebsiteDAO().addWebsite(url=website['url'], cursor=cursor)[0]
 
                     WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, wdescription=website['wdescription'],
                                                     cursor=cursor)

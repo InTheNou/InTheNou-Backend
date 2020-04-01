@@ -1,7 +1,8 @@
 from app.DAOs.MasterDAO import MasterDAO
-from psycopg2 import sql
+from psycopg2 import sql,errors
 
 class UserDAO(MasterDAO):
+
      
     def getUserByID(self, uid):
         """
@@ -28,7 +29,6 @@ class UserDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
-
     def getUsersThatCanModifyEvent(self,eid):
         """
         Query Database for a User's who can modify the givven event, these are the event creator, the event creator's 
@@ -38,23 +38,24 @@ class UserDAO(MasterDAO):
             Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select distinct {users} from ({users_roles_info}) where {pkey} = %s) as users_that_can_modify on issuer=u2.uid or  userid=u2.uid "
+        query = sql.SQL("select distinct {users} from {users_roles_info}  where {pkey} = %s) as users_that_can_modify on issuer=u2.uid or  userid=u2.uid  or u2.roleid=4 "
                         ).format(
             users=sql.SQL(',').join([
-                sql.Identifier('u2.uid')
+                sql.SQL("u2.uid")
             ]),
             users_roles_info=sql.SQL(
                                 "users u2 join (select e1.ecreator as userid,roleissuer as issuer from events e1 "
-                                "join users on ((roleissuer= users.uid or ecreator=users.uid or users.roleid =4) and users.roleid>1) "
+                                "join users on ((roleissuer= users.uid or ecreator = users.uid) and users.roleid > 1) "
                                 ),
-            pkey=sql.Identifier('e1.eid'))
-        cursor.execute(query, (eid,))
+            pkey=sql.SQL('e1.eid'))
+        cursor.execute(query, (int(eid),))
         result = []
         for row in cursor:
             result.append(row)
         return result
 
 
+##TODO:MAKE THIS ROUTE SEGMENTED
     def getUsersDelegatedByID(self,id):
         """
         Query Database for a User's information about who he has assigned roles to 
@@ -132,6 +133,7 @@ class UserDAO(MasterDAO):
             result.append(row)
         return result
 
+
     def getUsersSegmented(self,offset,limit):
         """
         Query Database for all users and their basic information
@@ -170,6 +172,61 @@ class UserDAO(MasterDAO):
         return result
 
 
+    def changeRole(self,id,uid,roleid):
+        """
+        Query database to update roleid value in a row that matches a given uid
+        Parameters :
+        id- user id of who is making the change, for log purposes and to check if the user can make the change 
+        uid- The Id of the user to change roles 
+        roleid- The new role to give to the user 
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL(
+                        "update {table} "
+                        "SET  {issuer} = %s , {newRole} = %s  "
+                        "WHERE {user}= %s "
+                        "returning  uid,email, first_name,last_name,type,roleid ").format(
+            
+            table=sql.Identifier('users'),
+            issuer=sql.Identifier('roleissuer'),
+            newRole=sql.Identifier('roleid'),
+            user=sql.Identifier('uid'))
+        try:
+            cursor.execute(query, (id,roleid,uid))  
+            result = cursor.fetchone()
+            self.conn.commit()
+        except errors.ForeignKeyViolation as e:
+            result = e
+        return result
+        
+
+    def getUserIssuers(self,userID,newRole):
+        """
+        Query Database for a User's information by his/her uid.
+        Parameters:
+            uid: user ID
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select distinct {fields} from {table1} ").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('uid')
+                
+            ]),
+            table1=sql.SQL(" users u1 "  
+                            "join "
+                            "(select uid as user_id,roleissuer as iID from users where {pkey1} = %s ) as users_issuers "
+                            "on (users_issuers.iID=u1.uid or u1.roleid > 3 )and {pkey2} != %s " ).format(
+            pkey1=sql.SQL('uid '),
+            pkey2=sql.SQL('u1.uid ')))
+        cursor.execute(query, (userID,userID))
+        result = []
+        
+        for row in cursor:
+            result.append(row)
+            
+        return result
 
     def getNumberOfUsersByRole(self,roleid):
         """
@@ -199,4 +256,10 @@ class UserDAO(MasterDAO):
                                 "on issuer_role=r2.roleid "))
         cursor.execute(query,(roleid,))
         result = cursor.fetchone()
-        return result
+        return result 
+
+
+
+
+
+
