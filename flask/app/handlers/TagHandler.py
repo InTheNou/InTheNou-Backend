@@ -62,6 +62,8 @@ class TagHandler:
         Returns:
             JSON: containing tag information. Error JSON otherwise.
         """
+        if not isinstance(tid, int) or not tid > 0:
+            return jsonify(Error="Invalid tid: " + str(tid)), 400
         dao = TagDAO()
         tag = dao.getTagByID(tid=tid)
         if not tag:
@@ -81,6 +83,8 @@ class TagHandler:
         Returns:
             JSON: containing Tags belonging to an event. Error JSON otherwise.
         """
+        if not isinstance(eid, int) or not eid > 0:
+            return jsonify(Error="Invalid eid: " + str(eid)), 400
         dao = TagDAO()
         tags = dao.getTagsByEventID(eid=eid)
         if not tags:
@@ -110,6 +114,8 @@ class TagHandler:
         Returns:
             JSON: containing Tags belonging to an event. Error JSON otherwise.
         """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
         dao = TagDAO()
         tags = dao.getTagsByUserID(uid=uid)
         if not tags:
@@ -154,6 +160,10 @@ class TagHandler:
         Returns:
             JSON: containing the updated entry for the user's tag. Error JSON otherwise.
         """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        if not isinstance(tid, int) or not tid > 0:
+            return jsonify(Error="Invalid tid: " + str(tid)), 400
         dao = TagDAO()
         user_tag = dao.setUserTag(uid=uid, tid=tid, weight=weight)
         user_tag_dict = _buildWeightedTagResponse(tag_tuple=user_tag)
@@ -169,8 +179,8 @@ class TagHandler:
                 if 'uid' not in json:
                     raise KeyError("Key not found in JSON: uid.")
                 uid = json['uid']
-                if not isinstance(uid, int) or uid <= 0:
-                    raise ValueError("Invalid uid: " + str(uid))
+            if not isinstance(uid, int) or uid <= 0:
+                raise ValueError("Invalid uid: " + str(uid))
 
             if weight < 0 or weight > 200:
                 raise ValueError('Tag Weight outside range of 0-200: ' + str(weight))
