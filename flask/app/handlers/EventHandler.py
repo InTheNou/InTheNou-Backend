@@ -261,6 +261,8 @@ class EventHandler:
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         if uid is None:
             uid = json['uid']
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
         dao = EventDAO()
         event_ids = dao.getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
         if not event_ids:
