@@ -2,7 +2,7 @@
 .env
 .idea
 /InTheNou_Database_Scripts/InTheNou_TestData.sql
-/nginx/ssl
+/nginx/ssl/*
 /flask/env
 /flask/venv
 /flask/app/*/__pycache__
@@ -20,7 +20,7 @@ flask/app/routes/__pycache__
 __pycache__/
 *.py[cod]
 
-
+docker-compose.override.yml
 # Distribution / packaging
 .Python
 env/
