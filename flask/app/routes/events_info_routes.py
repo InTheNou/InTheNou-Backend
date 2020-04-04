@@ -355,10 +355,6 @@ def createTag():
 def editTagName(tid):
     if request.method == 'POST':
         return TagHandler().editTagName(tid=tid, json=request.json)
-    else:
-        return jsonify(Error="Method not allowed."), 405
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return TagHandler().batchSetUserTags(json=request.json, weight=100)
+
     else:
         return jsonify(Error="Method not allowed."), 405

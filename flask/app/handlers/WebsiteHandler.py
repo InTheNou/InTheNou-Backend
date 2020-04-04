@@ -1,7 +1,7 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.WebsiteDAO import WebsiteDAO
-
+import validators
 SERVICEWEBSITEKEYS = ['Websites']
 
 
@@ -25,6 +25,18 @@ def _buildWebsiteResponse(website_tuple):
     response['wid'] = website_tuple[0]
     response['url'] = website_tuple[1]
     response['wdescription'] = website_tuple[2]
+
+    # Verify that changes to schema reflect properly;
+    # changes cause following property to be handled externally.
+    # response['isdeleted'] = website_tuple[3]
+    return response
+
+
+def _buildInsertWebsiteResponse(website_tuple, url):
+    response = {}
+    response['wid'] = website_tuple[0]
+    response['url'] = url
+    response['wdescription'] = website_tuple[3]
 
     # Verify that changes to schema reflect properly;
     # changes cause following property to be handled externally.
@@ -59,8 +71,8 @@ class WebsiteHandler:
     def unpackWebsites(self, json):
         websites = []
         for site in json:
-            if site['website'] not in websites:
-                websites.append(site['website'])
+            if site not in websites:
+                websites.append(site)
 
         return websites
 
@@ -107,10 +119,18 @@ class WebsiteHandler:
 
         if not sites:
             website = None
+
         else:
+
             for row in sites:
-                website.append(_buildWebsiteResponse(website_tuple=dao.insertWebsiteToService(
-                    sid=sid, wid=(dao.createWebsite(url=row['url'])), wdescription=row['wdescription'])))
+                print(row)
+                if(validators.url(row['url'])):
+                    website.append(_buildInsertWebsiteResponse(url=row['url'], website_tuple=dao.insertWebsiteToService(
+                        sid=sid, wid=(dao.createWebsite(url=row['url'])), wdescription=row['wdescription'])))
+
+                else:
+                    website.append(
+                        {"Error": "Website URL, not valid "+str(row['url'])})
 
         return jsonify(website)
 
@@ -134,13 +154,13 @@ class WebsiteHandler:
             for x in sites:
 
                 ID = (dao.removeWebsitesGivenServiceID(sid=sid, wid=x['wid']))
-                #print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
+                # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
                     websiteInfo.append(
                         "Website ID not associated with Service-> sid: " + str(sid) + ' Websiteid: ' + (str(x['wid'])))
                 else:
                     siteIDs.append(int(ID))
-                    #print('Phones deleted IDs: '+ str(phoneIDs))
+                    # print('Phones deleted IDs: '+ str(phoneIDs))
             for row in siteIDs:
                 websiteInfo.append(_buildCoreWebsiteResponse(
                     website_tuple=dao.getWebsiteByID(row)))

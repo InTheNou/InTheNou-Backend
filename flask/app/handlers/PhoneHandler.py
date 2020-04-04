@@ -2,8 +2,9 @@ from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.PhoneDAO import PhoneDAO
 from app.DAOs.ServiceDAO import ServiceDAO
+import phonenumbers
 
-
+PHONETYPEKEYS = ['E', 'L', 'F', 'M']
 SERVICEPHONEKEYS = ['PNumbers']
 
 
@@ -21,12 +22,13 @@ class PhoneHandler:
     def unpackPhones(self, json):
         numbers = []
         for num in json:
-            numbers.append(num['number'])
+            numbers.append(num)
         return numbers
 
     def insertServicePhone(self, sid, json):
         """
         """
+
         for key in SERVICEPHONEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
@@ -41,10 +43,25 @@ class PhoneHandler:
             phoneInfo = None
         else:
             for row in phones:
-                phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(
-                    (dao.addPhoneToService(cursor=None, sid=sid, pid=(dao.insertPhone
-                                                                      (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'])))))))
-                )
+
+                try:
+                    number = phonenumbers.parse(row['pnumber'], 'US')
+                    if((phonenumbers.is_possible_number(number))):
+
+                        if ((row['ptype']).upper()) in PHONETYPEKEYS:
+                            phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(
+                                (dao.addPhoneToService(cursor=None, sid=sid, pid=(dao.insertPhone
+                                                                                  (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))))))
+                        else:
+                            phoneInfo.append(
+                                {"Error": "PhoneType not accepted, ptype:  " + str(row['ptype'])})
+
+                    else:
+                        phoneInfo.append({"Error":
+                                          str(row['pnumber'])+" is not a valid phone number 1 "})
+                except:
+                    phoneInfo.append({"Error":
+                                      str(row['pnumber'])+" is not a valid phone number"})
 
         return jsonify(phoneInfo)
 
@@ -91,11 +108,11 @@ class PhoneHandler:
 
                 ID = (dao.removePhonesByServiceID(
                     sid=sid, phoneid=x['phoneid']))
-                #print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
+                # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
                     return jsonify(Error="Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid']))), 400
                 phoneIDs.append(int(ID))
-                #print('Phones deleted IDs: '+ str(phoneIDs))
+                # print('Phones deleted IDs: '+ str(phoneIDs))
             for row in phoneIDs:
                 phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(row))))
         return jsonify(phoneInfo)

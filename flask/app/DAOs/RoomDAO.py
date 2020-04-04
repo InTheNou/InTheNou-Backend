@@ -106,6 +106,8 @@ class RoomDAO(MasterDAO):
 
         if result is None:
             return None
+        else:
+            return result
 
     def getRoomsByKeywordSegmented(self, keywords, offset, limit):
         """

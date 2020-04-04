@@ -19,16 +19,20 @@ class TagDAO(MasterDAO):
 
     def editTagName(self, tid, tname):
         cursor = self.conn.cursor()
-        # Build the query to create an event entry.
-        query = sql.SQL("update  {table1} SET   "
-                        "tname =  %s  "
-                        "WHERE tid = %s "
-                        "returning tid, tname ").format(
-            table1=sql.Identifier('tags'))
-        cursor.execute(query, (str(tname), int(tid)))
-        result = cursor.fetchone()
-        self.conn.commit()
-        return result
+        # Build the query to create an event entry.\
+        try:
+            query = sql.SQL("update  {table1} SET   "
+                            "tname =  %s  "
+                            "WHERE tid = %s "
+                            "returning tid, tname ").format(
+                table1=sql.Identifier('tags'))
+            cursor.execute(query, (str(tname), int(tid)))
+            result = cursor.fetchone()
+            self.conn.commit()
+            return result
+
+        except errors.UniqueViolation as badkey:
+            return badkey
 
     def getTagByID(self, tid):
         """

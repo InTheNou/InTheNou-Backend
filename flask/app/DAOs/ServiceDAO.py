@@ -44,34 +44,39 @@ class ServiceDAO(MasterDAO):
         cursor = self.conn.cursor()
 
         # Build the query to create an event entry.
-        query = sql.SQL("insert into {table1} ({insert_fields})"
-                        "values (%s, %s, %s, %s, %s) "
-                        "returning {pkey1}").format(
-            table1=sql.Identifier('services'),
-            insert_fields=sql.SQL(',').join(
-                [
-                    sql.Identifier('rid'),
-                    sql.Identifier('sname'),
-                    sql.Identifier('sdescription'),
-                    sql.Identifier('sschedule'),
-                    sql.Identifier('isdeleted'),
-                ]),
-            pkey1=sql.Identifier('sid'))
-        cursor.execute(query, (int(rid), str(sname), str(
-            sdescription), str(sschedule), False))
-        result = cursor.fetchone()
-        sid = result[0]
+        try:
+            query = sql.SQL("insert into {table1} ({insert_fields})"
+                            "values (%s, %s, %s, %s, %s) "
+                            "returning {pkey1}").format(
+                table1=sql.Identifier('services'),
+                insert_fields=sql.SQL(',').join(
+                    [
+                        sql.Identifier('rid'),
+                        sql.Identifier('sname'),
+                        sql.Identifier('sdescription'),
+                        sql.Identifier('sschedule'),
+                        sql.Identifier('isdeleted'),
+                    ]),
+                pkey1=sql.Identifier('sid'))
+            cursor.execute(query, (int(rid), str(sname), str(
+                sdescription), str(sschedule), False))
+            result = cursor.fetchone()
+            sid = result[0]
 
-        for site in websites:
-            WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,
-                                                                                  url=site['url'], cursor=cursor)), wdescription=site['wdescription'], cursor=cursor)
+            for site in websites:
+                WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,
+                                                                                      url=site['url'], cursor=cursor)), wdescription=site['wdescription'], cursor=cursor)
 
-        for num in numbers:
-            PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
-                self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor), cursor=cursor)
+            for num in numbers:
+                PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
+                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor), cursor=cursor)
 
         # Commit changes if no errors occur.
-        self.conn.commit()
+            self.conn.commit()
+
+        except errors.UniqueViolation as badkey:
+            return badkey
+
         return result
 
     def getServiceByID(self, sid):
@@ -164,7 +169,8 @@ class ServiceDAO(MasterDAO):
             table=sql.Identifier('services'),
             pkey1=sql.Identifier('sname_tokens'),
             pkey2=sql.Identifier('sdescription_tokens'))
-        cursor.execute(query, (str(searchstring), str(searchstring), int(offset), int(limit)))
+        cursor.execute(query, (str(searchstring), str(
+            searchstring), int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
@@ -172,17 +178,18 @@ class ServiceDAO(MasterDAO):
 
     def updateServiceInformation(self, sid, service):
         cursor = self.conn.cursor()
-        fields_list = self.serviceInfoArgs(service)
-        query = sql.SQL("update {table1} set {fields}  "
-                        "where  {pkey1} = %s AND isdeleted=false  "
-                        "returning {pkey1}  ").format(
-            table1=sql.Identifier('services'),
-            fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
-            pkey1=sql.Identifier('sid'))
-        cursor.execute(query, (int(sid), ))
-        result = cursor.fetchone()
-        self.conn.commit()
+        try:
+            fields_list = self.serviceInfoArgs(service)
+            query = sql.SQL("update {table1} set {fields}  "
+                            "where  {pkey1} = %s AND isdeleted=false  "
+                            "returning {pkey1}  ").format(
+                table1=sql.Identifier('services'),
+                fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
+                pkey1=sql.Identifier('sid'))
+            cursor.execute(query, (int(sid), ))
 
-        if result is None:
-            return None
-        return result[0]
+            self.conn.commit()
+            result = cursor.fetchone()
+            return result
+        except errors.TypeError as badkey:
+            return badkey

@@ -108,7 +108,7 @@ class ServiceHandler:
         try:
             sid = service[0]
         except TypeError:
-            return jsonify(Error=str(sid)), 400
+            return jsonify(Error="Room has service witht the same name, rid: " + str(roomID) + " service name: "+str(name)), 400
 
         return jsonify({"sid": sid}), 201
 
@@ -177,11 +177,16 @@ class ServiceHandler:
         for key in json:
             if key in UPDATESERVICEKEYS:
                 service[key] = (json[key])
-
         dao = ServiceDAO()
-        response = _buildServiceResponse(dao.getServiceByID(
-            dao.updateServiceInformation(service=service, sid=sid)))
-        return jsonify(response)
+
+        id = dao.updateServiceInformation(service=service, sid=sid)
+
+        if id is not None:
+            response = _buildServiceResponse(dao.getServiceByID(id[0]))
+
+            return jsonify(response)
+        else:
+            return jsonify(Error="no service with that ID found")
 
     def processSearchString(self, searchstring):
         """

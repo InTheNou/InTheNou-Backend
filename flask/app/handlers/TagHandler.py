@@ -50,16 +50,16 @@ class TagHandler:
         tagname = ""
         tagname = str(json['tname'])
         if tagname is not None:
-            tag = dao.editTagName(tid=tid, tname=tagname)
-            if tag is not None:
-                response.append(_buildTagResponse(tag))
-            else:
-                return jsonify(Error="No tag found with provided ID"), 404
+            try:
+                tag = dao.editTagName(tid=tid, tname=tagname)
+                if tag is not None:
+                    response.append(_buildTagResponse(tag))
+                    return jsonify(response)
+                else:
+                    return jsonify(Error="No tag found with provided ID"), 404
 
-            return jsonify(response)
-
-        else:
-            return jsonify(Error="Wrong Json parameters "), 401
+            except TypeError:
+                return jsonify(Error="Another tag with that name exists"), 400
 
     def unpackTags(self, json_tags):
         """

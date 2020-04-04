@@ -184,7 +184,7 @@ class UserDAO(MasterDAO):
             "update {table} "
             "SET  {issuer} = %s , {newRole} = %s  "
             "WHERE {user}= %s "
-            "returning  uid,email, first_name,last_name,type,roleid ").format(
+            "returning  uid,email, first_name,last_name,roleid,type ").format(
 
             table=sql.Identifier('users'),
             issuer=sql.Identifier('roleissuer'),

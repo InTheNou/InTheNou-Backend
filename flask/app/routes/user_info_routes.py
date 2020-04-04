@@ -50,7 +50,7 @@ def changeRole():
         if UserHandler().getUserIssuers(json=request.json, no_json=True):
             return UserHandler().changeRole(json=request.json)
         else:
-            return jsonify(Error="User cannot change  role ID"), 405
+            return jsonify(Error="User cannot change  role ID "+str(request.json)), 405
     else:
         return jsonify(Error="Method not allowed."), 405
 

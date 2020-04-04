@@ -50,7 +50,7 @@ class PhoneDAO(MasterDAO):
                     sql.Identifier('ptype')
 
                 ]))
-            cursor.execute(query, (str(pnumber), ptype, str(pnumber)))
+            cursor.execute(query, (pnumber, ptype[0], pnumber))
             result = cursor.fetchone()
             self.conn.commit()
         else:
@@ -75,11 +75,12 @@ class PhoneDAO(MasterDAO):
         except errors.ForeignKeyViolation as e:
             result = e
             print('Result from Phone remove Query: ' + str(result))
-        
+
         #print('Result from Phone remove Query: ' + str(result))
-        if result ==None:
+        if result == None:
             return None
-        else:return result[0]
+        else:
+            return result[0]
 
     def getPhonesByServiceID(self, sid):
         """

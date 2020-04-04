@@ -171,10 +171,9 @@ class RoomHandler:
                 roomKeys[key] = (json[key])
 
         dao = RoomDAO()
-
-        response = _buildChangeCoordinatesRoomResponse(
-            dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys))
-        if response is not None:
+        room = dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys)
+        if room is not None:
+            response = _buildChangeCoordinatesRoomResponse(room)
             return jsonify(response)
         else:
             return jsonify(Error="no room was found "), 404
@@ -256,7 +255,8 @@ class RoomHandler:
             room_list = []
             for row in rooms:
                 room_result = _buildCoreRoomResponse(room_tuple=row)
-                room_result['building'] = BuildingHandler().getCoreBuildingByID(bid=row[1], no_json=True)
+                room_result['building'] = BuildingHandler(
+                ).getCoreBuildingByID(bid=row[1], no_json=True)
                 room_list.append(room_result)
             # TODO:  every room should probably have their building in it.
             response = {"rooms": room_list}
