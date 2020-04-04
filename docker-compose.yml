@@ -29,7 +29,7 @@ services:
     volumes:
       - ./InTheNou_Database_Scripts:/docker-entrypoint-initdb.d
       - /InTheNou/Database_data:/var/lib/postgresql/data
-
+      - /InTheNou/Database_backups:/backups
   pgadmin:
     image: dpage/pgadmin4
     restart: always

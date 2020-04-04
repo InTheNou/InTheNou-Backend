@@ -101,36 +101,6 @@ class TagDAO(MasterDAO):
             result.append(row)
         return result
 
-    # TODO: Look into why eid is  not used.
-    def getUserTagsByEventID(self, uid, eid):
-        """
-         Query Database for all the tags belonging
-            to a User, given the user's ID.
-        Parameters:
-            uid: User ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
-        """
-        cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table1} "
-                        "natural join {table2} "
-                        "natural join {table3} "
-                        "where {pkey}= %s and tagweight > 0;").format(
-            fields=sql.SQL(',').join([
-                sql.Identifier('tid'),
-                sql.Identifier('tname'),
-                sql.Identifier('tagweight')
-            ]),
-            table1=sql.Identifier('users'),
-            table2=sql.Identifier('usertags'),
-            table3=sql.Identifier('tags'),
-            pkey=sql.Identifier('uid'))
-        cursor.execute(query, (int(uid),))
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
-
     def tagEvent(self, eid, tid, cursor):
         """
         Tag the specified event with the specified tag. DOES NOT COMMIT CHANGES TO
