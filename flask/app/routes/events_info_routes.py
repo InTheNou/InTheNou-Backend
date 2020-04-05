@@ -1,6 +1,7 @@
 from app import app
 from flask import Flask, redirect, url_for, session, jsonify, request
 from flask_dance.contrib.google import make_google_blueprint, google
+from flask_login import current_user, login_required
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
@@ -316,6 +317,17 @@ def getTagByID(tid):
 def getTagsByUserID(uid):
     if request.method == 'GET':
         return TagHandler().getTagsByUserID(uid=uid)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+# Test route for session testing
+# No automated test setup yet.
+@app.route("/App/Tags/UserTags", methods=['GET'])
+@login_required
+def getTagsByUserIDSession():
+    if request.method == 'GET':
+        return TagHandler().getTagsByUserID(uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
