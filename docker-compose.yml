@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+
+  flask:
+      build:  ./flask
+      container_name: flask
+      restart: always
+      depends_on:
+        - postgres
+      environment:
+          - APP_NAME=MyFlaskApp
+          - DB_USERNAME=example
+          - POSTGRES_CONTAINER=postgres
+      expose:
+       - 8080
+
+  postgres:
+    image: postgres:10.12-alpine
+    ports:
+      - '5432:5432'
+    restart: always
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'admin'
+      POSTGRES_DB: 'inthenoudb'
+
+    # Copy files from dbinit into the image so that they will be run on boot
+    # and set host directory for data persistance.
+    volumes:
+      - ./InTheNou_Database_Scripts:/docker-entrypoint-initdb.d
+      - /InTheNou/Database_data:/var/lib/postgresql/data
+      - /InTheNou/Database_backups:/backups
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'admin@gmail.com'
+      PGADMIN_DEFAULT_PASSWORD: 'admin'
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    depends_on:
+      - flask
+      - pgadmin
+    ports:
+    - "80:80"
+    - "443:443"
