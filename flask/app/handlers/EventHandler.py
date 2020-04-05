@@ -63,7 +63,7 @@ def _buildEventResponse(event_tuple):
     response['estatusdate'] = event_tuple[9]
     response['photourl'] = event_tuple[10]
     response['tags'] = TagHandler().safeGetTagsByEventID(eid=event_tuple[0])
-    response['websites'] = WebsiteHandler().getWebistesByEventID(eid=event_tuple[0], no_json=True)["websites"]
+    response['websites'] = WebsiteHandler().getWebistesByEventID(eid=event_tuple[0], no_json=True)
     return response
 
 
