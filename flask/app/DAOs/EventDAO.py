@@ -709,7 +709,7 @@ class EventDAO(MasterDAO):
                     # If the new weight was set above, run the query to set user tag.
                     updated_usertags.append(TagDAO().setUserTag(uid=uid, tid=tid, weight=new_weight, cursor=cursor))
         except errors.ForeignKeyViolation as fke:
-            return fke
+            return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
 
         # if you get here with no errors, update the interaction and finish.
         query = sql.SQL("insert into {table1} "
@@ -734,8 +734,8 @@ class EventDAO(MasterDAO):
             cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
             self.conn.commit()
             result = updated_usertags
-        except errors.ForeignKeyViolation as e:
-            result = e
+        except errors.ForeignKeyViolation as fke:
+            return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
         return result
 
     def setRecommendation(self, uid, eid, recommendstatus):
@@ -774,7 +774,7 @@ class EventDAO(MasterDAO):
             result = cursor.fetchone()
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
-            result = e
+            return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
         return result
 
 
@@ -802,7 +802,7 @@ class EventDAO(MasterDAO):
             result = cursor.fetchone()
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
-            result = e
+            return ValueError("Invalid values: eid=" + str(eid))
         return result
 
     def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, tags, photourl, websites):
@@ -852,7 +852,8 @@ class EventDAO(MasterDAO):
             result = cursor.fetchone()
             eid = result[0]
         except errors.UniqueViolation as unique_error:
-            return unique_error
+            return errors.UniqueViolation("An event with the same name, in the same room, "
+                                          "that starts at the same time, already exists in the system.")
 
         # Once the event is created, tag it with the list of tags provided. Catch any bad tags.
         try:

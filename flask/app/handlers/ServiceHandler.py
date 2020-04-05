@@ -6,12 +6,12 @@ from app.DAOs.PhoneDAO import PhoneDAO
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.handlers.PhoneHandler import PhoneHandler
+import app.handlers.SharedValidationFunctions as SVF
 
 
 CREATESERVICEKEYS = ['uid', 'rid', 'sname',
                      'sdescription', 'sschedule', 'PNumbers', 'Websites']
 UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
-
 SEARCHSTRING_VALUE = 'searchstring'
 
 
@@ -157,6 +157,10 @@ class ServiceHandler:
     def getServicesSegmented(self, offset, limit):
         """
         """
+        try:
+            SVF.validate_offset_limit(offset=offset, limit=limit)
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
 
         dao = ServiceDAO()
 
@@ -188,23 +192,6 @@ class ServiceHandler:
         else:
             return jsonify(Error="no service with that ID found")
 
-    def processSearchString(self, searchstring):
-        """
-        Splits a string by its spaces, filters non-alpha-numeric symbols out,
-        and joins the keywords by space-separated pipes.
-        """
-        keyword_list = str.split(searchstring)
-        filtered_words = []
-        for word in keyword_list:
-            filtered_string = ""
-            for character in word:
-                if character.isalnum():
-                    filtered_string += character
-            if not filtered_string.isspace() and filtered_string != "":
-                filtered_words.append(filtered_string)
-        keywords = " | ".join(filtered_words)
-        return keywords
-
     def getServicesByKeywords(self, json, offset, limit=20):
         """
         Get non-deleted services whose names or descriptions match a search string.
@@ -218,9 +205,13 @@ class ServiceHandler:
             return jsonify(Error='No JSON Provided.'), 400
         if SEARCHSTRING_VALUE not in json:
             return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 400
-        # TODO: abstract this so multiple handlers can share it.
-        keywords = self.processSearchString(
-            searchstring=json[SEARCHSTRING_VALUE])
+        try:
+            SVF.validate_offset_limit(offset=offset, limit=limit)
+            keywords = SVF.processSearchString(
+                searchstring=json[SEARCHSTRING_VALUE])
+        except ValueError as ve:
+            return jsonify(Error=str(ve)), 400
+
         dao = ServiceDAO()
         services = dao.getServicesByKeywords(
             searchstring=keywords, offset=offset, limit=limit)
