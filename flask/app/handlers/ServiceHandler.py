@@ -35,6 +35,17 @@ def _buildServiceResponse(service_tuple):
     return response
 
 
+def _buildCoreServiceResponse(service_tuple):
+    response = {}
+    response['sid'] = service_tuple[0]
+    response['rid'] = service_tuple[1]
+    response['sname'] = service_tuple[2]
+    response['sdescription'] = service_tuple[3]
+    response['sschedule'] = service_tuple[4]
+
+    return response
+
+
 def _buildServiceByRoomResponse(service_tuple):
     response = {}
     response['sid'] = service_tuple[0]
@@ -97,9 +108,16 @@ class ServiceHandler:
         try:
             sid = service[0]
         except TypeError:
-            return jsonify(Error=str(sid)), 400
+            return jsonify(Error="Room has service witht the same name, rid: " + str(roomID) + " service name: "+str(name)), 400
 
         return jsonify({"sid": sid}), 201
+
+    def deleteService(self, sid):
+        dao = ServiceDAO()
+        service = dao.deleteService(sid)
+        if service is not None:
+            return jsonify(_buildCoreServiceResponse(service))
+        return jsonify(Error="No service with that ID"), 404
 
     def getServiceByID(self, sid, no_json=False):
         """
@@ -118,10 +136,10 @@ class ServiceHandler:
             return jsonify(Error='Service does not exist: sid=' + str(sid)), 404
         else:
             response = _buildServiceResponse(service_tuple=service)
-            response['PNumbers'] = Phonehandler.getPhonesByServiceID(sid=sid, no_json=True)[
-                'phones']
+            response['PNumbers'] = Phonehandler.getPhonesByServiceID(
+                sid=sid, no_json=True)
             response['Websites'] = Websitehandler.getWebistesByServiceID(
-                sid=sid, no_json=True)['Websites']
+                sid=sid, no_json=True)
             if no_json:
                 return response
             return jsonify(response)
@@ -152,7 +170,7 @@ class ServiceHandler:
         else:
             service_list = []
             for row in services:
-                service_list.append(_buildServiceResponse(row))
+                service_list.append(_buildCoreServiceResponse(row))
             response = {'Services': service_list}
             return jsonify(response)
 
@@ -163,11 +181,16 @@ class ServiceHandler:
         for key in json:
             if key in UPDATESERVICEKEYS:
                 service[key] = (json[key])
-
         dao = ServiceDAO()
-        response = _buildServiceResponse(dao.getServiceByID(
-            dao.updateServiceInformation(service=service, sid=sid)))
-        return jsonify(response)
+
+        id = dao.updateServiceInformation(service=service, sid=sid)
+
+        if id is not None:
+            response = _buildServiceResponse(dao.getServiceByID(id[0]))
+
+            return jsonify(response)
+        else:
+            return jsonify(Error="no service with that ID found")
 
     def getServicesByKeywords(self, json, offset, limit=20):
         """
@@ -184,16 +207,18 @@ class ServiceHandler:
             return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 400
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
-            keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING_VALUE])
+            keywords = SVF.processSearchString(
+                searchstring=json[SEARCHSTRING_VALUE])
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
         dao = ServiceDAO()
-        services = dao.getServicesByKeywords(searchstring=keywords, offset=offset, limit=limit)
+        services = dao.getServicesByKeywords(
+            searchstring=keywords, offset=offset, limit=limit)
         if not services:
             response = {'services': None}
         else:
-            service_list=[]
+            service_list = []
             for row in services:
                 service_list.append(_buildServiceResponse(service_tuple=row))
             response = {'services': service_list}

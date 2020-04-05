@@ -92,8 +92,13 @@ class UserHandler:
         """Return the user entry belonging to the specified uid.
         uid -- user ID.
         """
+        print(uid)
         dao = UserDAO()
-        user = dao.getUserByID(uid)
+        if(isinstance(uid, int) and uid > 0):
+            user = dao.getUserByID(uid)
+        else:
+            return jsonify(Error='User does not exist: uid=' + str(uid)), 404
+
         if not user:
             return jsonify(Error='User does not exist: uid=' + str(uid)), 404
         else:
@@ -154,6 +159,16 @@ class UserHandler:
                 user_list.append(_buildDelegatedUserResponse(user_tuple=row))
             response = {"Users": user_list}
             return jsonify(response)
+
+    def getAllUsersByRoleIDSegmented(self, roleid, offset, limit):
+        dao = UserDAO()
+
+        users = dao.getAllUsersByRoleID(
+            roleid=roleid, offset=offset, limit=limit)
+        result = []
+        for row in users:
+            result.append(_buildCoreUserResponse(row))
+        return jsonify(result)
 
     def getUsersSegmented(self, offset, limit):
         """Return a list of users , segmented.

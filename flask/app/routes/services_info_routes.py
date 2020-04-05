@@ -80,3 +80,19 @@ def updateService(sid):
         return ServiceHandler().updateServiceInformation(sid=sid, json=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/Dashboard/Services/sid=<int:sid>/delete", methods=['POST'])
+def deleteService(sid):
+    if request.method == 'POST':
+        return ServiceHandler().deleteService(sid=sid)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/Dashboard/Rooms/rid=<int:rid>/changeCoordinates", methods=['POST'])
+def changeRoomCoordinates(rid):
+    if request.method == 'POST':
+        return RoomHandler().changeRoomCoordinates(rid=rid, json=request.json)
+    else:
+        return jsonify(Error="Method not allowed."), 405

@@ -17,6 +17,7 @@ def _buildWeightedTagResponse(tag_tuple):
     response['tagweight'] = tag_tuple[2]
     return response
 
+
 def _buildCoreWeightedTagResponse(tag_tuple):
     response = {}
     response['tid'] = tag_tuple[1]
@@ -25,6 +26,40 @@ def _buildCoreWeightedTagResponse(tag_tuple):
 
 
 class TagHandler:
+
+    def createTags(self, jsonTags):
+        tags = []
+        if "Tags" in jsonTags:
+            json = jsonTags['Tags']
+        else:
+            return jsonify(Error="Tag names must be within 'Tags' header"), 401
+        for key in json:
+            tags.append(key['tname'])
+
+        dao = TagDAO()
+
+        response = []
+        for tname in tags:
+            response.append(_buildTagResponse(
+                dao.createTag(tname=tname)))
+        return jsonify(response)
+
+    def editTagName(self, tid, json):
+        dao = TagDAO()
+        response = []
+        tagname = ""
+        tagname = str(json['tname'])
+        if tagname is not None:
+            try:
+                tag = dao.editTagName(tid=tid, tname=tagname)
+                if tag is not None:
+                    response.append(_buildTagResponse(tag))
+                    return jsonify(response)
+                else:
+                    return jsonify(Error="No tag found with provided ID"), 404
+
+            except TypeError:
+                return jsonify(Error="Another tag with that name exists"), 400
 
     def unpackTags(self, json_tags):
         """
@@ -197,7 +232,8 @@ class TagHandler:
         rows = TagDAO().batchSetUserTags(uid=uid, tags=tags, weight=weight)
         try:
             for user_tag in rows:
-                updated_usertags.append(_buildCoreWeightedTagResponse(tag_tuple=user_tag))
+                updated_usertags.append(
+                    _buildCoreWeightedTagResponse(tag_tuple=user_tag))
         except TypeError:
             return jsonify(Error=str(rows)), 400
 
@@ -205,4 +241,3 @@ class TagHandler:
         if no_json:
             return response
         return jsonify(response), 201
-

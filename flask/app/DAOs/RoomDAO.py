@@ -3,6 +3,14 @@ from psycopg2 import sql
 
 
 class RoomDAO(MasterDAO):
+    def roomInfoArgs(self, roomKeys):
+        """
+        """
+
+        fields = []
+        for key in roomKeys:
+            fields.append(key + " = " + str(roomKeys[key]))
+        return fields
 
     def getRoomByID(self, rid):
         """
@@ -82,6 +90,25 @@ class RoomDAO(MasterDAO):
             result.append(row)
         return result
 
+    def changeRoomCoordinates(self, rid, roomKeys):
+        cursor = self.conn.cursor()
+        fields_list = self.roomInfoArgs(roomKeys=roomKeys)
+
+        query = sql.SQL("update {table1} set {fields}  "
+                        "where  {pkey1} = %s  "
+                        "returning rid,rcode,rfloor,rlongitude,rlatitude,raltitude ").format(
+            table1=sql.Identifier('rooms'),
+            fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
+            pkey1=sql.Identifier('rid'))
+        cursor.execute(query, (int(rid), ))
+        result = cursor.fetchone()
+        self.conn.commit()
+
+        if result is None:
+            return None
+        else:
+            return result
+
     def getRoomsByKeywordSegmented(self, keywords, offset, limit):
         """
          Query Database for an Room's information by description keywords.
@@ -119,7 +146,8 @@ class RoomDAO(MasterDAO):
             table1Identifier=sql.Identifier('photoid'),
             table2Identifier=sql.Identifier('photoid'),
             pkey=sql.Identifier('rid'))
-        cursor.execute(query, (str(keywords), str(keywords), int(offset), int(limit)))
+        cursor.execute(query, (str(keywords), str(
+            keywords), int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
@@ -136,8 +164,8 @@ class RoomDAO(MasterDAO):
         Returns:
             Tuple: SQL result of Query as a tuple.
         """
-        babbrev = '%'+ babbrev + '%'
-        rcode = '%'+ rcode + "%"
+        babbrev = '%' + babbrev + '%'
+        rcode = '%' + rcode + "%"
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from ("
                         "select rid, rooms.bid, rcode, "
@@ -167,7 +195,8 @@ class RoomDAO(MasterDAO):
                 sql.Identifier('raltitude'),
                 sql.Identifier('photourl')
             ]))
-        cursor.execute(query, (str(babbrev), str(rcode), str(babbrev+rcode), int(offset), int(limit)))
+        cursor.execute(query, (str(babbrev), str(rcode), str(
+            babbrev+rcode), int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
