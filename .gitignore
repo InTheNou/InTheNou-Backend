@@ -15,6 +15,11 @@ flask/app/__pycache__/oauth.cpython-36.pyc
 flask/app/__pycache__/routes.cpython-36.pyc
 flask/app/routes/__pycache__
 
+# Production files
+/nginx/nginx_production.conf
+docker-compose.override.yml
+init-letsencrypt.sh
+data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
