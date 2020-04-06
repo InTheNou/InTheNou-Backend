@@ -279,27 +279,21 @@ class EventHandler:
 
         return jsonify(event_response)
 
-    def getEventsCreatedAfterTimestamp(self, json, uid=None):
+    def getEventsCreatedAfterTimestamp(self, timestamp, uid):
         """
         Get the upcoming active event IDs that a user has not interacted with,
         along with the tags for that event.
         Parameters:
-            json: JSON object with timestamp key.
+            timestamp: ISO formatted timestamp string.
             uid: the user's ID.
         Return:
             JSON: json response with event IDs and tags for each event.
         """
-        if json is None:
-            return jsonify(Error='No JSON sent.'), 400
-        if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
-        timestamp = json[TIMESTAMP]
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
-        if uid is None:
-            uid = json['uid']
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
+
         dao = EventDAO()
         event_ids = dao.getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
         if not event_ids:

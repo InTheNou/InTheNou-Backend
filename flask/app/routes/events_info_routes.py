@@ -43,12 +43,10 @@ def getEventByIDWithInteractions(eid, uid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/CAT", methods=['GET'])
-def getEventsCreatedAfterTimestamp():
+@app.route("/App/Events/CAT/timestamp=<string:timestamp>/uid=<int:uid>", methods=['GET'])
+def getEventsCreatedAfterTimestamp(timestamp, uid):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getEventsCreatedAfterTimestamp(json=request.json)
+        return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=uid)
     else:
         return jsonify(Error="Method not allowed."), 405
 
