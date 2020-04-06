@@ -40,7 +40,10 @@ services:
       PGADMIN_DEFAULT_PASSWORD: 'admin'
 
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      args:
+        config: nginx.conf
     container_name: nginx
     restart: always
     depends_on:
