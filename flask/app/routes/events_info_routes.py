@@ -35,6 +35,14 @@ def getEventByID(eid):
         return jsonify(Error="Method not allowed."), 405
 
 
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>", methods=['GET'])
+def getEventByIDWithInteractions(eid, uid):
+    if request.method == 'GET':
+        return EventHandler().getEventByIDWithInteraction(eid=eid, uid=uid)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
 @app.route("/App/Events/CAT", methods=['GET'])
 def getEventsCreatedAfterTimestamp():
     if request.method == 'GET':

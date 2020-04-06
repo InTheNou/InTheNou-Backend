@@ -230,17 +230,54 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getEventByID(self, eid):
+    def getEventByID(self, eid, no_json=False):
         """Return the event entry belonging to the specified eid.
         eid -- event ID.
         """
+        if not isinstance(eid, int) or not eid > 0:
+            return jsonify(Error="Invalid eid: " + str(eid)), 400
         dao = EventDAO()
         event = dao.getEventByID(eid)
         if not event:
             return jsonify(Error='Event does not exist: eid=' + str(eid)), 404
         else:
             response = _buildEventResponse(event_tuple=event)
+            if no_json:
+                return response
             return jsonify(response)
+
+    def getEventByIDWithInteraction(self, eid, uid):
+        """Return the event entry belonging to the specified eid, plus the user interaction entry
+        for the given uid.
+        Parameters:
+            eid: event id
+            uid: user ID
+        Return:
+            JSON: json response with event IDs and tags for each event.
+            """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        if not isinstance(eid, int) or not eid > 0:
+            return jsonify(Error="Invalid eid: " + str(eid)), 400
+
+        event_response = self.getEventByID(eid=eid, no_json=True)
+
+        # If it's not a dictionary, it is an error JSON.
+        if not isinstance(event_response, dict):
+            print(type(event_response))
+            return event_response
+
+        # TODO: consider moving this to User Handler/Dao
+        user_interaction = EventDAO().getEventInteractionByUserID(eid=eid, uid=uid)
+
+        # If no interaction found, object is None; replace with None tuple
+        if not user_interaction:
+            user_interaction = [None, None]
+
+        event_response["itype"] = user_interaction[0]
+        event_response["recommendstatus"] = user_interaction[1]
+
+        return jsonify(event_response)
 
     def getEventsCreatedAfterTimestamp(self, json, uid=None):
         """
