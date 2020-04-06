@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# run script with sudo privileges.
+# run script with sudo privileges, within the InTheNou-Backend Directory
 apt-get update
 
 # Install Docker Dependencies.
@@ -34,5 +34,5 @@ mkdir /InTheNou/Database_data
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./nginx/ssl/example.key -out ./nginx/ssl/example.crt
 
 # Build database and pgadmin images and containers.
-docker-compose -f docker-compose.yml build
-docker-compose -f docker-compose.yml up -d --remove-orphans
+docker-compose build
+docker-compose up -d --remove-orphans
