@@ -63,12 +63,10 @@ def createEvent():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Deleted/New", methods=['GET'])
-def getNewDeletedEvents():
+@app.route("/App/Events/Deleted/New/timestamp=<string:timestamp>", methods=['GET'])
+def getNewDeletedEvents(timestamp):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getNewDeletedEvents(json=request.json)
+        return EventHandler().getNewDeletedEvents(timestamp=timestamp)
     else:
         return jsonify(Error="Method not allowed."), 405
 

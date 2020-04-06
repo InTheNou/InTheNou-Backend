@@ -365,10 +365,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getNewDeletedEvents(self, json):
-        if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
-        timestamp = json[TIMESTAMP]
+    def getNewDeletedEvents(self, timestamp):
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         dao = EventDAO()
