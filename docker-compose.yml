@@ -30,6 +30,7 @@ services:
       - ./InTheNou_Database_Scripts:/docker-entrypoint-initdb.d
       - /InTheNou/Database_data:/var/lib/postgresql/data
       - /InTheNou/Database_backups:/backups
+
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -38,6 +39,9 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: 'admin@gmail.com'
       PGADMIN_DEFAULT_PASSWORD: 'admin'
+    # Current workaround: manually make the host directory and set its pgadmin folder permissions to 777
+    volumes:
+      - /InTheNou/private/var/lib/pgadmin:/var/lib/pgadmin
 
   nginx:
     build:
