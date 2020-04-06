@@ -31,11 +31,11 @@ def _buildCoreEventResponse(event_tuple):
     response['room'] = RoomHandler().getTinyRoomByID(rid=event_tuple[2], no_json=True)
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
-    response['estart'] = event_tuple[5]
-    response['eend'] = event_tuple[6]
-    response['ecreation'] = event_tuple[7]
+    response['estart'] = str(event_tuple[5])
+    response['eend'] = str(event_tuple[6])
+    response['ecreation'] = str(event_tuple[7])
     response['estatus'] = event_tuple[8]
-    response['estatusdate'] = event_tuple[9]
+    response['estatusdate'] = str(event_tuple[9])
     response['photourl'] = event_tuple[10]
     return response
 
@@ -56,11 +56,11 @@ def _buildEventResponse(event_tuple):
     response['room'] = RoomHandler().safeGetRoomByID(rid=event_tuple[2])
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
-    response['estart'] = event_tuple[5]
-    response['eend'] = event_tuple[6]
-    response['ecreation'] = event_tuple[7]
+    response['estart'] = str(event_tuple[5])
+    response['eend'] = str(event_tuple[6])
+    response['ecreation'] = str(event_tuple[7])
     response['estatus'] = event_tuple[8]
-    response['estatusdate'] = event_tuple[9]
+    response['estatusdate'] = str(event_tuple[9])
     response['photourl'] = event_tuple[10]
     response['tags'] = TagHandler().safeGetTagsByEventID(eid=event_tuple[0])
     response['websites'] = WebsiteHandler().getWebistesByEventID(eid=event_tuple[0], no_json=True)
@@ -77,11 +77,11 @@ def _buildTinyEventResponse(event_tuple):
         """
     response = {}
     response['eid'] = event_tuple[0]
-    response['estart'] = event_tuple[5]
-    response['eend'] = event_tuple[6]
-    response['ecreation'] = event_tuple[7]
+    response['estart'] = str(event_tuple[5])
+    response['eend'] = str(event_tuple[6])
+    response['ecreation'] = str(event_tuple[7])
     response['estatus'] = event_tuple[8]
-    response['estatusdate'] = event_tuple[9]
+    response['estatusdate'] = str(event_tuple[9])
     return response
 
 
