@@ -192,23 +192,18 @@ class ServiceHandler:
         else:
             return jsonify(Error="no service with that ID found")
 
-    def getServicesByKeywords(self, json, offset, limit=20):
+    def getServicesByKeywords(self, searchstring, offset, limit=20):
         """
         Get non-deleted services whose names or descriptions match a search string.
         Parameters:
-            json: JSON object with a "searchstring" key.
+            searchstring:keywords to use to search for services.
             offset: Number of result rows to ignore from top of query results.
             limit: Max number of result rows to return. Default=20.
         """
-
-        if not json:
-            return jsonify(Error='No JSON Provided.'), 400
-        if SEARCHSTRING_VALUE not in json:
-            return jsonify(Error='Missing key in JSON: ' + str(SEARCHSTRING_VALUE)), 400
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
             keywords = SVF.processSearchString(
-                searchstring=json[SEARCHSTRING_VALUE])
+                searchstring=searchstring)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 

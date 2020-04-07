@@ -282,12 +282,10 @@ def getBuildingsByKeywords(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Services/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getServicesByKeywords(offset, limit):
+@app.route("/App/Services/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getServicesByKeywords(searchstring, offset, limit):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return ServiceHandler().getServicesByKeywords(json=request.json, offset=offset, limit=limit)
+        return ServiceHandler().getServicesByKeywords(searchstring=searchstring, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
