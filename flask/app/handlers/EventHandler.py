@@ -230,39 +230,70 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getEventByID(self, eid):
+    def getEventByID(self, eid, no_json=False):
         """Return the event entry belonging to the specified eid.
         eid -- event ID.
         """
+        if not isinstance(eid, int) or not eid > 0:
+            return jsonify(Error="Invalid eid: " + str(eid)), 400
         dao = EventDAO()
         event = dao.getEventByID(eid)
         if not event:
             return jsonify(Error='Event does not exist: eid=' + str(eid)), 404
         else:
             response = _buildEventResponse(event_tuple=event)
+            if no_json:
+                return response
             return jsonify(response)
 
-    def getEventsCreatedAfterTimestamp(self, json, uid=None):
+    def getEventByIDWithInteraction(self, eid, uid):
+        """Return the event entry belonging to the specified eid, plus the user interaction entry
+        for the given uid.
+        Parameters:
+            eid: event id
+            uid: user ID
+        Return:
+            JSON: json response with event IDs and tags for each event.
+            """
+        if not isinstance(uid, int) or not uid > 0:
+            return jsonify(Error="Invalid uid: " + str(uid)), 400
+        if not isinstance(eid, int) or not eid > 0:
+            return jsonify(Error="Invalid eid: " + str(eid)), 400
+
+        event_response = self.getEventByID(eid=eid, no_json=True)
+
+        # If it's not a dictionary, it is an error JSON.
+        if not isinstance(event_response, dict):
+            print(type(event_response))
+            return event_response
+
+        # TODO: consider moving this to User Handler/Dao
+        user_interaction = EventDAO().getEventInteractionByUserID(eid=eid, uid=uid)
+
+        # If no interaction found, object is None; replace with None tuple
+        if not user_interaction:
+            user_interaction = [None, None]
+
+        event_response["itype"] = user_interaction[0]
+        event_response["recommendstatus"] = user_interaction[1]
+
+        return jsonify(event_response)
+
+    def getEventsCreatedAfterTimestamp(self, timestamp, uid):
         """
         Get the upcoming active event IDs that a user has not interacted with,
         along with the tags for that event.
         Parameters:
-            json: JSON object with timestamp key.
+            timestamp: ISO formatted timestamp string.
             uid: the user's ID.
         Return:
             JSON: json response with event IDs and tags for each event.
         """
-        if json is None:
-            return jsonify(Error='No JSON sent.'), 400
-        if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
-        timestamp = json[TIMESTAMP]
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
-        if uid is None:
-            uid = json['uid']
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
+
         dao = EventDAO()
         event_ids = dao.getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
         if not event_ids:
@@ -334,10 +365,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getNewDeletedEvents(self, json):
-        if TIMESTAMP not in json:
-            return jsonify(Error='Mising key in JSON: ' + str(TIMESTAMP)), 400
-        timestamp = json[TIMESTAMP]
+    def getNewDeletedEvents(self, timestamp):
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         dao = EventDAO()
@@ -443,11 +471,11 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit=20):
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
-                   json: json object with string with search terms separated by whitespaces
+                   searchstring: string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
                    limit: Max number of result rows to return. Default=10.
                Return:
@@ -455,12 +483,10 @@ class EventHandler:
                        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
-        if SEARCHSTRING not in json:
-            return jsonify(Error="Missing key in JSON: " + str(SEARCHSTRING)), 400
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
             # Process keywords to be filtered and separated by pipes.
-            keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING])
+            keywords = SVF.processSearchString(searchstring=searchstring)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
@@ -509,11 +535,11 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit=20):
+    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
-                   json: json object with string with search terms separated by whitespaces
+                   searchstring: string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
                    limit: Max number of result rows to return. Default=20.
                Return:
@@ -521,12 +547,10 @@ class EventHandler:
                        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
-        if SEARCHSTRING not in json:
-            return jsonify(Error="Missing key in JSON: " + str(SEARCHSTRING)), 400
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
             # Process keywords to be filtered and separated by pipes.
-            keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING])
+            keywords = SVF.processSearchString(searchstring=searchstring)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
