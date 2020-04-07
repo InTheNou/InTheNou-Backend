@@ -223,12 +223,18 @@ def getRoomByID(rid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getRoomsBySearch(offset, limit):
+@app.route("/App/Rooms/babbrev=<string:babbrev>/rcode=<string:rcode>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return RoomHandler().getRoomsBySearch(json=request.json, offset=offset, limit=limit)
+        return RoomHandler().getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode, offset=offset, limit=limit)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Rooms/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getRoomsByKeywordSegmented(searchstring, offset, limit):
+    if request.method == 'GET':
+        return RoomHandler().getRoomsByKeywordSegmented(searchstring=searchstring, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
