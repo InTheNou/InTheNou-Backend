@@ -171,13 +171,11 @@ def getUpcomingRecommendedEventsSegmented(uid, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Recommended/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>", methods=['GET'])
 # Make this with session!
-def getUpcomingRecommendedEventsByKeywordSegmented(offset, limit):
+def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit, uid):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=request.json['uid'], json=request.json,
+        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, searchstring=searchstring,
                                                                              offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405

@@ -475,7 +475,7 @@ class EventHandler:
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
-                   json: json object with string with search terms separated by whitespaces
+                   searchstring: string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
                    limit: Max number of result rows to return. Default=10.
                Return:
@@ -535,11 +535,11 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, json, offset, limit=20):
+    def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
-                   json: json object with string with search terms separated by whitespaces
+                   searchstring: string with search terms separated by whitespaces
                    offset: Number of result rows to ignore from top of query results.
                    limit: Max number of result rows to return. Default=20.
                Return:
@@ -547,12 +547,10 @@ class EventHandler:
                        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
-        if SEARCHSTRING not in json:
-            return jsonify(Error="Missing key in JSON: " + str(SEARCHSTRING)), 400
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
             # Process keywords to be filtered and separated by pipes.
-            keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING])
+            keywords = SVF.processSearchString(searchstring=searchstring)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
