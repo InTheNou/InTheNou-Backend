@@ -471,7 +471,7 @@ class EventHandler:
             response = {'events': event_list}
         return jsonify(response)
 
-    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, json, offset, limit=20):
+    def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
                Parameters:
                    uid: User ID
@@ -483,12 +483,10 @@ class EventHandler:
                        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
-        if SEARCHSTRING not in json:
-            return jsonify(Error="Missing key in JSON: " + str(SEARCHSTRING)), 400
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
             # Process keywords to be filtered and separated by pipes.
-            keywords = SVF.processSearchString(searchstring=json[SEARCHSTRING])
+            keywords = SVF.processSearchString(searchstring=searchstring)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
