@@ -190,14 +190,11 @@ def getAllEventsSegmented(offset, limit):
 
 
 # Use session to authorize, but get UID to check from json
-@app.route("/Dashboard/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getEventsCreatedByOtherUser(offset, limit):
+@app.route("/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getEventsCreatedByOtherUser(ecreator, offset, limit):
     if request.method == 'GET':
         # TODO: VERIFY IF SESSION USER IS AUTHORIZED FOR THE USER THEY ARE SEARCHING.
-        if 'uid' in request.json:
-            return EventHandler().getEventsCreatedByUser(uid=request.json['uid'], offset=offset, limit=limit)
-        else:
-            return jsonify(Error="Missing key: uid."), 401
+        return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
