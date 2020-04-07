@@ -271,7 +271,7 @@ def getAllBuildingsSegmented(offset, limit):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: MOVE JSON PARAMS TO URI
 # Automated test not set up
 @app.route("/App/Buildings/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getBuildingsByKeywords(offset, limit):
