@@ -641,6 +641,30 @@ class EventDAO(MasterDAO):
             result.append(row)
         return result
 
+    def getEventInteractionByUserID(self, eid, uid):
+        """
+        Query Database for a user's EventUser interaction entry by eid and uid.
+        Parameters:
+            eid: event ID
+            uid: User ID
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} "
+                        "from {table} "
+                        "where {pkey1}=%s and {pkey2}=%s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('itype'),
+                sql.Identifier('recommendstatus')
+            ]),
+            table=sql.Identifier('eventuserinteractions'),
+            pkey1=sql.Identifier('eid'),
+            pkey2=sql.Identifier('uid'))
+        cursor.execute(query, (int(eid), int(uid)))
+        result = cursor.fetchone()
+        return result
+
     def setInteraction(self, uid, eid, itype):
         """
          Create an eventuserinteraction entry for the defined user and event

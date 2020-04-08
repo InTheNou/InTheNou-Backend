@@ -30,6 +30,13 @@ chmod +x /usr/local/bin/docker-compose
 mkdir /InTheNou
 mkdir /InTheNou/Database_data
 
+mkdir /InTheNou/private
+mkdir /InTheNou/private/var
+mkdir /InTheNou/private/var/lib
+mkdir /InTheNou/private/var/lib/pgadmin
+chmod 777 /InTheNou/private/var/lib/pgadmin
+
+
 # Used to generate self-signed ssh key for testing. Fill out with some info.
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./nginx/ssl/example.key -out ./nginx/ssl/example.crt
 

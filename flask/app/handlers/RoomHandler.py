@@ -7,12 +7,6 @@ import app.handlers.SharedValidationFunctions as SVF
 CHANGEROOMCOORDINATESKEYS = ['rlongitude', 'raltitude', 'rlatitude']
 
 
-SEARCH_CRITERIA_KEY = 'searchCriteria'
-SEARCHSTRING_VALUE = 'searchstring'
-ROOMCODE_VALUE = 'rcode'
-BABBREV_VALUE = 'babbrev'
-
-
 # TODO: remove circular dependencies so this import does not occur in here.
 def _buildRoomResponse(room_tuple):
     response = {}
@@ -83,26 +77,6 @@ def _buildChangeCoordinatesRoomResponse(room_tuple):
     response['raltitude'] = float(room_tuple[5])
 
     return response
-
-
-def _verify_room_search_params(json):
-    if json is None:
-        raise ValueError('No JSON provided')
-    if SEARCH_CRITERIA_KEY not in json:
-        raise KeyError('Key not found: ' + str(SEARCH_CRITERIA_KEY))
-    if json[SEARCH_CRITERIA_KEY] == SEARCHSTRING_VALUE:
-        if SEARCHSTRING_VALUE not in json:
-            raise KeyError('Key not found: ' + str(SEARCHSTRING_VALUE))
-        return SEARCHSTRING_VALUE
-    elif json[SEARCH_CRITERIA_KEY] == ROOMCODE_VALUE:
-        if ROOMCODE_VALUE not in json:
-            raise KeyError('Key not found: ' + str(ROOMCODE_VALUE))
-        if BABBREV_VALUE not in json:
-            raise KeyError('Key not found: ' + str(BABBREV_VALUE))
-        return ROOMCODE_VALUE
-    else:
-        raise ValueError('Invalid Search Criteria: ' +
-                         str(json[SEARCH_CRITERIA_KEY]))
 
 
 class RoomHandler:
@@ -198,54 +172,68 @@ class RoomHandler:
         else:
             return jsonify(Error="no room was found "), 404
 
-    # copied from Event handler because importing it caused ImportError loop.
-    # TODO: merge this, event handler, and others into one importable place.
-
-    # TODO: FINISH THIS METHOD, AND MISSING DAO AND ROUTE
-    def getRoomsBySearch(self, json, offset, limit=20):
+    def getRoomsByKeywordSegmented(self, searchstring, offset, limit=20):
         """
         Return the room entries matching the search parameters.
         Parameters:
-            json: JSON object with the key "searchCriteria"
-                with values "description" or "roomCode". If "description" is the value,
-                the JSON should also have key "searchstring". If "roomCode" is the value,
-                the JSON should also have the keys "babbrev" and "rcode".
+            searchstring: string separated by whitespaces with terms to search for
             offset: Number of result rows to ignore from top of query results.
             limit: Max number of result rows to return. Default=10.
         Returns:
-            JSON: containing room information. Error JSON otherwise.
+            JSON: containing room information or null. Error JSON otherwise.
         """
-        # Verifying json (needs improvement)
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
-            search_method = _verify_room_search_params(json=json)
+            keywords = SVF.processSearchString(searchstring=searchstring)
         except KeyError as e:
             return jsonify(Error=str(e)), 400
         except ValueError as e:
             return jsonify(Error=str(e)), 400
 
         dao = RoomDAO()
-        if search_method == SEARCHSTRING_VALUE:
-            try:
-                keywords = SVF.processSearchString(
-                    searchstring=json[SEARCHSTRING_VALUE])
-            except ValueError as ve:
-                return jsonify(Error=str(ve)), 400
-
-            rooms = dao.getRoomsByKeywordSegmented(
-                keywords=keywords, limit=limit, offset=offset)
+        rooms = dao.getRoomsByKeywordSegmented(
+            keywords=keywords, limit=limit, offset=offset)
+        if not rooms:
+            response = {"rooms": None}
         else:
-            # Filter strings.
-            # Force sent abbrev and rcode to be strings appropriate for LIKE query.
-            babbrev = str(json[BABBREV_VALUE]).upper()
-            rcode = str(json[ROOMCODE_VALUE])
+            room_list = []
+            for row in rooms:
+                room_result = _buildCoreRoomResponse(room_tuple=row)
+                room_result['building'] = BuildingHandler().getCoreBuildingByID(bid=row[1], no_json=True)
+                room_list.append(room_result)
+            response = {"rooms": room_list}
+        return jsonify(response)
 
-            # Remove symbols and spaces from strings. Leave only numbers and letters.
-            rcode = "".join(filter(str.isalnum, rcode))
-            babbrev = "".join(filter(str.isalnum, babbrev))
+    def getRoomsByCodeSearchSegmented(self, babbrev, rcode, offset, limit=20):
+        """
+        Return the room entries matching the search parameters.
+        Parameters:
+            babbrev: string corresponding to the building abbreviation
+            rcode: string corresponding to the room code
+            offset: Number of result rows to ignore from top of query results.
+            limit: Max number of result rows to return. Default=10.
+        Returns:
+            JSON: containing room information or null. Error JSON otherwise.
+        """
+        try:
+            SVF.validate_offset_limit(offset=offset, limit=limit)
+        except KeyError as e:
+            return jsonify(Error=str(e)), 400
+        except ValueError as e:
+            return jsonify(Error=str(e)), 400
 
-            rooms = dao.getRoomsByCodeSearchSegmented(
-                babbrev=babbrev, rcode=rcode, limit=limit, offset=offset)
+        # Filter strings.
+        # Force sent abbrev and rcode to be strings appropriate for LIKE query.
+        babbrev = str(babbrev).upper()
+        rcode = str(rcode)
+
+        # Remove symbols and spaces from strings. Leave only numbers and letters.
+        rcode = "".join(filter(str.isalnum, rcode))
+        babbrev = "".join(filter(str.isalnum, babbrev))
+
+        dao = RoomDAO()
+        rooms = dao.getRoomsByCodeSearchSegmented(
+            babbrev=babbrev, rcode=rcode, limit=limit, offset=offset)
 
         if not rooms:
             response = {"rooms": None}
@@ -253,8 +241,7 @@ class RoomHandler:
             room_list = []
             for row in rooms:
                 room_result = _buildCoreRoomResponse(room_tuple=row)
-                room_result['building'] = BuildingHandler(
-                ).getCoreBuildingByID(bid=row[1], no_json=True)
+                room_result['building'] = BuildingHandler().getCoreBuildingByID(bid=row[1], no_json=True)
                 room_list.append(room_result)
             response = {"rooms": room_list}
         return jsonify(response)
