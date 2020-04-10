@@ -77,7 +77,7 @@ class PhoneHandler:
         dao = PhoneDAO()
         phones = dao.getPhonesByServiceID(sid=sid)
         if not phones:
-            response = {"phones": None}
+            response =  None
         else:
             phone_list = []
             for row in phones:

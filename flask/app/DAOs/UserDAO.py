@@ -4,6 +4,23 @@ from psycopg2 import sql, errors
 
 class UserDAO(MasterDAO):
 
+    def getUserByEmail(self,email):
+        
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "where {pkey}= %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('uid'),
+                sql.Identifier('first_name'),
+                sql.Identifier('last_name'),
+                sql.Identifier('roleid')
+            ]),
+            table1=sql.Identifier('users'),
+            pkey=sql.Identifier('email'))
+        cursor.execute(query, (email,))
+        result = cursor.fetchone()
+        return result
+    
     def getUserByID(self, uid):
         """
         Query Database for a User's information by his/her uid.
