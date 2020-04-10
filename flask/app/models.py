@@ -23,14 +23,13 @@ class User(UserMixin, db.Model):
     role_issuer = db.Column("roleissuer", db.Integer, unique=False)
 
 
-class OAuth(OAuthConsumerMixin, db.Model):
-
+class OAuth(db.Model):
     __tablename__ = 'oauth'
-    token = db.Column(db.String(
-        20000), unique=True, nullable=False)
-    id = db.Column("uid", db.Integer,
-                   db.ForeignKey(User.id), primary_key=True)
-    provider = db.Column("provider", db.String(256), unique=False)
+    token = db.Column('access_token', primary_key=True)
+    created_at = db.Column(db.String(256))
+    id = db.Column("uid", db.Integer, db.ForeignKey(
+        User.id), nullable=False, primary_key=True)
+    provider = db.Column(db.String(256), unique=False, nullable=False)
     user = db.relationship(User)
 
 

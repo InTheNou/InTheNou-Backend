@@ -1,8 +1,9 @@
 FROM nginx
-
+ARG config
 RUN rm /etc/nginx/conf.d/default.conf
+RUN echo ${config}
 
-COPY nginx.conf /etc/nginx/conf.d/
+COPY ${config} /etc/nginx/conf.d/
 
 ADD ssl /etc/nginx/ssl/
 RUN chown -R root:root /etc/nginx/ssl

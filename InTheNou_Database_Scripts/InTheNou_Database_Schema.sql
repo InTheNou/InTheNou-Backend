@@ -255,6 +255,7 @@ Create table EventUserInteractions
    primary key (uid, eid)
 );
 
+
 /* Create Tags */
 Create table Tags
 (
