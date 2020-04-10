@@ -206,10 +206,10 @@ Create table UserTags( uid int references Users(uid) NOT NULL,
                         
 /* Create Audit Table */
 /* Removed due to COVID-19 Curriculum changes. */
---Create table Audit( auditID serial primary key,
---                    aTime timestamp NOT NULL,
---                    changedTable text NOT NULL CHECK (changedTable <> ''),
---                    changeType text NOT NULL CHECK (changeType <> ''),
---                    oldValue text NOT NULL,
---                    newValue text NOT NULL,
---                    uid int references Users(uid) NOT NULL);
+Create table Audit( auditID serial primary key,
+                    aTime timestamp NOT NULL,
+                    changedTable text NOT NULL CHECK (changedTable <> ''),
+                    changeType text NOT NULL CHECK (changeType <> ''),
+                    oldValue text NOT NULL,
+                    newValue text NOT NULL,
+                    uid int references Users(uid) NOT NULL);
