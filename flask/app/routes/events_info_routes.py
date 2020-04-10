@@ -35,12 +35,18 @@ def getEventByID(eid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/CAT", methods=['GET'])
-def getEventsCreatedAfterTimestamp():
+@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>", methods=['GET'])
+def getEventByIDWithInteractions(eid, uid):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getEventsCreatedAfterTimestamp(json=request.json)
+        return EventHandler().getEventByIDWithInteraction(eid=eid, uid=uid)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Events/CAT/timestamp=<string:timestamp>/uid=<int:uid>", methods=['GET'])
+def getEventsCreatedAfterTimestamp(timestamp, uid):
+    if request.method == 'GET':
+        return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=uid)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -57,12 +63,10 @@ def createEvent():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Deleted/New", methods=['GET'])
-def getNewDeletedEvents():
+@app.route("/App/Events/Deleted/New/timestamp=<string:timestamp>", methods=['GET'])
+def getNewDeletedEvents(timestamp):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getNewDeletedEvents(json=request.json)
+        return EventHandler().getNewDeletedEvents(timestamp=timestamp)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -141,13 +145,11 @@ def getUpcomingGeneralEventsSegmented(uid, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/General/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>", methods=['GET'])
 # Make this with session!
-def getUpcomingGeneralEventsByKeywordsSegmented(offset, limit):
+def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit, uid):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=request.json['uid'], json=request.json,
+        return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, searchstring=searchstring,
                                                                           offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -169,13 +171,11 @@ def getUpcomingRecommendedEventsSegmented(uid, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Recommended/Keyword/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>", methods=['GET'])
 # Make this with session!
-def getUpcomingRecommendedEventsByKeywordSegmented(offset, limit):
+def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit, uid):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=request.json['uid'], json=request.json,
+        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, searchstring=searchstring,
                                                                              offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -190,14 +190,11 @@ def getAllEventsSegmented(offset, limit):
 
 
 # Use session to authorize, but get UID to check from json
-@app.route("/Dashboard/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getEventsCreatedByOtherUser(offset, limit):
+@app.route("/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getEventsCreatedByOtherUser(ecreator, offset, limit):
     if request.method == 'GET':
         # TODO: VERIFY IF SESSION USER IS AUTHORIZED FOR THE USER THEY ARE SEARCHING.
-        if 'uid' in request.json:
-            return EventHandler().getEventsCreatedByUser(uid=request.json['uid'], offset=offset, limit=limit)
-        else:
-            return jsonify(Error="Missing key: uid."), 401
+        return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -226,12 +223,18 @@ def getRoomByID(rid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getRoomsBySearch(offset, limit):
+@app.route("/App/Rooms/babbrev=<string:babbrev>/rcode=<string:rcode>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return RoomHandler().getRoomsBySearch(json=request.json, offset=offset, limit=limit)
+        return RoomHandler().getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode, offset=offset, limit=limit)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/App/Rooms/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getRoomsByKeywordSegmented(searchstring, offset, limit):
+    if request.method == 'GET':
+        return RoomHandler().getRoomsByKeywordSegmented(searchstring=searchstring, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -268,7 +271,7 @@ def getAllBuildingsSegmented(offset, limit):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: MOVE JSON PARAMS TO URI
 # Automated test not set up
 @app.route("/App/Buildings/Search/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getBuildingsByKeywords(searchstring, offset, limit):
@@ -279,12 +282,10 @@ def getBuildingsByKeywords(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Services/Search/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-def getServicesByKeywords(offset, limit):
+@app.route("/App/Services/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+def getServicesByKeywords(searchstring, offset, limit):
     if request.method == 'GET':
-        if not request.json:
-            return jsonify(Error="No JSON provided."), 400
-        return ServiceHandler().getServicesByKeywords(json=request.json, offset=offset, limit=limit)
+        return ServiceHandler().getServicesByKeywords(searchstring=searchstring, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 

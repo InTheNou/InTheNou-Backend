@@ -61,7 +61,7 @@ Create table Photos
 /* NOTE: Should some of the Building properties, like bCommonName or bType be NOT NULL?
    NOTE: Discussed with Diego, said bType should be NOT NULL, and bCommonName can be NULL.
    NOTE: Not all buildings have common names or codes. Insert them as empty strings*/
-Create table Buildings
+Create table buildings
 (
    bid serial primary key,
    bName text NOT NULL UNIQUE CHECK (bName <> ''),
@@ -77,7 +77,7 @@ Create table Buildings
 Create function getBuildingNumFloors (buildingid integer) RETURNS int as $$
 begin
    RETURN (SELECT numFloors
-   from Buildings
+   FROM public.buildings
    WHERE bid= buildingid);
 end;
 $$
@@ -86,7 +86,7 @@ language plpgsql;
 /* Create Rooms */
 /* NOTE: Should the coordinate fields be NOT NULL? 
    NOTE: Discussed with Diego; said coordinates should not be null.*/
-Create table Rooms
+Create table rooms
 (
    rid serial primary key,
    bid int references Buildings(bid),
