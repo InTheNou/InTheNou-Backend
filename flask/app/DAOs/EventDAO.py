@@ -736,6 +736,12 @@ class EventDAO(MasterDAO):
         except errors.ForeignKeyViolation as fke:
             return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
 
+        audit = AuditDAO()
+        tablename='eventuserinteractions'
+        pkeys = ["eid", "uid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=eid, pkeyval2=uid, cursor=cursor)
+
         # if you get here with no errors, update the interaction and finish.
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
@@ -757,10 +763,16 @@ class EventDAO(MasterDAO):
             ukey1=sql.Identifier('itype'))
         try:
             cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=eid, pkeyval2=uid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
             result = updated_usertags
         except errors.ForeignKeyViolation as fke:
             return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
+        except ValueError as e:
+            return e
         return result
 
     def setRecommendation(self, uid, eid, recommendstatus):
@@ -776,6 +788,11 @@ class EventDAO(MasterDAO):
             List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        tablename = 'eventuserinteractions'
+        pkeys = ["eid", "uid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=eid, pkeyval2=uid, cursor=cursor)
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "VALUES ('none', %s, %s, %s) "
@@ -797,11 +814,17 @@ class EventDAO(MasterDAO):
         try:
             cursor.execute(query, (str(recommendstatus), int(uid), int(eid), str(recommendstatus)))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=eid, pkeyval2=uid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
+        except ValueError as e:
+            return e
         return result
-
 
 # todo: Conisder setting the statusdate via trigger.
     def setEventStatus(self, eid, estatus, uid):
@@ -815,7 +838,9 @@ class EventDAO(MasterDAO):
         """
         cursor = self.conn.cursor()
         audit = AuditDAO()
-        oldEntry = audit.getTableValueByIntID(table="events", pkeyname="eid", pkeyval=eid, cursor=cursor)
+        tablename = "events"
+        pkey = "eid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
         query = sql.SQL("update {table1} "
                         "set {ukey1} = %s,"
                         "estatusdate = CURRENT_TIMESTAMP  "
@@ -828,11 +853,14 @@ class EventDAO(MasterDAO):
             cursor.execute(query, (str(estatus), int(eid)))
             result = cursor.fetchone()
 
-            newEntry = audit.getTableValueByIntID(table="events", pkeyname="eid", pkeyval=eid, cursor=cursor)
-            audit.insertAuditEntry(changedTable="events", changeType=audit.UPDATEVALUE, oldValue=oldEntry, newValue=newEntry, uid=uid, cursor=cursor)
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             return ValueError("Invalid values: eid=" + str(eid))
+        except ValueError as e:
+            return e
         return result
 
     def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, tags, photourl, websites):
