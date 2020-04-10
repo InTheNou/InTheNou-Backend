@@ -588,7 +588,7 @@ class EventHandler:
         # if userCanModifyEvent(uid, eid)
 
         dao = EventDAO()
-        uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus)
+        uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus, uid=uid)
         try:
             return jsonify({"eid": uid_eid_pair[0]}), 201
         except TypeError:

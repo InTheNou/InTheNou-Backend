@@ -1,4 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from app.DAOs.PhotoDAO import PhotoDAO
 from app.DAOs.TagDAO import TagDAO
 from app.DAOs.WebsiteDAO import WebsiteDAO
@@ -803,7 +804,7 @@ class EventDAO(MasterDAO):
 
 
 # todo: Conisder setting the statusdate via trigger.
-    def setEventStatus(self, eid, estatus):
+    def setEventStatus(self, eid, estatus, uid):
         """
          Sets the estatus for a given event.
         Parameters:
@@ -813,6 +814,8 @@ class EventDAO(MasterDAO):
             List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        oldEntry = audit.getTableValueByIntID(table="events", pkeyname="eid", pkeyval=eid, cursor=cursor)
         query = sql.SQL("update {table1} "
                         "set {ukey1} = %s,"
                         "estatusdate = CURRENT_TIMESTAMP  "
@@ -824,6 +827,9 @@ class EventDAO(MasterDAO):
         try:
             cursor.execute(query, (str(estatus), int(eid)))
             result = cursor.fetchone()
+
+            newEntry = audit.getTableValueByIntID(table="events", pkeyname="eid", pkeyval=eid, cursor=cursor)
+            audit.insertAuditEntry(changedTable="events", changeType=audit.UPDATEVALUE, oldValue=oldEntry, newValue=newEntry, uid=uid, cursor=cursor)
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             return ValueError("Invalid values: eid=" + str(eid))
