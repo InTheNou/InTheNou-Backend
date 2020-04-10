@@ -111,7 +111,7 @@ class BuildingDAO(MasterDAO):
     def searchBuildingsByKeyword(self, offset, limit, keyword):
         keyword = "'%" + keyword + "%'"
         keyword = AsIs(keyword)
-
+        print(keyword)
         cursor = self.conn.cursor()
         query = sql.SQL("select distinct {fields} "
                         "from {table} join {table2} "
