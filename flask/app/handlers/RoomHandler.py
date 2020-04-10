@@ -48,12 +48,12 @@ def _buildCoreRoomResponse(room_tuple):
     # Skipping bid so that it may be added either internally
     # as part of a single room, or externally, as part of a
     # list of rooms. Use _safeGetBuiildingByID(bid).
-    response['rcode'] = room_tuple[2]
+    response['rcode'] = str(room_tuple[2])
     response['rfloor'] = room_tuple[3]
     response['rdescription'] = room_tuple[4]
     response['roccupancy'] = room_tuple[5]
     response['rdept'] = room_tuple[6]
-    response['rcustodian'] = room_tuple[7]
+    response['rcustodian'] = str(room_tuple[7])
     response['rlongitude'] = float(room_tuple[8])
     response['rlatitude'] = float(room_tuple[9])
     response['raltitude'] = float(room_tuple[10])

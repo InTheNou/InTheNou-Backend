@@ -31,6 +31,17 @@ def getUsersThatCanModifyEvent(eid):
     else:
         return jsonify(Error='Method not allowed.'), 405
 
+@app.route("/App/Users/email=<string:email>", methods=['GET'])
+# @login_required
+# @mod_role_required
+def getUserByEmail(email):
+    if request.method == 'GET':
+        return UserHandler().getUserByEmail(email=email)
+
+    else:
+        return jsonify(Error='Method not allowed.'), 405
+
+
 
 ##DASHBOARD ROUTES##
 # TODO: verify the user has event creator + privileges

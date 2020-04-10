@@ -6,6 +6,13 @@ from app.DAOs.UserDAO import UserDAO
 CHECKUSERISSUERSKEY = ['id', 'uid']
 CHANGEUSERROLEKEY = ['id', 'uid', 'roleid']
 
+def _buildEmailUserResponse(user_tuple):
+    response = {}
+    response['uid'] = user_tuple[0]
+    response['first_name'] = user_tuple[1]
+    response['last_name'] = user_tuple[2]
+    response['roleid']  =user_tuple[3]
+    return response
 
 def _buildCoreUserResponse(user_tuple):
     response = {}
@@ -13,6 +20,7 @@ def _buildCoreUserResponse(user_tuple):
     response['email'] = user_tuple[1]
     response['first_name'] = user_tuple[2]
     response['last_name'] = user_tuple[3]
+    response['roleid']  =user_tuple[5]
     return response
 
 
@@ -106,7 +114,7 @@ class UserHandler:
                 response = _buildCoreUserResponse(user_tuple=user)
                 return response
             else:
-                response = _buildUserResponse(user_tuple=user)
+                response = _buildCoreUserResponse(user_tuple=user)
                 return jsonify(response)
 
     def getUsersThatCanModifyEvent(self, eid, no_json=False):
@@ -257,4 +265,15 @@ class UserHandler:
             return jsonify(Error='Users with roles id does not exist: roleid=' + str(roleid)), 404
         else:
             response = _buildUserNumberResponse(user_tuple=users)
+            return jsonify(response)
+
+    def getUserByEmail(self,email):
+
+
+        dao=UserDAO()
+        user = dao.getUserByEmail(email=email)
+        if not user:
+            return jsonify(Error='Users with Email does not exist: email=' + str(email)), 404
+        else:
+            response = _buildEmailUserResponse(user_tuple=user)
             return jsonify(response)

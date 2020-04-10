@@ -14,9 +14,9 @@
 {% endwith %}
 {% if current_user.is_authenticated %}
 {{ current_user.id }} is logged in as {{ current_user.email }} !
-  <a href="{{ url_for("app_logout") }}">Log out</a>
+  <a href="{{ url_for("dashboard_logout") }}">Log out</a>
 {% else %}
   You are not logged in.
-  <a href="{{ url_for("app_login") }}">Log in</a>
+  <a href="{{ url_for("dashboard_login") }}">Log in</a>
 {% endif %}
 </body>
