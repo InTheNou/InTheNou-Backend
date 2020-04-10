@@ -42,7 +42,7 @@ Create table Users
 /* Create oAuth table for volatile session information */
 Create table oAuth
 (
-   token text NOT NULL CHECK (token <> ''),
+   access_token text NOT NULL CHECK (token <> ''),
    created_at text CHECK (created_at <> ''),
    provider text NOT NULL CHECK (provider <> ''),
    uid int references Users(uid) NOT NULL,

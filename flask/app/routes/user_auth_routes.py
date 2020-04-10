@@ -36,7 +36,7 @@ def app_logout():
 def app_login():
     try:
         (current_user.id)
-        return make_response(redirect('TESTinthenou://succsess?uid='+str(current_user.id)+'&newAccount=False&cookie='+str(session['cooky'])))
+        return make_response(redirect('inthenou://succsess?uid='+str(current_user.id)+'&newAccount=False&cookie='+str(session['cooky'])))
     except:
         session['AppLogin'] = True
         print('Session Defined')
