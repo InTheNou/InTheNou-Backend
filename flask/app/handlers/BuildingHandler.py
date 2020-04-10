@@ -142,14 +142,14 @@ class BuildingHandler:
         keywords = " | ".join(filtered_words)
         return keywords
 
-    def getBuildingsByKeyword(self, offset, limit, json):
+    def getBuildingsByKeyword(self, offset, limit, keyword):
 
         dao = BuildingDAO()
-        keyword = json['searchstring']
+        keyword = keyword
         result = []
         alphanumeric_filter = filter(str.isalnum, keyword)
         keyword = "".join(alphanumeric_filter)
-
+        print(keyword)
         response = dao.searchBuildingsByKeyword(
             keyword=keyword, offset=offset, limit=limit)
 

@@ -28,8 +28,8 @@ def _buildServiceResponse(service_tuple):
     response = {}
     response['sid'] = service_tuple[0]
     response['room'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
-    response['sname'] = service_tuple[2]
-    response['sdescription'] = service_tuple[3]
+    response['sname'] = str(service_tuple[2])
+    response['sdescription'] = str(service_tuple[3])
     response['sschedule'] = service_tuple[4]
     response['isdeleted'] = service_tuple[5]
     return response
@@ -150,8 +150,10 @@ class ServiceHandler:
         serviceInfo = []
         for row in services:
             serviceInfo.append(_buildServiceByRoomResponse(row))
-            if no_json:
-                return(serviceInfo)
+        
+        if no_json:
+            return(serviceInfo)
+        
         return jsonify(serviceInfo)
 
     def getServicesSegmented(self, offset, limit):
