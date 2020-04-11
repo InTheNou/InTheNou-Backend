@@ -171,7 +171,8 @@ class UserHandler:
             return jsonify(response)
 
     def getUsersAndIssuersSegmented(self, offset, limit):
-        """Return a list of users and who gave them roles, segmented.
+        """
+        Return a list of users and who gave them their roles, segmented.
         offset: value of first rows to ignore
         limit: number of max rows to get from response 
 
