@@ -7,6 +7,14 @@ CHECKUSERISSUERSKEY = ['id', 'uid']
 CHANGEUSERROLEKEY = ['id', 'uid', 'roleid']
 
 def _buildEmailUserResponse(user_tuple):
+    """
+    Private Method to build user dictionary to be JSONified.
+    Parameters:
+        user_tuple: response tuple from SQL query
+    Returns:
+        Dict: User information when given Email
+            uid,display name,roleid,the id for role issuer
+    """
     response = {}
     response['uid'] = user_tuple[0]
     response['display_name'] = user_tuple[1]
@@ -16,6 +24,14 @@ def _buildEmailUserResponse(user_tuple):
     return response
 
 def _buildCoreUserResponse(user_tuple):
+      """
+    Private Method to build user dictionary to be JSONified.
+    Parameters:
+        user_tuple: response tuple from SQL query
+    Returns:
+        Dict: User information 
+            uid,email,display name,roleid,the id for role issuer
+    """
     response = {}
     response['uid'] = user_tuple[0]
     response['email'] = user_tuple[1]
@@ -64,7 +80,8 @@ def _buildDelegatedUserResponse(user_tuple):
 
 
 def _buildUserNumberResponse(user_tuple):
-    """Return the amount of users with a given roleid
+    """
+    Return the amount of users with a given roleid
     roleid -- Role ID
     """
     response = {}
@@ -171,6 +188,14 @@ class UserHandler:
             return jsonify(response)
 
     def getAllUsersByRoleIDSegmented(self, roleid, offset, limit):
+       """
+        Return a list of users who have given roleid , segmented.
+        Parameters:
+        roleid: number representing what role type of users to get 
+        offset: value of first rows to ignore
+        limit: number of max rows to get from response 
+
+        """
         dao = UserDAO()
 
         users = dao.getAllUsersByRoleID(
@@ -181,7 +206,9 @@ class UserHandler:
         return jsonify(result)
 
     def getUsersSegmented(self, offset, limit):
-        """Return a list of users , segmented.
+        """
+        Return a list of users , segmented.
+        Parameters:
         offset: value of first rows to ignore
         limit: number of max rows to get from response 
 
@@ -223,7 +250,7 @@ class UserHandler:
             response = _buildUserResponse(user_tuple=user)
             return jsonify(response)
 
-# TODO:MAKE THIS ROUTE SEGMENTED?
+    # TODO:MAKE THIS ROUTE SEGMENTED?
     def getUserIssuers(self, json, no_json=False):
         """
         Returns a list of users that can be issuers for a given user ID
@@ -259,6 +286,7 @@ class UserHandler:
     def getNumberOfUsersByRole(self, roleid):
         """
         Returns a number of users with a given role
+        parameters:
         roleid: Role ID
         """
         dao = UserDAO()
@@ -270,7 +298,11 @@ class UserHandler:
             return jsonify(response)
 
     def getUserByEmail(self,email):
-
+        """
+        Return the user entry belonging to the specified email.
+        Parameter:
+        email: the user's email address
+        """
 
         dao=UserDAO()
         user = dao.getUserByEmail(email=email)
