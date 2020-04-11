@@ -95,6 +95,7 @@ def app_login():
         db.session.add_all([oauth])
         db.session.commit()
     login_user(oauth.user)
+    session['token']=info['access_token']
     flash("Successfully signed in.")
     # sessionDict = str(session)[20:-1]
 
