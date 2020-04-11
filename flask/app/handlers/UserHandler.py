@@ -24,7 +24,7 @@ def _buildEmailUserResponse(user_tuple):
     return response
 
 def _buildCoreUserResponse(user_tuple):
-      """
+    """
     Private Method to build user dictionary to be JSONified.
     Parameters:
         user_tuple: response tuple from SQL query
@@ -38,7 +38,6 @@ def _buildCoreUserResponse(user_tuple):
     response['display_name'] = user_tuple[2]
     response['type']    =user_tuple[3]
     response['roleid']  =user_tuple[4]
-    
     
     return response
 
@@ -69,13 +68,12 @@ def _buildDelegatedUserResponse(user_tuple):
         Dict: Delegated User information
     """
     response = {}
-
-    response['user_id'] = user_tuple[5]
-    response['user_email'] = user_tuple[4]
-    response['user_role'] = user_tuple[3]
-    response['issuer_email'] = user_tuple[1]
     response['issuer_role'] = user_tuple[0]
+    response['issuer_email'] = user_tuple[1]
     response['issuer_id'] = user_tuple[2]
+    response['user_role'] = user_tuple[3]
+    response['user_email'] = user_tuple[4]
+    response['user_id'] = user_tuple[5]
     return response
 
 
@@ -155,20 +153,24 @@ class UserHandler:
                 return response
             return jsonify(response)
 
-    def getUsersDelegatedByID(self, id):
-        """Return a list of users that the given user ID has delegated roles to.
+    def getUsersDelegatedByID(self,uid):
+        """
+        Return a list of users that the given user ID has delegated roles to.
         id -- user ID.
+        uid-- id to look for in the system
         """
         dao = UserDAO()
-        users = dao.getUsersDelegatedByID(id)
+        users = dao.getUsersDelegatedByID(uid)
         if not users:
-            return jsonify(Error='User does has not delegated any users' + str(id)), 200
+            return jsonify(Error='User has not delegated any users UID: ' + str(uid)), 200
         else:
             user_list = []
             for row in users:
-                user_list.append(_buildDelegatedUserResponse(user_tuple=row))
+                user_list.append(_buildUserResponse(user_tuple=row))
             response = {"Users": user_list}
             return jsonify(response)
+        
+        
 
     def getUsersAndIssuersSegmented(self, offset, limit):
         """
@@ -189,21 +191,19 @@ class UserHandler:
             return jsonify(response)
 
     def getAllUsersByRoleIDSegmented(self, roleid, offset, limit):
-       """
+        """
         Return a list of users who have given roleid , segmented.
         Parameters:
         roleid: number representing what role type of users to get 
         offset: value of first rows to ignore
         limit: number of max rows to get from response 
-
         """
         dao = UserDAO()
-
         users = dao.getAllUsersByRoleID(
-            roleid=roleid, offset=offset, limit=limit)
+             roleid=roleid, offset=offset, limit=limit)
         result = []
         for row in users:
-            result.append(_buildCoreUserResponse(row))
+             result.append(_buildCoreUserResponse(row))
         return jsonify(result)
 
     def getUsersSegmented(self, offset, limit):
