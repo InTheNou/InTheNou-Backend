@@ -9,18 +9,21 @@ CHANGEUSERROLEKEY = ['id', 'uid', 'roleid']
 def _buildEmailUserResponse(user_tuple):
     response = {}
     response['uid'] = user_tuple[0]
-    response['first_name'] = user_tuple[1]
-    response['last_name'] = user_tuple[2]
-    response['roleid']  =user_tuple[3]
+    response['display_name'] = user_tuple[1]
+    response['roleid']= user_tuple[2]
+    response['roleissuer']= user_tuple[3]
+      
     return response
 
 def _buildCoreUserResponse(user_tuple):
     response = {}
     response['uid'] = user_tuple[0]
     response['email'] = user_tuple[1]
-    response['first_name'] = user_tuple[2]
-    response['last_name'] = user_tuple[3]
-    response['roleid']  =user_tuple[5]
+    response['display_name'] = user_tuple[2]
+    response['type']    =user_tuple[3]
+    response['roleid']  =user_tuple[4]
+    
+    
     return response
 
 
@@ -35,9 +38,8 @@ def _buildUserResponse(user_tuple):
     response = {}
     response['uid'] = user_tuple[0]
     response['email'] = user_tuple[1]
-    response['first_name'] = user_tuple[2]
-    response['last_name'] = user_tuple[3]
-    response['roleid'] = user_tuple[4]
+    response['display_name'] = user_tuple[2]
+    response['roleid'] = user_tuple[3]
 
     return response
 
@@ -54,9 +56,9 @@ def _buildDelegatedUserResponse(user_tuple):
 
     response['user_id'] = user_tuple[5]
     response['user_email'] = user_tuple[4]
-    response['user_type'] = user_tuple[3]
+    response['user_role'] = user_tuple[3]
     response['issuer_email'] = user_tuple[1]
-    response['issuer_type'] = user_tuple[0]
+    response['issuer_role'] = user_tuple[0]
     response['issuer_id'] = user_tuple[2]
     return response
 
@@ -143,7 +145,7 @@ class UserHandler:
         dao = UserDAO()
         users = dao.getUsersDelegatedByID(id)
         if not users:
-            return jsonify(Error='User does has not delegated any users' + str(id)), 405
+            return jsonify(Error='User does has not delegated any users' + str(id)), 200
         else:
             user_list = []
             for row in users:
@@ -191,7 +193,7 @@ class UserHandler:
         else:
             user_list = []
             for row in users:
-                user_list.append(_buildUserResponse(user_tuple=row))
+                user_list.append(_buildCoreUserResponse(user_tuple=row))
             response = {"Users": user_list}
             return jsonify(response)
 
