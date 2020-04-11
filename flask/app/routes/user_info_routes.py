@@ -66,12 +66,18 @@ def changeRole():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Users/Delegated", methods=['GET'])
+@app.route("/Dashboard/Users/uid=<int:uid>/Delegated", methods=['GET'])
 # @login_required
 # @admin_role_required
-def getDelegatedUserByID():
+def getDelegatedUserByID(uid):
     if request.method == 'GET':
-        return UserHandler().getUsersDelegatedByID(int(current_user.id))
+        if(current_user.id == uid ):
+            return UserHandler().getUsersDelegatedByID(uid=int(current_user.id))
+        else:
+            if int(current_user.user_role) == 4:
+                return UserHandler().getUsersDelegatedByID(uid=int(uid))
+            else:
+                return jsonify(Error='Method not allowed for user role'), 200
     else:
         return jsonify(Error='Method not allowed.'), 405
 
