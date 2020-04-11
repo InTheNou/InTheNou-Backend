@@ -4,10 +4,11 @@ from flask import Flask, g, flash, redirect, url_for, render_template, session, 
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer.requests import OAuth1Session
 from flask_dance.consumer import oauth_before_login
-
+from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 from flask import Flask, redirect, url_for, flash, render_template, session, make_response
 from flask_login import login_required, logout_user, current_user
 from app.models import db, User, OAuth
+from app.handlers.TagHandler import TagHandler
 from app.oauth import *
 from app.config import *
 from sqlalchemy.orm.exc import NoResultFound
@@ -31,17 +32,83 @@ def app_logout():
     flash("You have logged out")
     return render_template("home.html")
 
+@app.route("/App/signup", methods=['POST'])
+def signup():
+    if request.method == 'POST':
+        info = request.json
+        user_usub = info["id"]
+        query = User.query.filter_by(provider=user_usub)
+        try:
+            user = query.one()
+            return jsonify(Error="User with that email exists "+str(user)),200
+        except NoResultFound:
+        # Create account for new user
+            print("User being created")
+            user = User(email=info["email"],
+                    provider=user_usub,
+                    display_name=info["display_name"],
+                    user_type="Student",
+                    user_role=int(1),
+                    role_issuer=int(1),
+                    )
+            if(user):
+                db.session.add_all([user])
+                db.session.commit()
+            
+            query = OAuth.query.filter_by(
+                    token= info['access_token'], id=user.id, user=user)
+            
+            try:
+                oauth = query.one()
+            except NoResultFound:
+                oauth = OAuth(token=info['access_token'], id=user.id, user=user, created_at="5223213.12",provider="google")
+                db.session.add_all([oauth])
+                db.session.commit()
+                login_user(oauth.user)
+            response = TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
+            response['uid']=user.id
+            return jsonify(response)
+    else:
+        return jsonify(Error="Method not allowed."), 405
 
-@app.route("/App/login")
+@app.route("/App/login", methods=['POST'])
 def app_login():
-    try:
-        (current_user.id)
-        return make_response(redirect('TESTinthenou://succsess?uid='+str(current_user.id)+'&newAccount=False&cookie='+str(session['cooky'])))
-    except:
-        session['AppLogin'] = True
-        print('Session Defined')
 
-        return redirect(url_for("google.login"))
+    info = request.json
+   
+    newAccount = False
+    user_usub = info["id"]
+
+    query = User.query.filter_by(provider=user_usub)
+    try:
+        user = query.one()
+        
+    except NoResultFound:
+        return jsonify(Error="User must create account for: "+str(info['email'])),200
+
+    query = OAuth.query.filter_by(
+        token= info['access_token'], id=user.id, user=user)
+    try:
+        oauth = query.one()
+    except NoResultFound:
+        oauth = OAuth(token=info['access_token'], id=user.id, user=user, created_at="5223213.12",provider="google")
+        db.session.add_all([oauth])
+        db.session.commit()
+    login_user(oauth.user)
+    flash("Successfully signed in.")
+    # sessionDict = str(session)[20:-1]
+
+    # # print(sessionDict)
+    # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
+    # cookie = encodeFlaskCookie(secret_key=os.getenv(
+    #     "FLASK_SECRET_KEY"), cookieDict=sessionDict)
+    # # print(cookie)
+    # session['cookys'] = cookie
+    # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
+
+    response = {"uid": str(user.id)}
+
+    return jsonify(response)
 
 
 @oauth_before_login.connect
