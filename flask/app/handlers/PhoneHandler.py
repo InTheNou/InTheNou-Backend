@@ -103,15 +103,15 @@ class PhoneHandler:
         if not phones:
             phoneInfo = None
         else:
-
             for x in phones:
 
                 ID = (dao.removePhonesByServiceID(
                     sid=sid, phoneid=x['phoneid']))
                 # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
-                    return jsonify(Error="Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid']))), 400
-                phoneIDs.append(int(ID))
+                    phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))
+                else:
+                    phoneIDs.append((ID))
                 # print('Phones deleted IDs: '+ str(phoneIDs))
             for row in phoneIDs:
                 phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(row))))
