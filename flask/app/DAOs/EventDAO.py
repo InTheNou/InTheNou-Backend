@@ -370,7 +370,7 @@ class EventDAO(MasterDAO):
             table1Identifier=sql.Identifier('photoid'),
             table2Identifier=sql.Identifier('photoid'),
             pkey1=sql.Identifier('estatus'),
-            pkey2=sql.Identifier('estart'),
+            pkey2=sql.Identifier('eend'),
             pkey3=sql.Identifier('uid'),
             pkey4=sql.Identifier('recommendstatus'),
             pkey5=sql.Identifier('itype'),
@@ -424,7 +424,7 @@ class EventDAO(MasterDAO):
             table1Identifier=sql.Identifier('photoid'),
             table2Identifier=sql.Identifier('photoid'),
             pkey1=sql.Identifier('estatus'),
-            pkey2=sql.Identifier('estart'),
+            pkey2=sql.Identifier('eend'),
             pkey3=sql.Identifier('uid'),
             pkey4=sql.Identifier('recommendstatus'),
             pkey5=sql.Identifier('itype'),
@@ -453,7 +453,7 @@ class EventDAO(MasterDAO):
                         "left outer join {table2} "
                         "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
                         "natural join {table3} "
-                        "where {pkey1} < CURRENT_TIMESTAMP "
+                        "where {pkey1} <= CURRENT_TIMESTAMP "
                         "and {pkey2}=%s and {pkey3} = %s "
                         "order by {table1Identifier2} desc "
                         "offset %s "
@@ -581,7 +581,7 @@ class EventDAO(MasterDAO):
         query = sql.SQL("select {fields} from events "
                         "where ecreation >= %s "
                         "and estatus='active' "
-                        "and eend>CURRENT_TIMESTAMP "
+                        "and eend >= CURRENT_TIMESTAMP "
                         "and eid not in("
                         "select eid "
                         "from eventuserinteractions "
