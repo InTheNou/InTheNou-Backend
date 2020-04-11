@@ -1,7 +1,7 @@
 from app import app
 from flask import Flask, redirect, url_for, session, jsonify, request
 from flask_dance.contrib.google import make_google_blueprint, google
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, mod_role_required, admin_role_required
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
@@ -216,6 +216,7 @@ def getAllPastEventsSegmented(offset, limit):
 
 
 @app.route("/App/Rooms/rid=<int:rid>", methods=['GET'])
+@login_required
 def getRoomByID(rid):
     if request.method == 'GET':
         return RoomHandler().getRoomByID(rid=rid)
@@ -224,6 +225,7 @@ def getRoomByID(rid):
 
 
 @app.route("/App/Rooms/babbrev=<string:babbrev>/rcode=<string:rcode>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@login_required
 def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
     if request.method == 'GET':
         return RoomHandler().getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode, offset=offset, limit=limit)
@@ -232,6 +234,7 @@ def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
 
 
 @app.route("/App/Rooms/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@login_required
 def getRoomsByKeywordSegmented(searchstring, offset, limit):
     if request.method == 'GET':
         return RoomHandler().getRoomsByKeywordSegmented(searchstring=searchstring, offset=offset, limit=limit)
@@ -240,6 +243,7 @@ def getRoomsByKeywordSegmented(searchstring, offset, limit):
 
 
 @app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
+@login_required
 def getRoomsByBuildingAndFloor(bid, rfloor):
     if request.method == 'GET':
         return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
@@ -248,6 +252,7 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
 
 
 @app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
+@login_required
 def getBuildingByID(bid):
     if request.method == 'GET':
         return BuildingHandler().getBuildingByID(bid=bid)
@@ -257,6 +262,7 @@ def getBuildingByID(bid):
 
 # Automated test not set up; may not be necessary, since only one room in system.
 @app.route("/Dev/Buildings", methods=['GET'])
+@login_required
 def getAllBuildings():
     if request.method == 'GET':
         return BuildingHandler().getAllBuildings()
@@ -265,15 +271,16 @@ def getAllBuildings():
 
 
 @app.route("/App/Buildings/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@login_required
 def getAllBuildingsSegmented(offset, limit):
     if request.method == 'GET':
         return BuildingHandler().getAllBuildingsSegmented(offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: MOVE JSON PARAMS TO URI
 # Automated test not set up
 @app.route("/App/Buildings/Search/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@login_required
 def getBuildingsByKeywords(searchstring, offset, limit):
     if request.method == 'GET':
         return BuildingHandler().getBuildingsByKeyword(keyword=searchstring,
@@ -283,6 +290,7 @@ def getBuildingsByKeywords(searchstring, offset, limit):
 
 
 @app.route("/App/Services/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@login_required
 def getServicesByKeywords(searchstring, offset, limit):
     if request.method == 'GET':
         return ServiceHandler().getServicesByKeywords(searchstring=searchstring, offset=offset, limit=limit)
@@ -291,6 +299,7 @@ def getServicesByKeywords(searchstring, offset, limit):
 
 
 @app.route("/App/Tags", methods=['GET'])
+@login_required
 def getAllTags():
     if request.method == 'GET':
         return TagHandler().getAllTags()
@@ -299,6 +308,7 @@ def getAllTags():
 
 
 @app.route("/App/Tags/eid=<int:eid>", methods=['GET'])
+@login_required
 def getTagsByEventID(eid):
     if request.method == 'GET':
         return TagHandler().getTagsByEventID(eid=eid)
@@ -307,17 +317,10 @@ def getTagsByEventID(eid):
 
 
 @app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
+@login_required
 def getTagByID(tid):
     if request.method == 'GET':
         return TagHandler().getTagByID(tid=tid)
-    else:
-        return jsonify(Error="Method not allowed."), 405
-
-
-@app.route("/App/Tags/uid=<int:uid>", methods=['GET'])
-def getTagsByUserID(uid):
-    if request.method == 'GET':
-        return TagHandler().getTagsByUserID(uid=uid)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -333,7 +336,9 @@ def getTagsByUserIDSession():
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: PASS UID INSTEAD OF JSON
 @app.route("/App/Tags/User/Remove", methods=['POST'])
+@login_required
 def setUserTagsToZero():
     if request.method == 'POST':
         if not request.json:
@@ -343,7 +348,9 @@ def setUserTagsToZero():
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: PASS UID INSTEAD OF JSON
 @app.route("/App/Tags/User/Add", methods=['POST'])
+@login_required
 def setUserTagsToDefault():
     if request.method == 'POST':
         return TagHandler().batchSetUserTags(json=request.json, weight=100)
@@ -352,6 +359,8 @@ def setUserTagsToDefault():
 
 
 @app.route("/Dashboard/Tags/Create", methods=['POST'])
+@login_required
+@admin_role_required
 def createTag():
     if request.method == 'POST':
         return TagHandler().createTags(jsonTags=request.json)
@@ -360,6 +369,8 @@ def createTag():
 
 
 @app.route("/Dashboard/Tags/tid=<int:tid>/Edit", methods=['POST'])
+@login_required
+@mod_role_required
 def editTagName(tid):
     if request.method == 'POST':
         return TagHandler().editTagName(tid=tid, json=request.json)
