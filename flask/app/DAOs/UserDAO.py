@@ -4,6 +4,29 @@ from psycopg2 import sql, errors
 
 class UserDAO(MasterDAO):
 
+    def getUserByEmail(self,email):
+        """
+        Query Database for a User's information by his/her email.
+        Parameters:
+            email: user email
+        Returns:
+            Tuple: SQL result of Query as a tuple.
+        """
+        cursor = self.conn.cursor()
+        query = sql.SQL("select {fields} from {table1} "
+                        "where {pkey}= %s;").format(
+            fields=sql.SQL(',').join([
+                sql.Identifier('uid'),
+                sql.Identifier('display_name'),
+                sql.Identifier('roleid'),
+                sql.Identifier('roleissuer')
+            ]),
+            table1=sql.Identifier('users'),
+            pkey=sql.Identifier('email'))
+        cursor.execute(query, (email,))
+        result = cursor.fetchone()
+        return result
+    
     def getUserByID(self, uid):
         """
         Query Database for a User's information by his/her uid.
@@ -18,8 +41,7 @@ class UserDAO(MasterDAO):
             fields=sql.SQL(',').join([
                 sql.Identifier('uid'),
                 sql.Identifier('email'),
-                sql.Identifier('first_name'),
-                sql.Identifier('last_name'),
+                sql.Identifier('display_name'),
                 sql.Identifier('type'),
                 sql.Identifier('roleid')
             ]),
@@ -31,9 +53,9 @@ class UserDAO(MasterDAO):
 
     def getUsersThatCanModifyEvent(self, eid):
         """
-        Query Database for a User's who can modify the givven event, these are the event creator, the event creator's
+        Query Database for a User's who can modify the givven event, these are the event creator, the event creator's role issuer and any Admin
         Paramenters:
-            uid: user ID
+            eid: event ID
         Returns:
             Tuple: SQL result of Query as tuple.
         """
@@ -55,12 +77,10 @@ class UserDAO(MasterDAO):
         return result
 
 
-# TODO:MAKE THIS ROUTE SEGMENTED
-
-
-    def getUsersDelegatedByID(self, id):
+    # TODO:MAKE THIS ROUTE DYANMIC and segmented
+    def getUsersDelegatedByID(self, uid):
         """
-        Query Database for a User's information about who he has assigned roles to
+        Query Database for a Users that the given id has delegated roles to.
         Paramenters:
             uid: user ID
         Returns:
@@ -72,27 +92,33 @@ class UserDAO(MasterDAO):
             users=sql.SQL(',').join([
 
 
-                sql.Identifier('issuer_type'),
-                sql.Identifier('issuer_email'),
-                sql.Identifier('user_type'),
+                # sql.Identifier('issuer_role'),
+                # sql.Identifier('issuer_email'),
+                # sql.Identifier('issuer_id'),
+                sql.Identifier('user_id'),
                 sql.Identifier('user_email'),
-                sql.Identifier('user_id')
+                sql.Identifier('display_name'),
+                sql.Identifier('user_role'),
+                
+                
+                
             ]),
             users_roles_info=sql.SQL(
-                "SELECT user_id,user_email,user_type,issuer_email, roletype as issuer_type,issuer_id FROM "
-                "(SELECT user_email,roletype as user_type,issuer_email,issuer_role,issuer_id,user_id "
+                "SELECT display_name, user_id,user_email,user_type,user_role,issuer_email, roletype as issuer_type,issuer_id,issuer_role FROM "
+                "(SELECT display_name,user_email,roletype as user_type,user_role,issuer_email,issuer_role,issuer_id,user_id "
                 "FROM roles "
                 "left outer join (SELECT u1.email as user_email,"
-                "u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
+                "u1.roleid as user_role,u1.display_name as display_name, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
                 "FROM users u1 inner join users u2 "
                 "on u1.roleissuer = u2.uid) as users_filtered "
                 "on user_role = roles.roleid )as users_typed "
                 "left outer join roles r2 "
                 "on issuer_role=r2.roleid "),
-            pkey=sql.Identifier('issuer_id'))
-        cursor.execute(query, (id,))
+            pkey=sql.Identifier('issuer_id'));
+        cursor.execute(query, (int(uid),))
         result = []
         for row in cursor:
+            print(row)
             result.append(row)
         return result
 
@@ -150,16 +176,16 @@ class UserDAO(MasterDAO):
             users=sql.SQL(',').join([
                 sql.Identifier('user_id'),
                 sql.Identifier('user_email'),
-                sql.Identifier('first_name'),
-                sql.Identifier('last_name'),
+                sql.Identifier('display_name'),
                 sql.Identifier('user_type'),
+                sql.Identifier('user_role'),
             ]),
             users_roles_info=sql.SQL(
-                "SELECT first_name,last_name, user_id,user_email,user_type,issuer_email, roletype as issuer_type,issuer_id FROM "
-                "(SELECT first_name,last_name, user_email,roletype as user_type,issuer_email,issuer_role,issuer_id,user_id "
+                "SELECT display_name,user_role, user_id,user_email,user_type,issuer_email, roletype as issuer_type,issuer_id FROM "
+                "(SELECT display_name,user_role, user_email,roletype as user_type,issuer_email,issuer_role,issuer_id,user_id "
                 "FROM roles "
                 "left outer join (SELECT u1.email as user_email,"
-                "u1.first_name as first_name, u1.last_name as last_name, u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
+                "u1.display_name as display_name,  u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
                 "FROM users u1 inner join users u2 "
                 "on u1.roleissuer = u2.uid) as users_filtered "
                 "on user_role = roles.roleid )as users_typed "
@@ -184,7 +210,7 @@ class UserDAO(MasterDAO):
             "update {table} "
             "SET  {issuer} = %s , {newRole} = %s  "
             "WHERE {user}= %s "
-            "returning  uid,email, first_name,last_name,roleid,type ").format(
+            "returning  uid,email, display_name,roleid,type ").format(
 
             table=sql.Identifier('users'),
             issuer=sql.Identifier('roleissuer'),
@@ -230,19 +256,21 @@ class UserDAO(MasterDAO):
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info} where user_role = %s ) as delegated offset %s limit %s ").format(
             users=sql.SQL(',').join([
-                sql.SQL('user_id'),
-                sql.SQL('user_email'),
-                sql.SQL('first_name'),
-                sql.SQL('last_name'),
+                sql.Identifier('user_id'),
+                sql.Identifier('user_email'),
+                sql.Identifier('display_name'),
+                sql.Identifier('user_type'),
+                sql.Identifier('user_role'),
+                
 
             ]),
 
             users_roles_info=sql.SQL(
-                "SELECT first_name,last_name, user_id,user_email,user_type,user_role, issuer_email, roletype as issuer_type,issuer_id FROM "
-                "(SELECT first_name,last_name, user_email,roletype as user_type,user_role, issuer_email,issuer_role,issuer_id,user_id "
+                "SELECT display_name, user_id,user_email,user_type,user_role, issuer_email, roletype as issuer_type,issuer_id FROM "
+                "(SELECT display_name, user_email,roletype as user_type,user_role, issuer_email,issuer_role,issuer_id,user_id "
                 "FROM roles "
                 "left outer join (SELECT u1.email as user_email,"
-                "u1.first_name as first_name, u1.last_name as last_name, u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
+                "u1.display_name as display_name,  u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
                 "FROM users u1 inner join users u2 "
                 "on u1.roleissuer = u2.uid) as users_filtered "
                 "on user_role = roles.roleid )as users_typed "
@@ -273,11 +301,11 @@ class UserDAO(MasterDAO):
             ]),
 
             users_roles_info=sql.SQL(
-                "SELECT first_name,last_name, user_id,user_email,user_type,user_role, issuer_email, roletype as issuer_type,issuer_id FROM "
-                "(SELECT first_name,last_name, user_email,roletype as user_type,user_role, issuer_email,issuer_role,issuer_id,user_id "
+                "SELECT display_name, user_id,user_email,user_type,user_role, issuer_email, roletype as issuer_type,issuer_id FROM "
+                "(SELECT display_name, user_email,roletype as user_type,user_role, issuer_email,issuer_role,issuer_id,user_id "
                 "FROM roles "
                 "left outer join (SELECT u1.email as user_email,"
-                "u1.first_name as first_name, u1.last_name as last_name, u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
+                "u1.display_name, u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
                 "FROM users u1 inner join users u2 "
                 "on u1.roleissuer = u2.uid) as users_filtered "
                 "on user_role = roles.roleid )as users_typed "

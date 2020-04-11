@@ -23,8 +23,10 @@ def _buildSearchBuildingByKeyword(building_tuple):
     response['bid'] = building_tuple[0]
     response['bname'] = building_tuple[1]
     response['babbrev'] = building_tuple[2]
-    response['batype'] = building_tuple[3]
-    response['photourl'] = building_tuple[4]
+    response['btype'] = building_tuple[3]
+    response['btype'] = building_tuple[4]
+    response['photourl'] = building_tuple[5]
+    response['numfloors'] = building_tuple[6]
     return response
 
 
@@ -77,7 +79,7 @@ class BuildingHandler:
         buildings = dao.getAllBuildingsSegmented(offset=offset, limit=limit)
         result = []
         for row in buildings:
-            result.append(_buildSearchBuildingByKeyword(row))
+            result.append(_buildBuildingResponse(row))
         return jsonify(result)
 
     def getBuildingByID(self, bid, no_json=False):
@@ -142,19 +144,19 @@ class BuildingHandler:
         keywords = " | ".join(filtered_words)
         return keywords
 
-    def getBuildingsByKeyword(self, offset, limit, json):
-
-        dao = BuildingDAO()
-        keyword = json['searchstring']
-        result = []
-        alphanumeric_filter = filter(str.isalnum, keyword)
-        keyword = "".join(alphanumeric_filter)
-
-        response = dao.searchBuildingsByKeyword(
+    def getBuildingsByKeyword(self, offset, limit, keyword):
+       
+         dao = BuildingDAO()
+         keyword = keyword
+         result = []
+         alphanumeric_filter = filter(str.isalnum, keyword)
+         keyword = "".join(alphanumeric_filter)
+         print(keyword)
+         response = dao.searchBuildingsByKeyword(
             keyword=keyword, offset=offset, limit=limit)
 
-        for building in response:
-            result.append(_buildSearchBuildingByKeyword(
+         for building in response:
+            result.append(_buildBuildingResponse(
                 building_tuple=building))
 
-        return jsonify(result)
+         return jsonify(result)
