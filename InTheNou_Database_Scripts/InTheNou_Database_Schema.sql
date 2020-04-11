@@ -32,8 +32,7 @@ Create table Users
    uid serial primary key,
    email text NOT NULL UNIQUE CHECK (email <> ''),
    uSub text NOT NULL UNIQUE CHECK (usub <> ''),
-   first_name text NOT NULL,
-   last_name text NOT NULL,
+   display_name text NOT NULL,
    type text NOT NULL CHECK (type <> ''),
    roleID integer REFERENCES Roles(roleID) NOT NULL,
    roleIssuer integer REFERENCES Users (uid) CHECK (roleIssuer <> uid)
@@ -42,11 +41,11 @@ Create table Users
 /* Create oAuth table for volatile session information */
 Create table oAuth
 (
-   access_token text NOT NULL CHECK (token <> ''),
+   access_token text NOT NULL CHECK (access_token <> ''),
    created_at text CHECK (created_at <> ''),
    provider text NOT NULL CHECK (provider <> ''),
    uid int references Users(uid) NOT NULL,
-   primary key (token, uid)
+   primary key (access_token, uid)
 );
 
 /* Create Photos table */
