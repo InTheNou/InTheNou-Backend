@@ -118,91 +118,96 @@ def setEventStatus(eid, estatus):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
+# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>
+@app.route("/App/Events/eid=<int:eid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
 @login_required
-def setRecommendation(eid, uid, recommendstatus):
+def setRecommendation(eid, recommendstatus):
     if request.method == 'POST':
-        return EventHandler().setRecommendation(eid=eid, uid=uid, recommendstatus=recommendstatus)
+        return EventHandler().setRecommendation(eid=eid, uid=int(current_user.id), recommendstatus=recommendstatus)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+# old route: /App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
+@app.route("/App/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getEventsCreatedByUser(uid, offset, limit):
+def getEventsCreatedByUser(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+        return EventHandler().getEventsCreatedByUser(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+# old route: /App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
+@app.route("/App/Events/Dismissed/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getDismissedEvents(uid, offset, limit):
+def getDismissedEvents(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getDismissedEvents(uid=uid, offset=offset, limit=limit)
-    else:
-        return jsonify(Error="Method not allowed."), 405
-
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-@login_required
-def getUpcomingFollowedEventsSegmented(uid, offset, limit):
-    if request.method == 'GET':
-        return EventHandler().getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        return EventHandler().getDismissedEvents(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+# old route: /App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
+@app.route("/App/Events/Following/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getUpcomingGeneralEventsSegmented(uid, offset, limit):
+def getUpcomingFollowedEventsSegmented(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
+        return EventHandler().getUpcomingFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>", methods=['GET'])
+
+# old route: /App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
+@app.route("/App/Events/General/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit, uid):
+def getUpcomingGeneralEventsSegmented(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, searchstring=searchstring,
+        return EventHandler().getUpcomingGeneralEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+# old route: /App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>
+@app.route("/App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@login_required
+def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
+    if request.method == 'GET':
+        return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=int(current_user.id),
+                                                                          searchstring=searchstring,
                                                                           offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+# old route: /App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
+@app.route("/App/Events/History/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getPastFollowedEventsSegmented(uid, offset, limit):
+def getPastFollowedEventsSegmented(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        return EventHandler().getPastFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/Recommended/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+# old route: /App/Events/Recommended/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
+@app.route("/App/Events/Recommended/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getUpcomingRecommendedEventsSegmented(uid, offset, limit):
+def getUpcomingRecommendedEventsSegmented(offset, limit):
     if request.method == 'GET':
-        return EventHandler().getUpcomingRecommendedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        return EventHandler().getUpcomingRecommendedEventsSegmented(uid=int(current_user.id),
+                                                                    offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>", methods=['GET'])
+# old route: /App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>
+@app.route("/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
-def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit, uid):
+def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
     if request.method == 'GET':
-        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, searchstring=searchstring,
+        return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=int(current_user.id),
+                                                                             searchstring=searchstring,
                                                                              offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -218,12 +223,12 @@ def getAllEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: VERIFY IF SESSION USER IS AUTHORIZED FOR THE USER THEY ARE SEARCHING.
 # Use session to authorize, but get UID to check from json
 @app.route("/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getEventsCreatedByOtherUser(ecreator, offset, limit):
     if request.method == 'GET':
-        # TODO: VERIFY IF SESSION USER IS AUTHORIZED FOR THE USER THEY ARE SEARCHING.
         return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -332,6 +337,7 @@ def getServicesByKeywords(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: SHOULD THIS REQUIRE LOGIN?
 @app.route("/App/Tags", methods=['GET'])
 @login_required
 def getAllTags():
@@ -359,8 +365,6 @@ def getTagByID(tid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# Test route for session testing
-# No automated test setup yet.
 @app.route("/App/Tags/UserTags", methods=['GET'])
 @login_required
 def getTagsByUserIDSession():
@@ -370,24 +374,26 @@ def getTagsByUserIDSession():
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID INSTEAD OF JSON
 @app.route("/App/Tags/User/Remove", methods=['POST'])
 @login_required
 def setUserTagsToZero():
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().batchSetUserTags(json=request.json, weight=0, uid=None)
+        return TagHandler().batchSetUserTags(uid=int(current_user.id),
+                                             json=request.json, weight=0)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID INSTEAD OF JSON
 @app.route("/App/Tags/User/Add", methods=['POST'])
 @login_required
 def setUserTagsToDefault():
     if request.method == 'POST':
-        return TagHandler().batchSetUserTags(json=request.json, weight=100)
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return TagHandler().batchSetUserTags(uid=int(current_user.id),
+                                             json=request.json, weight=100)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -397,6 +403,8 @@ def setUserTagsToDefault():
 @admin_role_required
 def createTag():
     if request.method == 'POST':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return TagHandler().createTags(jsonTags=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -407,6 +415,8 @@ def createTag():
 @mod_role_required
 def editTagName(tid):
     if request.method == 'POST':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         return TagHandler().editTagName(tid=tid, json=request.json)
 
     else:
