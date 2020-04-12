@@ -153,7 +153,7 @@ def app_home():
 ################## DASHBOARD ROUTES ######################
 
 
-@app.route("/Dashboard/login")
+@app.route("/Dashboard/login", methods=['GET'])
 # @login_required
 def dashboard_login():
 
