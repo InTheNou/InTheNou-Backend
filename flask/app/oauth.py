@@ -38,7 +38,7 @@ def google_logged_in(blueprint, token):
       # user was found in the database
     print(token)
     display_name = info['given_name']+" "+ info['family_name']
-    
+    session['token']=token
     user_usub = info["id"]
     # Find this google id in the database, or create it
     query = User.query.filter_by(provider=user_usub)
