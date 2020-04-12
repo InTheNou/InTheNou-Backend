@@ -278,7 +278,7 @@ class EventDAO(MasterDAO):
 
     def getUpcomingFollowedEventsSegmented(self, uid, offset, limit):
         """
-         Query Database for events that the user is following, are active,
+         Query Database for events that the user is following,
             that have not ended, ordered by closest start date, offset by
             a set number of rows, returning a limited number of rows after offset.
         Parameters:
@@ -293,8 +293,8 @@ class EventDAO(MasterDAO):
                         "left outer join {table2} "
                         "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
                         "natural join {table3} "
-                        "where {pkey1}= %s and {pkey2} > CURRENT_TIMESTAMP "
-                        "and {pkey3}=%s and {pkey4} = %s "
+                        "where {pkey1} > CURRENT_TIMESTAMP "
+                        "and {pkey2}=%s and {pkey3} = %s "
                         "order by {table1Identifier2} "
                         "offset %s "
                         "limit %s;").format(
@@ -317,12 +317,11 @@ class EventDAO(MasterDAO):
             table3=sql.Identifier('eventuserinteractions'),
             table1Identifier=sql.Identifier('photoid'),
             table2Identifier=sql.Identifier('photoid'),
-            pkey1=sql.Identifier('estatus'),
-            pkey2=sql.Identifier('eend'),
-            pkey3=sql.Identifier('uid'),
-            pkey4=sql.Identifier('itype'),
+            pkey1=sql.Identifier('eend'),
+            pkey2=sql.Identifier('uid'),
+            pkey3=sql.Identifier('itype'),
             table1Identifier2=sql.Identifier('estart'))
-        cursor.execute(query, ('active', int(uid), 'following', int(offset), int(limit)))
+        cursor.execute(query, (int(uid), 'following', int(offset), int(limit)))
         result = []
         for row in cursor:
             result.append(row)
