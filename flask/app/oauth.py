@@ -35,45 +35,44 @@ def google_logged_in(blueprint, token):
         return False
     # Decrypt JSON token from Google oAuth
     info = resp.json()
-
-   # print (token)
-    newAccount = False
+      # user was found in the database
+    print(token)
+    display_name = info['given_name']+" "+ info['family_name']
+    session['token']=token
     user_usub = info["id"]
     # Find this google id in the database, or create it
     query = User.query.filter_by(provider=user_usub)
     try:
-
         user = query.one()
     except NoResultFound:
-        print("No user found")
-        if session['AppLogin'] == True:
-            # Create account for new user
-            print("User being creted")
-            newAccount = True
+            print("User being created")
             user = User(email=info["email"],
-                        provider=user_usub,
-                        first_name=info["given_name"],
-                        last_name=info["family_name"],
-                        user_type="Student",
-                        user_role=int(1),
-                        role_issuer=int(1),
-                        )
+                    provider=user_usub,
+                    display_name=display_name,
+                    user_type="Student",
+                    user_role=int(1),
+                    role_issuer=int(1),
+                    )
             if(user):
                 db.session.add_all([user])
                 db.session.commit()
-        else:
+            
+            print("USER CAN NOT BE CREATED ERROR CODE  =  0 ")
             flash("User must create account in the InTheNou App")
-            return (redirect(url_for("dashboard_home")))
-
-    # user was found in the database
-    print("looking for Token")
-    query = OAuth.query.filter_by(
-        token=str(token['access_token']), user=user, id=user.id)
+            
+            response = redirect("http://localhost:8080/#/login/fail/?error=0") 
+            return response
+  
     try:
+        if int(user.user_role) < 3:
+            response = redirect("http://localhost:8080/#/login/fail/?error=1") 
+            return response
+        
+        query = OAuth.query.filter_by(
+            token=str(token['access_token']), user=user, id=user.id)
         oauth = query.one()
     # user was not found in the database
     except NoResultFound:
-
         if(user):
             oauth = OAuth(provider=blueprint.name, token=str(token['access_token']), created_at=(
                 str(token['expires_at'])), id=user.id, user=user)
@@ -84,25 +83,11 @@ def google_logged_in(blueprint, token):
             if(oauth.user):
                 login_user(oauth.user)
                 flash("Successfully signed in.")
-            jsonuser = UserHandler().getUserByID(int(user.id))
+                jsonuser = UserHandler().getUserByID(int(user.id))
 
-    sessionDict = str(session)[20:-1]
-
-    # print(sessionDict)
-    # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
-    cookie = encodeFlaskCookie(secret_key=os.getenv(
-        "FLASK_SECRET_KEY"), cookieDict=sessionDict)
-    # print(cookie)
-    session['cookys'] = cookie
-    #print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
-    print('Session Checking')
-
-    if(session['AppLogin'] == True):
-        print('session True!')
-        return redirect('inthenou://succsess?uid=' + str(user.id)+'&newAccount='+str(newAccount)+'&cookie='+cookie)
-    else:
-        print('session False!')
-        return (jsonuser)
+                response = redirect("http://localhost:8080/#/login/succeed/?uid="+str(user.id)) 
+                return response
+    
 
 
 # notify on OAuth provider error

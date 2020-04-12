@@ -67,10 +67,10 @@ def changeRole():
 
 
 @app.route("/Dashboard/Users/uid=<int:uid>/Delegated", methods=['GET'])
-# @login_required
-# @admin_role_required
+@login_required
 def getDelegatedUserByID(uid):
     if request.method == 'GET':
+        
         if(current_user.id == uid ):
             return UserHandler().getUsersDelegatedByID(uid=int(current_user.id))
         else:

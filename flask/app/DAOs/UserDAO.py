@@ -147,7 +147,7 @@ class UserDAO(MasterDAO):
                 "SELECT user_id,user_email,user_type,issuer_email, roletype as issuer_type,issuer_id FROM "
                 "(SELECT user_email,roletype as user_type,issuer_email,issuer_role,issuer_id,user_id "
                 "FROM roles "
-                "left outer join (SELECT u1.email as user_email,"
+                "join (SELECT u1.email as user_email,"
                 "u1.roleid as user_role, u1.uid as user_id, u2.email as issuer_email, u2.uid as issuer_id, u2.roleid as issuer_role "
                 "FROM users u1 inner join users u2 "
                 "on u1.roleissuer = u2.uid) as users_filtered "
