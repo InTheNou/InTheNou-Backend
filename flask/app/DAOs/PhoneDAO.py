@@ -18,7 +18,7 @@ class PhoneDAO(MasterDAO):
 
             pkey1=sql.Identifier('phoneid'))
 
-        cursor.execute(query, (phoneid,))
+        cursor.execute(query, (int(phoneid),))
         result = cursor.fetchone()
 
         return result

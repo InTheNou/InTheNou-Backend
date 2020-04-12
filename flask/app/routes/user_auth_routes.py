@@ -95,6 +95,7 @@ def app_login():
         db.session.add_all([oauth])
         db.session.commit()
     login_user(oauth.user)
+    session['token']=info['access_token']
     flash("Successfully signed in.")
     # sessionDict = str(session)[20:-1]
 
@@ -163,8 +164,9 @@ def dashboard_login():
     except:
         session['AppLogin'] = False
         print('Session Defined as ' + str(session['AppLogin']))
-        #flash ("No user found ")
         return redirect(url_for("google.login"))
+        #flash ("No user found ")
+        
 
 
 @app.route("/Dashboard/logout")
