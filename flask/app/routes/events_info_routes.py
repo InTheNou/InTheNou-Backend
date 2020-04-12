@@ -2,7 +2,7 @@ from app import app
 from flask import Flask, redirect, url_for, session, jsonify, request
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_login import current_user, login_required
-from app.oauth import mod_role_required, admin_role_required
+from app.oauth import event_creator_role_required, mod_role_required, admin_role_required
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
@@ -26,8 +26,6 @@ def internal_server_error(error):
                          str(request.url) + " : " + str(error)), 500
 
 
-# TODO: Change parameter passing from URI to URI + JSON + Session during integration.
-# NOTE: all personal uid's will be sent via sessions, or json during integration.
 @app.route("/App/Events/eid=<int:eid>", methods=['GET'])
 @login_required
 def getEventByID(eid):
@@ -36,36 +34,36 @@ def getEventByID(eid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: Pass uid from session.
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>", methods=['GET'])
+
+# old route: /App/Events/eid=<int:eid>/uid=<int:uid>
+@app.route("/App/Events/eid=<int:eid>/Interaction", methods=['GET'])
 @login_required
-def getEventByIDWithInteractions(eid, uid):
+def getEventByIDWithInteractions(eid):
     if request.method == 'GET':
-        return EventHandler().getEventByIDWithInteraction(eid=eid, uid=uid)
+        return EventHandler().getEventByIDWithInteraction(eid=eid, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Pass uid from session.
-# TODO: DOES THIS REQUIRE LOGIN?
-@app.route("/App/Events/CAT/timestamp=<string:timestamp>/uid=<int:uid>", methods=['GET'])
+# old route: /App/Events/CAT/timestamp=<string:timestamp>/uid=<int:uid>
+@app.route("/App/Events/CAT/timestamp=<string:timestamp>", methods=['GET'])
 @login_required
-def getEventsCreatedAfterTimestamp(timestamp, uid):
+def getEventsCreatedAfterTimestamp(timestamp):
     if request.method == 'GET':
-        return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=uid)
+        return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: verify the user has event creator + privileges
-# TODO: Pass uid from session.
+# TODO: Update api that ecreator is no longer necessary.
 @app.route("/App/Events/Create", methods=['POST'])
 @login_required
+@event_creator_role_required
 def createEvent():
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return EventHandler().createEvent(json=request.json)
+        return EventHandler().createEvent(json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -79,43 +77,46 @@ def getNewDeletedEvents(timestamp):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Follow", methods=['POST'])
+# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Follow
+@app.route("/App/Events/eid=<int:eid>/Follow", methods=['POST'])
 @login_required
-def followEvent(eid, uid):
+def followEvent(eid):
     if request.method == 'POST':
-        return EventHandler().setInteraction(eid=eid, uid=uid, itype="following")
-    else:
-        return jsonify(Error="Method not allowed."), 405
-
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Dismiss", methods=['POST'])
-@login_required
-def dismissEvent(eid, uid):
-    if request.method == 'POST':
-        return EventHandler().setInteraction(eid=eid, uid=uid, itype="dismissed")
-    else:
-        return jsonify(Error="Method not allowed."), 405
-
-# TODO: PASS UID BY SESSION
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/Unfollow", methods=['POST'])
-@login_required
-def unfollowEvent(eid, uid):
-    if request.method == 'POST':
-        return EventHandler().setInteraction(eid=eid, uid=uid, itype="unfollowed")
+        return EventHandler().setInteraction(eid=eid, uid=int(current_user.id), itype="following")
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: PASS UID BY SESSION
+# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Dismiss
+@app.route("/App/Events/eid=<int:eid>/Dismiss", methods=['POST'])
+@login_required
+def dismissEvent(eid):
+    if request.method == 'POST':
+        return EventHandler().setInteraction(eid=eid, uid=int(current_user.id), itype="dismissed")
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Unfollow
+@app.route("/App/Events/eid=<int:eid>/Unfollow", methods=['POST'])
+@login_required
+def unfollowEvent(eid):
+    if request.method == 'POST':
+        return EventHandler().setInteraction(eid=eid, uid=int(current_user.id), itype="unfollowed")
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
 # TODO: use UID to verify user's permission to delete an event.
-@app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>", methods=['POST'])
+# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>
+@app.route("/App/Events/eid=<int:eid>/estatus=<string:estatus>", methods=['POST'])
 @login_required
-def setEventStatus(eid, uid, estatus):
+def setEventStatus(eid, estatus):
     if request.method == 'POST':
-        return EventHandler().setEventStatus(eid=eid, uid=uid, estatus=estatus)
+        return EventHandler().setEventStatus(eid=eid, uid=int(current_user.id), estatus=estatus)
     else:
         return jsonify(Error="Method not allowed."), 405
+
 
 # TODO: PASS UID BY SESSION
 @app.route("/App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
