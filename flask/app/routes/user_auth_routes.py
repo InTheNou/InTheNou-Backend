@@ -164,8 +164,9 @@ def dashboard_login():
     except:
         session['AppLogin'] = False
         print('Session Defined as ' + str(session['AppLogin']))
-        #flash ("No user found ")
         return redirect(url_for("google.login"))
+        #flash ("No user found ")
+        
 
 
 @app.route("/Dashboard/logout")
