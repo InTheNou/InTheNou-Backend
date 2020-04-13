@@ -8,6 +8,7 @@ from app.handlers.RoomHandler import RoomHandler
 from app.handlers.BuildingHandler import BuildingHandler
 from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
+from app.handlers.UserHandler import UserHandler
 
 
 @app.errorhandler(400)
@@ -107,13 +108,22 @@ def unfollowEvent(eid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: use UID to verify user's permission to delete an event.
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>
 @app.route("/App/Events/eid=<int:eid>/estatus=<string:estatus>", methods=['POST'])
 @login_required
+@event_creator_role_required
 def setEventStatus(eid, estatus):
     if request.method == 'POST':
-        return EventHandler().setEventStatus(eid=eid, uid=int(current_user.id), estatus=estatus)
+        # Todo: verify after merging to Dev. that this does not cause errors.
+        list_of_valid_users = UserHandler().getUsersThatCanModifyEvent(eid=eid, no_json=True)
+        if not list_of_valid_users or not list_of_valid_users["Users"]:
+            return jsonify(Error="no users")
+        else:
+            for user in list_of_valid_users["Users"]:
+                if user["user_id"] == int(current_user.id):
+                    return EventHandler().setEventStatus(eid=eid, uid=int(current_user.id), estatus=estatus)
+            # TODO: MAKE TEST THAT EXPECTS A 401
+            return jsonify(Error="User is not authorized to modify this event."), 401
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -213,9 +223,9 @@ def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO NOT SURE IF THIS SHOULD VERIFY PRIVILEGES
 @app.route("/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
+@mod_role_required
 def getAllEventsSegmented(offset, limit):
     if request.method == 'GET':
         return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
@@ -223,20 +233,26 @@ def getAllEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: VERIFY IF SESSION USER IS AUTHORIZED FOR THE USER THEY ARE SEARCHING.
-# Use session to authorize, but get UID to check from json
 @app.route("/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
+@mod_role_required
 def getEventsCreatedByOtherUser(ecreator, offset, limit):
     if request.method == 'GET':
-        return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
+        # Json used because current implementation of getUserIssuers() requires it.
+        issuer_check_json = jsonify({"id": int(current_user.id), "uid": ecreator, "roleid": 1})
+        is_user_issuer = UserHandler().getUserIssuers(json=issuer_check_json, no_json=True)
+        if is_user_issuer:
+            return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
+        #  TODO: Make test that expects 401.
+        return jsonify(Error="Currently logged in user is not authorized to "
+                             "view events created by the requested user."), 401
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO NOT SURE IF THIS SHOULD VERIFY PRIVILEGES
 @app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
+@mod_role_required
 def getAllDeletedEventsSegmented(offset, limit):
     if request.method == 'GET':
         return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
@@ -244,9 +260,9 @@ def getAllDeletedEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO NOT SURE IF THIS SHOULD VERIFY PRIVILEGES
 @app.route("/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
+@mod_role_required
 def getAllPastEventsSegmented(offset, limit):
     if request.method == 'GET':
         return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
@@ -317,6 +333,7 @@ def getAllBuildingsSegmented(offset, limit):
     else:
         return jsonify(Error="Method not allowed."), 405
 
+
 # Automated test not set up
 @app.route("/App/Buildings/Search/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
@@ -337,9 +354,9 @@ def getServicesByKeywords(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: SHOULD THIS REQUIRE LOGIN?
+# This route is used before signup is called/before session is created.
+# TODO: Figure out if there is some other way to secure this route without sessions.
 @app.route("/App/Tags", methods=['GET'])
-@login_required
 def getAllTags():
     if request.method == 'GET':
         return TagHandler().getAllTags()
@@ -412,7 +429,7 @@ def createTag():
 
 @app.route("/Dashboard/Tags/tid=<int:tid>/Edit", methods=['POST'])
 @login_required
-@mod_role_required
+@admin_role_required
 def editTagName(tid):
     if request.method == 'POST':
         if not request.json:
