@@ -56,6 +56,7 @@ def getUserByEmail(email):
 
 
 @app.route("/Dashboard/Users/changeRole", methods=['POST'])
+@mod_role_required
 def changeRole():
     if request.method == 'POST':
         if UserHandler().getUserIssuers(json=request.json, no_json=True):
