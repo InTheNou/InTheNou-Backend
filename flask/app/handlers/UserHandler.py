@@ -143,7 +143,7 @@ class UserHandler:
         dao = UserDAO()
         users = dao.getUsersThatCanModifyEvent(eid=eid)
         if not users:
-            response = {'users': None}
+            response = {'Users': None}
         else:
             user_list = []
             for row in users:
@@ -151,7 +151,7 @@ class UserHandler:
             response = {"Users": user_list}
             if no_json:
                 return response
-            return jsonify(response)
+        return jsonify(response)
 
     def getUsersDelegatedByID(self,uid):
         """
@@ -266,10 +266,10 @@ class UserHandler:
 
         id = json['id']
         userID = json['uid']
-        newRole = json['roleid']
+        
         dao = UserDAO()
         users = []
-        users = dao.getUserIssuers(userID=userID, newRole=newRole)
+        users = dao.getUserIssuers(userID=userID)
         if not users:
             response = {'users': None}
         else:
