@@ -20,6 +20,6 @@ app.register_blueprint(blueprint, url_prefix="/login")
 #initialize FLASK-SQLAlchemy object and FLASK-Login object 
 db.init_app(app)
 login_manager.init_app(app)
-CORS(app,supports_credentials=True,vary_header=True,expose_headers=['credentials','Set-Cookie','Session'])
+CORS(app,supports_credentials=True,expose_headers=['credentials','Set-Cookie','Session'])
 
 from app.routes import user_info_routes,user_auth_routes,events_info_routes,services_info_routes
