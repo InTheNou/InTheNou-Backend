@@ -35,6 +35,7 @@ class UserDAO(MasterDAO):
         Returns:
             Tuple: SQL result of Query as a tuple.
         """
+        
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
                         "where {pkey}= %s;").format(
@@ -47,8 +48,9 @@ class UserDAO(MasterDAO):
             ]),
             table1=sql.Identifier('users'),
             pkey=sql.Identifier('uid'))
-        cursor.execute(query, (uid,))
+        cursor.execute(query, (int(uid),))
         result = cursor.fetchone()
+        
         return result
 
     def getUsersThatCanModifyEvent(self, eid):
@@ -224,32 +226,30 @@ class UserDAO(MasterDAO):
             result = e
         return result
 
-    def getUserIssuers(self, userID, newRole):
+    def getUserIssuers(self, userID):
         """
-        Query Database for a User's information by his/her uid.
+        Query Database for a User's information returns a list of uids that can be or are issuers of a given uid
         Parameters:
             uid: user ID
         Returns:
             Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select distinct {fields} from {table1} ").format(
-            fields=sql.SQL(',').join([
-                sql.Identifier('uid')
-
-            ]),
-            table1=sql.SQL(" users u1 "
-                           "join "
-                           "(select uid as user_id,roleissuer as iID from users where {pkey1} = %s ) as users_issuers "
-                           "on (users_issuers.iID=u1.uid or u1.roleid > 3 )and {pkey2} != %s ").format(
-                pkey1=sql.SQL('uid '),
-                pkey2=sql.SQL('u1.uid ')))
+        query = sql.SQL("select uid from users u2 "
+                            "join "
+                            "(select uid as users,iID, roleid as permisions from users u1 "
+                            "join "
+                            "(select uid as user_id,roleissuer  as iID from users "
+                            "where uid = %s ) as users_issuers "
+                            "on (users_issuers.iID=u1.uid  ))as users_issuers2 "
+                            "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) ) ")
         cursor.execute(query, (userID, userID))
         result = []
 
         for row in cursor:
             result.append(row)
-
+        
+        
         return result
 
     def getAllUsersByRoleID(self, roleid, offset, limit):

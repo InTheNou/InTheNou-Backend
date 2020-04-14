@@ -55,14 +55,12 @@ def getUserByEmail(email):
 #         else: return jsonify(Error="User cannot change  role ID"), 405
 
 
-@app.route("/Dashboard/Users/changeRole", methods=['POST'])
+@app.route("/Dashboard/Users/uid=<int:uid>/changeRole/roleid=<int:roleid>", methods=['POST'])
+@login_required
 @mod_role_required
-def changeRole():
+def changeRole(uid,roleid):
     if request.method == 'POST':
-        if UserHandler().getUserIssuers(json=request.json, no_json=True):
-            return UserHandler().changeRole(json=request.json)
-        else:
-            return jsonify(Error="User cannot change  role ID "+str(request.json)), 405
+        return UserHandler().changeRole(newRole=roleid,uid=uid,id=current_user.id)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -75,7 +73,8 @@ def getDelegatedUserByID(uid):
         if(current_user.id == uid ):
             return UserHandler().getUsersDelegatedByID(uid=int(current_user.id))
         else:
-            if int(current_user.user_role) == 4:
+            print(current_user.user_role)
+            if int(current_user.user_role) > 3:
                 return UserHandler().getUsersDelegatedByID(uid=int(uid))
             else:
                 return jsonify(Error='Method not allowed for user role'), 200
