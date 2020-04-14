@@ -36,6 +36,8 @@ mkdir /InTheNou/private/var/lib
 mkdir /InTheNou/private/var/lib/pgadmin
 chmod 777 /InTheNou/private/var/lib/pgadmin
 
+mkdir ./nginx/ssl
+
 
 # Used to generate self-signed ssh key for testing. Fill out with some info.
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./nginx/ssl/example.key -out ./nginx/ssl/example.crt
