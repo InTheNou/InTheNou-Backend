@@ -59,6 +59,11 @@ def _buildWebsiteIDResponse(website_tuple):
 
 class WebsiteHandler:
     def createWebsite(self, url):
+        """
+        Creeates a website entry and returns the wid 
+        Parameters:
+        url: The url of the website to create
+        """
         dao = WebsiteDAO()
         websiteID = dao.createWebsite(url=url)
         return _buildWebsiteIDResponse(websiteID)
@@ -130,9 +135,9 @@ class WebsiteHandler:
 
                 else:
                     website.append(
-                        {"Error": "Website URL, not valid "+str(row['url'])})
+                        {"wid": None})
 
-        return jsonify(website)
+        return jsonify({"Websites":website})
 
     def removeServiceWebsite(self, sid, json):
         """

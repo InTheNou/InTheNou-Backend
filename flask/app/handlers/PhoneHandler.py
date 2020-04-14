@@ -53,11 +53,11 @@ class PhoneHandler:
                                 (dao.addPhoneToService(cursor=None, sid=sid, pid=(dao.insertPhone
                                                                                   (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))[0]))))
                         else:
-                            phoneInfo.append(({"pid": None},{"Error in ptype": str(row['ptype'])}))
+                            phoneInfo.append(({"pid": None}))
                 except:
-                    phoneInfo.append(({"pid": None},{"Error in  pnumber": str(row['pnumber'])}))
+                    phoneInfo.append(({"pid": None}))
 
-        return jsonify(phoneInfo)
+        return jsonify({"PNumbers":(phoneInfo)})
 
     def getPhonesByServiceID(self, sid, no_json=False):
         """
