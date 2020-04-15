@@ -40,7 +40,7 @@ def signup():
         query = User.query.filter_by(provider=user_usub)
         try:
             user = query.one()
-            return jsonify(Error="User with that email exists "+str(user)),200
+            return jsonify(Error="User with that email exists "+str(user)),403
         except NoResultFound:
         # Create account for new user
             print("User being created")
@@ -65,16 +65,17 @@ def signup():
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
-            response = TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
-            response['uid']=user.id
-            return jsonify(response)
+                TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
+            
+           
+            return (UserHandler().getUserByID(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 @app.route("/App/login", methods=['POST'])
 def app_login():
     info = request.json
-    newAccount = False
+   
     user_usub = info["id"]
 
     query = User.query.filter_by(provider=user_usub)
