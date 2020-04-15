@@ -120,7 +120,7 @@ def setEventStatus(eid, estatus):
             return jsonify(Error="no users")
         else:
             for user in list_of_valid_users["Users"]:
-                if user["user_id"] == int(current_user.id):
+                if user["user_id"][0] == int(current_user.id):
                     return EventHandler().setEventStatus(eid=eid, uid=int(current_user.id), estatus=estatus)
             # TODO: MAKE TEST THAT EXPECTS A 401
             return jsonify(Error="User is not authorized to modify this event."), 401
