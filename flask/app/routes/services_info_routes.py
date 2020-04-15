@@ -58,9 +58,9 @@ def addServiceWebsite(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/phone/add", methods=['GET'])
+@app.route("/Dashboard/Services/sid=<int:sid>/phone/add", methods=['POST'])
 def addServicePhone(sid):
-    if request.method == 'GET':
+    if request.method == 'POST':
         return PhoneHandler().insertServicePhone(sid=sid, json=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
