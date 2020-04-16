@@ -239,7 +239,7 @@ class UserDAO(MasterDAO):
                             "join "
                             "(select uid as users,iID, roleid as permisions from users u1 "
                             "join "
-                            "(select uid as user_id,roleissuer  as iID from users "
+                            "(select uid as user_id,roleissuer as iID from users "
                             "where uid = %s ) as users_issuers "
                             "on (users_issuers.iID=u1.uid  ))as users_issuers2 "
                             "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) ) ")
@@ -249,7 +249,7 @@ class UserDAO(MasterDAO):
         for row in cursor:
             result.append(row)
         
-        
+        print(result)
         return result
 
     def getAllUsersByRoleID(self, roleid, offset, limit):

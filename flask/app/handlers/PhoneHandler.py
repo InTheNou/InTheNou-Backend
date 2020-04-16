@@ -28,7 +28,6 @@ class PhoneHandler:
     def insertServicePhone(self, sid, json):
         """
         """
-
         for key in SERVICEPHONEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
@@ -57,7 +56,7 @@ class PhoneHandler:
                 except:
                     phoneInfo.append(({"pid": None}))
 
-        return jsonify({"PNumbers":(phoneInfo)})
+        return jsonify({"PNumbers":(phoneInfo)}),201
 
     def getPhonesByServiceID(self, sid, no_json=False):
         """
