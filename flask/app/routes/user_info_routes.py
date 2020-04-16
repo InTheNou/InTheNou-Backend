@@ -56,7 +56,6 @@ def getUserByEmail(email):
 
 
 @app.route("/Dashboard/Users/uid=<int:uid>/changeRole/roleid=<int:roleid>", methods=['POST'])
-@login_required
 @mod_role_required
 def changeRole(uid,roleid):
     if request.method == 'POST':
@@ -66,18 +65,22 @@ def changeRole(uid,roleid):
 
 
 @app.route("/Dashboard/Users/uid=<int:uid>/Delegated", methods=['GET'])
-@login_required
+#@login_required
 def getDelegatedUserByID(uid):
     if request.method == 'GET':
+    
         
-        if(current_user.id == uid ):
-            return UserHandler().getUsersDelegatedByID(uid=int(current_user.id))
-        else:
-            print(current_user.user_role)
-            if int(current_user.user_role) > 3:
-                return UserHandler().getUsersDelegatedByID(uid=int(uid))
+        try:
+            if(current_user.id == uid ):
+                return UserHandler().getUsersDelegatedByID(uid=int(current_user.id))
             else:
-                return jsonify(Error='Method not allowed for user role'), 200
+                print(current_user.user_role)
+                if int(current_user.user_role) > 3:
+                    return UserHandler().getUsersDelegatedByID(uid=int(uid))
+                else:
+                    return jsonify(Error='Method not allowed for user role'), 401
+        except:
+            return jsonify(Error='User Must sign in'), 401
     else:
         return jsonify(Error='Method not allowed.'), 405
 
@@ -113,7 +116,7 @@ def getAllUsersByRoleID(roleid, offset, limit):
 @app.route("/Dashboard/Stats/roleid=<int:roleid>", methods=['GET'])
 # @login_required
 # @admin_role_required
-def geNumberOdUsersByRole(roleid):
+def geNumberOfUsersByRole(roleid):
     if request.method == 'GET':
         return UserHandler().getNumberOfUsersByRole(roleid=roleid)
     else:

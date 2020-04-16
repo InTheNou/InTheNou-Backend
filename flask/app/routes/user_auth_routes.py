@@ -18,19 +18,17 @@ load_dotenv()
 
 # route used to logout user, must be logged in to access
 @app.route("/App/logout")
-@login_required
 def app_logout():
-
     query = OAuth.query.filter_by(token=str(session['token']))
     try:
         oauth = query.one()
         db.session.delete(oauth)
         db.session.commit()
     except NoResultFound:
-        print("NO RESULT FOUND ")
+        return jsonify(Error="You need a session in the system, try loggin in  "),403
     logout_user()
-    flash("You have logged out")
-    return render_template("home.html")
+    
+    return jsonify(Error="You have loged out "),200
 
 @app.route("/App/signup", methods=['POST'])
 def signup():
@@ -65,10 +63,12 @@ def signup():
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
-                TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
-            
-           
-            return (UserHandler().getUserByID(current_user.id))
+                info['uid']=int(current_user.id)
+                print("Registering tags : "+str(info["tags"]))
+                
+                tags =   TagHandler().batchSetUserTags(json=info, weight=100, no_json=True)
+                tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
+            return (tags)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -86,7 +86,7 @@ def app_login():
         return jsonify(Error="User must create account for: "+str(info['email'])),200
 
     query = OAuth.query.filter_by(
-        token= info['access_token'], id=user.id, user=user)
+        token = info['access_token'], id=user.id, user=user)
     try:
         oauth = query.one()
     except NoResultFound:
