@@ -20,6 +20,9 @@ def _buildPhoneResponse(phone_tuple):
 class PhoneHandler:
 
     def unpackPhones(self, json):
+        """
+        Given a Json with phone numbers, returns a list of numbers
+        """
         numbers = []
         for num in json:
             numbers.append(num)
@@ -27,6 +30,10 @@ class PhoneHandler:
 
     def insertServicePhone(self, sid, json):
         """
+        Create a phone number and add it to a service given its ID 
+        Parameters:
+        sid: The ID of the service to add phone numbers to 
+        json: JSON containing the phone numbers to add 
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
@@ -82,6 +89,10 @@ class PhoneHandler:
 
     def removePhoneByServiceID(self, sid, json):
         """
+        Remove  a list of phones from a given service ID 
+        Paramters:
+        sid: The ID of the service to remove the Phones from 
+        json: JSON with the tag IDs to remove 
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
