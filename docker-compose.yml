@@ -54,7 +54,7 @@ services:
       - flask
       - pgadmin
     volumes:
-      - ./../dist:/usr/share/nginx/html
+      - ./../InTheNou-AdminDashboard/inthenou-dashboard/dist:/usr/share/nginx/html
     ports:
     - "80:80"
     - "443:443"
