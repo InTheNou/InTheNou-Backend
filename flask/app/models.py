@@ -10,7 +10,6 @@ db = SQLAlchemy()
 token = {}
 # User object for FLASK-SQLAlchemy and Flask-Login
 
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column("uid", db.Integer, primary_key=True)

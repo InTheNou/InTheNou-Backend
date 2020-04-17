@@ -106,7 +106,7 @@ def admin_role_required(f):
             return f(*args, **kwargs)
         else:
             flash("You need to be an admin for this action.")
-            return redirect(url_for('app_home'))
+            return jsonify(Error="Admin role required"),401
 
     return wrap
 
@@ -118,7 +118,7 @@ def mod_role_required(f):
             return f(*args, **kwargs)
         else:
             flash("You need to be a moderator for this action.")
-            return redirect(url_for('app_home'))
+            return jsonify(Error="Moderator role required"),401
 
     return wrap
 
@@ -130,7 +130,7 @@ def event_creator_role_required(f):
             return f(*args, **kwargs)
         else:
             flash("You need to be a event creator for this action.")
-            return redirect(url_for('app_home'))
+            return jsonify(Error="Event creator role required "),401
     return wrap
 
 
