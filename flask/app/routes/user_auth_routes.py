@@ -17,7 +17,7 @@ load_dotenv()
 
 
 # route used to logout user, must be logged in to access
-@app.route("/App/logout")
+@app.route("/API/App/logout")
 @login_required
 def app_logout():
 
@@ -32,7 +32,7 @@ def app_logout():
     flash("You have logged out")
     return render_template("home.html")
 
-@app.route("/App/signup", methods=['POST'])
+@app.route("/API/App/signup", methods=['POST'])
 def signup():
     if request.method == 'POST':
         info = request.json
@@ -72,7 +72,7 @@ def signup():
     else:
         return jsonify(Error="Method not allowed."), 405
 
-@app.route("/App/login", methods=['POST'])
+@app.route("/API/App/login", methods=['POST'])
 def app_login():
     info = request.json
    
@@ -122,7 +122,7 @@ def before_google_login(blueprint, url):
 
 
 # home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
-@app.route("/App/home")
+@app.route("/API/App/home")
 def app_home():
     return redirect(url_for("google.login"))
     return render_template("home.html")

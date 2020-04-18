@@ -10,6 +10,8 @@ from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
 from app.handlers.UserHandler import UserHandler
 
+route_prefix = "/API"
+
 
 @app.errorhandler(400)
 def bad_request_error(error):
@@ -27,7 +29,7 @@ def internal_server_error(error):
                          str(request.url) + " : " + str(error)), 500
 
 
-@app.route("/App/Events/eid=<int:eid>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>", methods=['GET'])
 @login_required
 def getEventByID(eid):
     if request.method == 'GET':
@@ -37,7 +39,7 @@ def getEventByID(eid):
 
 
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>
-@app.route("/App/Events/eid=<int:eid>/Interaction", methods=['GET'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>/Interaction", methods=['GET'])
 @login_required
 def getEventByIDWithInteractions(eid):
     if request.method == 'GET':
@@ -47,7 +49,7 @@ def getEventByIDWithInteractions(eid):
 
 
 # old route: /App/Events/CAT/timestamp=<string:timestamp>/uid=<int:uid>
-@app.route("/App/Events/CAT/timestamp=<string:timestamp>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/CAT/timestamp=<string:timestamp>", methods=['GET'])
 @login_required
 def getEventsCreatedAfterTimestamp(timestamp):
     if request.method == 'GET':
@@ -57,7 +59,7 @@ def getEventsCreatedAfterTimestamp(timestamp):
 
 
 # TODO: Update api that ecreator is no longer necessary.
-@app.route("/App/Events/Create", methods=['POST'])
+@app.route(route_prefix + "/App/Events/Create", methods=['POST'])
 @login_required
 @event_creator_role_required
 def createEvent():
@@ -69,7 +71,7 @@ def createEvent():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Events/Deleted/New/timestamp=<string:timestamp>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/Deleted/New/timestamp=<string:timestamp>", methods=['GET'])
 @login_required
 def getNewDeletedEvents(timestamp):
     if request.method == 'GET':
@@ -79,7 +81,7 @@ def getNewDeletedEvents(timestamp):
 
 
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Follow
-@app.route("/App/Events/eid=<int:eid>/Follow", methods=['POST'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>/Follow", methods=['POST'])
 @login_required
 def followEvent(eid):
     if request.method == 'POST':
@@ -89,7 +91,7 @@ def followEvent(eid):
 
 
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Dismiss
-@app.route("/App/Events/eid=<int:eid>/Dismiss", methods=['POST'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>/Dismiss", methods=['POST'])
 @login_required
 def dismissEvent(eid):
     if request.method == 'POST':
@@ -99,7 +101,7 @@ def dismissEvent(eid):
 
 
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Unfollow
-@app.route("/App/Events/eid=<int:eid>/Unfollow", methods=['POST'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>/Unfollow", methods=['POST'])
 @login_required
 def unfollowEvent(eid):
     if request.method == 'POST':
@@ -109,7 +111,7 @@ def unfollowEvent(eid):
 
 
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>
-@app.route("/App/Events/eid=<int:eid>/estatus=<string:estatus>", methods=['POST'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>/estatus=<string:estatus>", methods=['POST'])
 @login_required
 @event_creator_role_required
 def setEventStatus(eid, estatus):
@@ -129,7 +131,7 @@ def setEventStatus(eid, estatus):
 
 
 # old route: /App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>
-@app.route("/App/Events/eid=<int:eid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
+@app.route(route_prefix + "/App/Events/eid=<int:eid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
 @login_required
 def setRecommendation(eid, recommendstatus):
     if request.method == 'POST':
@@ -139,7 +141,7 @@ def setRecommendation(eid, recommendstatus):
 
 
 # old route: /App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
-@app.route("/App/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getEventsCreatedByUser(offset, limit):
     if request.method == 'GET':
@@ -149,7 +151,7 @@ def getEventsCreatedByUser(offset, limit):
 
 
 # old route: /App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
-@app.route("/App/Events/Dismissed/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/Dismissed/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getDismissedEvents(offset, limit):
     if request.method == 'GET':
@@ -159,7 +161,7 @@ def getDismissedEvents(offset, limit):
 
 
 # old route: /App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
-@app.route("/App/Events/Following/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/Following/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getUpcomingFollowedEventsSegmented(offset, limit):
     if request.method == 'GET':
@@ -169,7 +171,7 @@ def getUpcomingFollowedEventsSegmented(offset, limit):
 
 
 # old route: /App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
-@app.route("/App/Events/General/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/General/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getUpcomingGeneralEventsSegmented(offset, limit):
     if request.method == 'GET':
@@ -179,7 +181,7 @@ def getUpcomingGeneralEventsSegmented(offset, limit):
 
 
 # old route: /App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>
-@app.route("/App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
     if request.method == 'GET':
@@ -191,7 +193,7 @@ def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
 
 
 # old route: /App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
-@app.route("/App/Events/History/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/History/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getPastFollowedEventsSegmented(offset, limit):
     if request.method == 'GET':
@@ -201,7 +203,7 @@ def getPastFollowedEventsSegmented(offset, limit):
 
 
 # old route: /App/Events/Recommended/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
-@app.route("/App/Events/Recommended/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/Recommended/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getUpcomingRecommendedEventsSegmented(offset, limit):
     if request.method == 'GET':
@@ -212,7 +214,7 @@ def getUpcomingRecommendedEventsSegmented(offset, limit):
 
 
 # old route: /App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>
-@app.route("/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
     if request.method == 'GET':
@@ -223,7 +225,7 @@ def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 @mod_role_required
 def getAllEventsSegmented(offset, limit):
@@ -233,7 +235,7 @@ def getAllEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 @mod_role_required
 def getEventsCreatedByOtherUser(ecreator, offset, limit):
@@ -250,7 +252,7 @@ def getEventsCreatedByOtherUser(ecreator, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 @mod_role_required
 def getAllDeletedEventsSegmented(offset, limit):
@@ -260,7 +262,7 @@ def getAllDeletedEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 @mod_role_required
 def getAllPastEventsSegmented(offset, limit):
@@ -270,7 +272,7 @@ def getAllPastEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/rid=<int:rid>", methods=['GET'])
+@app.route(route_prefix + "/App/Rooms/rid=<int:rid>", methods=['GET'])
 @login_required
 def getRoomByID(rid):
     if request.method == 'GET':
@@ -279,7 +281,7 @@ def getRoomByID(rid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/babbrev=<string:babbrev>/rcode=<string:rcode>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Rooms/babbrev=<string:babbrev>/rcode=<string:rcode>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
     if request.method == 'GET':
@@ -288,7 +290,7 @@ def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Rooms/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getRoomsByKeywordSegmented(searchstring, offset, limit):
     if request.method == 'GET':
@@ -297,7 +299,7 @@ def getRoomsByKeywordSegmented(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
+@app.route(route_prefix + "/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 @login_required
 def getRoomsByBuildingAndFloor(bid, rfloor):
     if request.method == 'GET':
@@ -306,7 +308,7 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Buildings/bid=<int:bid>", methods=['GET'])
+@app.route(route_prefix + "/App/Buildings/bid=<int:bid>", methods=['GET'])
 @login_required
 def getBuildingByID(bid):
     if request.method == 'GET':
@@ -316,7 +318,7 @@ def getBuildingByID(bid):
 
 
 # Automated test not set up; may not be necessary, since only one room in system.
-@app.route("/Dev/Buildings", methods=['GET'])
+@app.route(route_prefix + "/Dev/Buildings", methods=['GET'])
 @login_required
 def getAllBuildings():
     if request.method == 'GET':
@@ -325,7 +327,7 @@ def getAllBuildings():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Buildings/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Buildings/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getAllBuildingsSegmented(offset, limit):
     if request.method == 'GET':
@@ -335,7 +337,7 @@ def getAllBuildingsSegmented(offset, limit):
 
 
 # Automated test not set up
-@app.route("/App/Buildings/Search/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Buildings/Search/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getBuildingsByKeywords(searchstring, offset, limit):
     if request.method == 'GET':
@@ -345,7 +347,7 @@ def getBuildingsByKeywords(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Services/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route(route_prefix + "/App/Services/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @login_required
 def getServicesByKeywords(searchstring, offset, limit):
     if request.method == 'GET':
@@ -356,7 +358,7 @@ def getServicesByKeywords(searchstring, offset, limit):
 
 # This route is used before signup is called/before session is created.
 # TODO: Figure out if there is some other way to secure this route without sessions.
-@app.route("/App/Tags", methods=['GET'])
+@app.route(route_prefix + "/App/Tags", methods=['GET'])
 def getAllTags():
     if request.method == 'GET':
         return TagHandler().getAllTags()
@@ -364,7 +366,7 @@ def getAllTags():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/eid=<int:eid>", methods=['GET'])
+@app.route(route_prefix + "/App/Tags/eid=<int:eid>", methods=['GET'])
 @login_required
 def getTagsByEventID(eid):
     if request.method == 'GET':
@@ -373,7 +375,7 @@ def getTagsByEventID(eid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/tid=<int:tid>", methods=['GET'])
+@app.route(route_prefix + "/App/Tags/tid=<int:tid>", methods=['GET'])
 @login_required
 def getTagByID(tid):
     if request.method == 'GET':
@@ -382,7 +384,7 @@ def getTagByID(tid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/UserTags", methods=['GET'])
+@app.route(route_prefix + "/App/Tags/UserTags", methods=['GET'])
 @login_required
 def getTagsByUserIDSession():
     if request.method == 'GET':
@@ -391,7 +393,7 @@ def getTagsByUserIDSession():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/User/Remove", methods=['POST'])
+@app.route(route_prefix + "/App/Tags/User/Remove", methods=['POST'])
 @login_required
 def setUserTagsToZero():
     if request.method == 'POST':
@@ -403,7 +405,7 @@ def setUserTagsToZero():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/App/Tags/User/Add", methods=['POST'])
+@app.route(route_prefix + "/App/Tags/User/Add", methods=['POST'])
 @login_required
 def setUserTagsToDefault():
     if request.method == 'POST':
@@ -415,7 +417,7 @@ def setUserTagsToDefault():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Tags/Create", methods=['POST'])
+@app.route(route_prefix + "/Dashboard/Tags/Create", methods=['POST'])
 @login_required
 @admin_role_required
 def createTag():
@@ -427,7 +429,7 @@ def createTag():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Tags/tid=<int:tid>/Edit", methods=['POST'])
+@app.route(route_prefix + "/Dashboard/Tags/tid=<int:tid>/Edit", methods=['POST'])
 @login_required
 @admin_role_required
 def editTagName(tid):
