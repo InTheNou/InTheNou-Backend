@@ -13,7 +13,7 @@ def not_found(Error):
 ##APP ROUTES##
 
 
-@app.route("/App/Users/uid=<int:uid>", methods=['GET'])
+@app.route("/API/App/Users/uid=<int:uid>", methods=['GET'])
 # @login_required
 # @mod_role_required
 def getUserByID(uid):
@@ -24,14 +24,14 @@ def getUserByID(uid):
         return jsonify(Error='Method not allowed.'), 405
 
 
-@app.route("/App/Users/canModify/eid=<int:eid>", methods=['GET'])
+@app.route("/API/App/Users/canModify/eid=<int:eid>", methods=['GET'])
 def getUsersThatCanModifyEvent(eid):
     if request.method == 'GET':
         return UserHandler().getUsersThatCanModifyEvent(eid=eid)
     else:
         return jsonify(Error='Method not allowed.'), 405
 
-@app.route("/App/Users/email=<string:email>", methods=['GET'])
+@app.route("/API/App/Users/email=<string:email>", methods=['GET'])
 # @login_required
 # @mod_role_required
 def getUserByEmail(email):
@@ -55,7 +55,7 @@ def getUserByEmail(email):
 #         else: return jsonify(Error="User cannot change  role ID"), 405
 
 
-@app.route("/Dashboard/Users/uid=<int:uid>/changeRole/roleid=<int:roleid>", methods=['POST'])
+@app.route("/API/Dashboard/Users/uid=<int:uid>/changeRole/roleid=<int:roleid>", methods=['POST'])
 @login_required
 @mod_role_required
 def changeRole(uid,roleid):
@@ -65,7 +65,7 @@ def changeRole(uid,roleid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Users/uid=<int:uid>/Delegated", methods=['GET'])
+@app.route("/API/Dashboard/Users/uid=<int:uid>/Delegated", methods=['GET'])
 @login_required
 def getDelegatedUserByID(uid):
     if request.method == 'GET':
@@ -82,7 +82,7 @@ def getDelegatedUserByID(uid):
         return jsonify(Error='Method not allowed.'), 405
 
 
-@app.route("/Dashboard/Users/Permissions/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/API/Dashboard/Users/Permissions/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 # @login_required
 # @mod_role_required
 def geUsersAndIssuersSegmented(offset, limit):
@@ -92,7 +92,7 @@ def geUsersAndIssuersSegmented(offset, limit):
         return jsonify(Error='Method not allowed.'), 405
 
 
-@app.route("/Dashboard/Users/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/API/Dashboard/Users/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 # @login_required
 # @admin_role_required
 def geUsersSegmented(offset, limit):
@@ -102,7 +102,7 @@ def geUsersSegmented(offset, limit):
         return jsonify(Error='Method not allowed.'), 405
 
 
-@app.route("/Dashboard/Users/roleid=<int:roleid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/API/Dashboard/Users/roleid=<int:roleid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getAllUsersByRoleID(roleid, offset, limit):
     if request.method == 'GET':
         return UserHandler().getAllUsersByRoleIDSegmented(roleid=roleid, offset=offset, limit=limit)
@@ -110,7 +110,7 @@ def getAllUsersByRoleID(roleid, offset, limit):
         return jsonify(Error='Method not allowed.'), 405
 
 
-@app.route("/Dashboard/Stats/roleid=<int:roleid>", methods=['GET'])
+@app.route("/API/Dashboard/Stats/roleid=<int:roleid>", methods=['GET'])
 # @login_required
 # @admin_role_required
 def geNumberOdUsersByRole(roleid):
