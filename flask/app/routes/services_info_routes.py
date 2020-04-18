@@ -9,7 +9,7 @@ from app.handlers.TagHandler import TagHandler
 from app.handlers.PhoneHandler import PhoneHandler
 from app.handlers.WebsiteHandler import WebsiteHandler
 # Automated test not set up
-@app.route("/App/Services/sid=<int:sid>", methods=['GET'])
+@app.route("/API/App/Services/sid=<int:sid>", methods=['GET'])
 def getServiceByID(sid):
     if request.method == 'GET':
         return ServiceHandler().getServiceByID(sid=sid)
@@ -18,7 +18,7 @@ def getServiceByID(sid):
 
 
 ###DASHBOARD ROUTES####
-@app.route("/Dashboard/Services/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+@app.route("/API/Dashboard/Services/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 def getServicesSegmented(limit, offset):
     if request.method == 'GET':
         return ServiceHandler().getServicesSegmented(limit=limit, offset=offset)
@@ -26,7 +26,7 @@ def getServicesSegmented(limit, offset):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Rooms/rid=<int:rid>/Services", methods=['GET'])
+@app.route("/API/Dashboard/Rooms/rid=<int:rid>/Services", methods=['GET'])
 def getServicesByRoomID(rid):
     if request.method == 'GET':
         return ServiceHandler().getServicesByRoomID(rid)
@@ -34,7 +34,7 @@ def getServicesByRoomID(rid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/create", methods=['POST'])
+@app.route("/API/Dashboard/Services/create", methods=['POST'])
 def createService():
     if request.method == 'POST':
         return ServiceHandler().createService(json=request.json)
@@ -42,7 +42,7 @@ def createService():
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/website/remove", methods=['POST'])
+@app.route("/API/Dashboard/Services/sid=<int:sid>/website/remove", methods=['POST'])
 def removeServiceWebsite(sid):
     if request.method == 'POST':
         return WebsiteHandler().removeServiceWebsite(sid=sid, json=request.json)
@@ -50,7 +50,7 @@ def removeServiceWebsite(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/website/add", methods=['POST'])
+@app.route("/API/Dashboard/Services/sid=<int:sid>/website/add", methods=['POST'])
 def addServiceWebsite(sid):
     if request.method == 'POST':
         return WebsiteHandler().insertServiceWebsite(sid=sid, json=request.json)
@@ -58,7 +58,7 @@ def addServiceWebsite(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/phone/add", methods=['POST'])
+@app.route("/API/Dashboard/Services/sid=<int:sid>/phone/add", methods=['POST'])
 def addServicePhone(sid):
     if request.method == 'POST':
         return PhoneHandler().insertServicePhone(sid=sid, json=request.json)
@@ -66,7 +66,7 @@ def addServicePhone(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
+@app.route("/API/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
 def removeServicePhone(sid):
     if request.method == 'POST':
         return PhoneHandler().removePhoneByServiceID(sid=sid, json=request.json)
@@ -74,7 +74,7 @@ def removeServicePhone(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/update", methods=['POST'])
+@app.route("/API/Dashboard/Services/sid=<int:sid>/update", methods=['POST'])
 def updateService(sid):
     if request.method == 'POST':
         return ServiceHandler().updateServiceInformation(sid=sid, json=request.json)
@@ -82,7 +82,7 @@ def updateService(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Services/sid=<int:sid>/delete", methods=['POST'])
+@app.route("/API/Dashboard/Services/sid=<int:sid>/delete", methods=['POST'])
 def deleteService(sid):
     if request.method == 'POST':
         return ServiceHandler().deleteService(sid=sid)
@@ -90,7 +90,7 @@ def deleteService(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-@app.route("/Dashboard/Rooms/rid=<int:rid>/changeCoordinates", methods=['POST'])
+@app.route("/API/Dashboard/Rooms/rid=<int:rid>/changeCoordinates", methods=['POST'])
 def changeRoomCoordinates(rid):
     if request.method == 'POST':
         return RoomHandler().changeRoomCoordinates(rid=rid, json=request.json)
