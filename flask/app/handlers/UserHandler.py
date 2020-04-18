@@ -1,7 +1,7 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.UserDAO import UserDAO
-
+from flask_login import  current_user
 
 CHECKUSERISSUERSKEY = ['id', 'uid']
 CHANGEUSERROLEKEY = ['id', 'uid', 'roleid']
@@ -32,6 +32,7 @@ def _buildCoreUserResponse(user_tuple):
         Dict: User information 
             uid,email,display name,roleid,the id for role issuer
     """
+  
     response = {}
     response['uid'] = user_tuple[0]
     response['email'] = user_tuple[1]
@@ -95,18 +96,21 @@ def _buildUserIDList(user_tuple):
     """
     response = {}
 
-    response['user_id'] = user_tuple[0]
+    response['user_id'] = user_tuple
     return response
 
 
 def _checkUser(id, user_tuple):
     """
     Checks if a given id is in a list of user iDs
+    returns bool
+    Parameters:
     id- User ID to check
+    user_tuple List of user IDs
     """
+    
     for row in user_tuple:
-        print(row)
-        if (int(id) == int((row['user_id']))):
+        if (int(id) == int(row)):
             return True
     return False
 
@@ -117,7 +121,7 @@ class UserHandler:
         """Return the user entry belonging to the specified uid.
         uid -- user ID.
         """
-        print(uid)
+        
         dao = UserDAO()
         if(isinstance(uid, int) and uid > 0):
             user = dao.getUserByID(uid)
@@ -143,7 +147,7 @@ class UserHandler:
         dao = UserDAO()
         users = dao.getUsersThatCanModifyEvent(eid=eid)
         if not users:
-            response = {'users': None}
+            response = {'Users': None}
         else:
             user_list = []
             for row in users:
@@ -151,7 +155,7 @@ class UserHandler:
             response = {"Users": user_list}
             if no_json:
                 return response
-            return jsonify(response)
+        return jsonify(response)
 
     def getUsersDelegatedByID(self,uid):
         """
@@ -225,7 +229,7 @@ class UserHandler:
             response = {"Users": user_list}
             return jsonify(response)
 
-    def changeRole(self, json):
+    def changeRole(self,uid,id,newRole):
         """
         Update user role id after checking if caller has permissions 
         Parameters : 
@@ -234,17 +238,32 @@ class UserHandler:
         id:uid of caller also called Issuer
 
         Returns: User entry with new values
-        """
-        for key in CHANGEUSERROLEKEY:
-            if key not in json:
-                return jsonify(Error='Missing credentials from submission: ' + key), 400
-
-        id = json['id']
-        userID = json['uid']
-        newRole = json['roleid']
-
+        """    
+        
+        
+        
+        userID = uid
+        newRole = newRole
+        issuer_role = current_user.user_role
         dao = UserDAO()
-        user = dao.changeRole(id=id, uid=userID, roleid=newRole)
+        userBeingIssued  = self.getUserByID(uid=uid,no_json=True)
+        
+        oldRole = userBeingIssued['roleid']
+        
+        print("old role is "+str(oldRole))
+        
+        
+        
+        if int(oldRole) == 1:    
+            if((newRole <= issuer_role and issuer_role < 4 ) or issuer_role > 3):
+                user = dao.changeRole(id=id, uid=userID, roleid=newRole)
+            else:
+                return jsonify(Error="User with uid: "+str(id)+" and roleid "+str(current_user.user_role)+" cannot change  role ID "+str(newRole)), 405
+        else:
+            if self.getUserIssuers(id=id, no_json=True,uid=uid):
+               user = dao.changeRole(id=id, uid=userID, roleid=newRole)
+            else:
+                return jsonify(Error="User with uid: "+str(id)+" and roleid "+str(current_user.user_role)+" cannot change  role ID "+str(newRole)), 405
         if not user:
             return jsonify(Error='Users with roles id does not exist: roleid=' + str(newRole)), 404
         else:
@@ -252,7 +271,7 @@ class UserHandler:
             return jsonify(response)
 
     # TODO:MAKE THIS ROUTE SEGMENTED?
-    def getUserIssuers(self, json, no_json=False):
+    def getUserIssuers(self, uid, id, no_json=False):
         """
         Returns a list of users that can be issuers for a given user ID
         Parameters :
@@ -260,26 +279,27 @@ class UserHandler:
         id: ID of caller
         roleid: new role to assign
         """
-        for key in CHECKUSERISSUERSKEY:
-            if key not in json:
-                return jsonify(Error='Missing credentials from submission: ' + key), 400
+        # for key in CHECKUSERISSUERSKEY:
+        #     if key not in json:
+        #         return jsonify(Error='Missing credentials from submission: ' + key), 400
 
-        id = json['id']
-        userID = json['uid']
-        newRole = json['roleid']
+        id = id
+        userID = uid
+        
         dao = UserDAO()
         users = []
-        users = dao.getUserIssuers(userID=userID, newRole=newRole)
+        users = dao.getUserIssuers(userID=userID)
         if not users:
-            response = {'users': None}
+            response = {'Users': None}
+        
+        if no_json:
+            return _checkUser(id=id, user_tuple=users[0])
         else:
             user_list = []
             for row in users:
-                user_list.append(_buildUserIDList(user_tuple=row))
+                 user_list.append(_buildUserIDList(user_tuple=row))
             response = user_list
-        if no_json:
-            return _checkUser(id=id, user_tuple=response)
-        else:
+            
             return jsonify(user_list)
 
         return jsonify(Error="Error finding user information"), 400

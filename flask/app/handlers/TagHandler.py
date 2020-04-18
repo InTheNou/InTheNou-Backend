@@ -204,16 +204,14 @@ class TagHandler:
         user_tag_dict = _buildWeightedTagResponse(tag_tuple=user_tag)
         return user_tag_dict
 
-    def batchSetUserTags(self,  json, weight, uid=None, no_json=False):
+    def batchSetUserTags(self,  json, weight, uid, no_json=False):
         """
         Set the weight for the given tags in a JSON to a specified value
         """
         try:
             # Temporary until Merge with Diego's Code
             if uid is None:
-                if 'uid' not in json:
-                    raise KeyError("Key not found in JSON: uid.")
-                uid = json['uid']
+                raise KeyError("UID not provided.")
             if not isinstance(uid, int) or uid <= 0:
                 raise ValueError("Invalid uid: " + str(uid))
 

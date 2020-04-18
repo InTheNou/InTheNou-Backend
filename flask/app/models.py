@@ -10,14 +10,12 @@ db = SQLAlchemy()
 token = {}
 # User object for FLASK-SQLAlchemy and Flask-Login
 
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column("uid", db.Integer, primary_key=True)
     email = db.Column(db.String(256), unique=True)
     provider = db.Column("usub", db.String(256), unique=True, nullable=False)
     display_name = db.Column("display_name", db.String(256), unique=False)
-    
     user_type = db.Column("type", db.String(256), unique=False)
     user_role = db.Column("roleid", db.Integer, unique=False)
     role_issuer = db.Column("roleissuer", db.Integer, unique=False)
