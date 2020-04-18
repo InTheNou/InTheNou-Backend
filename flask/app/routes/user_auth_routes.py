@@ -1,6 +1,6 @@
 from app import app
 from flask import Flask, g, flash, redirect, url_for, render_template, session, request, jsonify
-
+from flask_cors import CORS
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.consumer.requests import OAuth1Session
 from flask_dance.consumer import oauth_before_login
@@ -17,7 +17,7 @@ load_dotenv()
 
 
 # route used to logout user, must be logged in to access
-@app.route("/App/logout")
+@app.route("/API/App/logout")
 @login_required
 def app_logout():
 
@@ -32,7 +32,7 @@ def app_logout():
     flash("You have logged out")
     return render_template("home.html")
 
-@app.route("/App/signup", methods=['POST'])
+@app.route("/API/App/signup", methods=['POST'])
 def signup():
     if request.method == 'POST':
         info = request.json
@@ -40,7 +40,7 @@ def signup():
         query = User.query.filter_by(provider=user_usub)
         try:
             user = query.one()
-            return jsonify(Error="User with that email exists "+str(user)),200
+            return jsonify(Error="User with that email exists "+str(user)),403
         except NoResultFound:
         # Create account for new user
             print("User being created")
@@ -65,18 +65,17 @@ def signup():
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
-            response = TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
-            response['uid']=user.id
-            return jsonify(response)
+                TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
+            
+           
+            return (UserHandler().getUserByID(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
-@app.route("/App/login", methods=['POST'])
+@app.route("/API/App/login", methods=['POST'])
 def app_login():
-
     info = request.json
    
-    newAccount = False
     user_usub = info["id"]
 
     query = User.query.filter_by(provider=user_usub)
@@ -98,7 +97,6 @@ def app_login():
     session['token']=info['access_token']
     flash("Successfully signed in.")
     # sessionDict = str(session)[20:-1]
-
     # # print(sessionDict)
     # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
     # cookie = encodeFlaskCookie(secret_key=os.getenv(
@@ -107,9 +105,11 @@ def app_login():
     # session['cookys'] = cookie
     # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
 
-    response = {"uid": str(user.id)}
+    response = make_response({"uid": str(user.id)})
+    
+    response.headers['Session']=str(session)
 
-    return jsonify(response)
+    return (response)
 
 
 @oauth_before_login.connect
@@ -122,7 +122,7 @@ def before_google_login(blueprint, url):
 
 
 # home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
-@app.route("/App/home")
+@app.route("/API/App/home")
 def app_home():
     return redirect(url_for("google.login"))
     return render_template("home.html")
@@ -153,19 +153,21 @@ def app_home():
 ################## DASHBOARD ROUTES ######################
 
 
-@app.route("/Dashboard/login")
+@app.route("/Dashboard/login", methods=['GET'])
 # @login_required
 def dashboard_login():
-
-    try:
-        (current_user.id)
-        return UserHandler().getUserByID(int(current_user.id))
-
-    except:
+    # try:
+    #     (current_user.id)
+    #     return UserHandler().getUserByID(int(current_user.id))
+    # except:
         session['AppLogin'] = False
+        query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
+        user = query.one()
         print('Session Defined as ' + str(session['AppLogin']))
-        return redirect(url_for("google.login"))
+        login_user(user)
         #flash ("No user found ")
+        
+        return redirect("https://localhost:8080/#/login/succeed?uid=3") 
         
 
 

@@ -45,25 +45,19 @@ class PhoneHandler:
             for row in phones:
 
                 try:
-                    number = phonenumbers.parse(row['pnumber'], 'US')
+                    number = phonenumbers.parse(row['pnumber'],"US")
                     if((phonenumbers.is_possible_number(number))):
 
                         if ((row['ptype']).upper()) in PHONETYPEKEYS:
                             phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(
                                 (dao.addPhoneToService(cursor=None, sid=sid, pid=(dao.insertPhone
-                                                                                  (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))))))
+                                                                                  (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))[0]))))
                         else:
-                            phoneInfo.append(
-                                {"Error": "PhoneType not accepted, ptype:  " + str(row['ptype'])})
-
-                    else:
-                        phoneInfo.append({"Error":
-                                          str(row['pnumber'])+" is not a valid phone number 1 "})
+                            phoneInfo.append(({"pid": None}))
                 except:
-                    phoneInfo.append({"Error":
-                                      str(row['pnumber'])+" is not a valid phone number"})
+                    phoneInfo.append(({"pid": None}))
 
-        return jsonify(phoneInfo)
+        return jsonify({"PNumbers":(phoneInfo)})
 
     def getPhonesByServiceID(self, sid, no_json=False):
         """
