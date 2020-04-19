@@ -90,10 +90,10 @@ def deleteService(sid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Rooms/rid=<int:rid>/changeCoordinates", methods=['POST'])
 def changeRoomCoordinates(rid):
     if request.method == 'POST':
-        return RoomHandler().changeRoomCoordinates(rid=rid, json=request.json)
+        return RoomHandler().changeRoomCoordinates(rid=rid, json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
