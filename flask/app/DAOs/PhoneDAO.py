@@ -62,7 +62,7 @@ class PhoneDAO(MasterDAO):
             result = cursor.fetchone()
 
             newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
         else:
@@ -164,7 +164,7 @@ class PhoneDAO(MasterDAO):
             result = cursor.fetchone()
 
             newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
         else:

@@ -881,7 +881,7 @@ class EventDAO(MasterDAO):
         cursor = self.conn.cursor()
 
         # Insert photo into table if it does not exist, then get the photoid.
-        photoid = PhotoDAO().insertPhoto(photourl=photourl, cursor=cursor)[0]
+        photoid = PhotoDAO().insertPhoto(photourl=photourl, uid=ecreator, cursor=cursor)[0]
 
         # Build the query to create an event entry.
         query = sql.SQL("insert into {table1} ({insert_fields})"

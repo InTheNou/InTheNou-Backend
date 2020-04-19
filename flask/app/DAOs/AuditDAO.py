@@ -14,7 +14,7 @@ class AuditDAO(MasterDAO):
         Parameters:
             table: string representing the table name.
             pkeyname: string identifying the primary key's column name.
-            pkeyval: integer representing the primary key's value.
+            pkeyval:  representing the primary key's value.
             cursor: psycopg2 connection cursor.
         """
         # If the table is Users, return all but the usub.
@@ -37,7 +37,7 @@ class AuditDAO(MasterDAO):
                             "where {pkey} = %s;").format(
                 table=sql.Identifier(str(table)),
                 pkey=sql.Identifier(str(pkeyname)))
-        cursor.execute(query, (int(pkeyval),))
+        cursor.execute(query, (pkeyval,))
         result = cursor.fetchone()
         return result
 
