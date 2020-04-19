@@ -58,18 +58,19 @@ def addServiceWebsite(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/phone/add", methods=['POST'])
 def addServicePhone(sid):
     if request.method == 'POST':
-        return PhoneHandler().insertServicePhone(sid=sid, json=request.json)
+        return PhoneHandler().insertServicePhone(sid=sid, uid=int(current_user.id), json=request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
 def removeServicePhone(sid):
     if request.method == 'POST':
-        return PhoneHandler().removePhoneByServiceID(sid=sid, json=request.json)
+        return PhoneHandler().removePhoneByServiceID(sid=sid, json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 

@@ -25,7 +25,7 @@ class PhoneHandler:
             numbers.append(num)
         return numbers
 
-    def insertServicePhone(self, sid, json):
+    def insertServicePhone(self, sid, uid, json):
         """
         """
 
@@ -50,8 +50,8 @@ class PhoneHandler:
 
                         if ((row['ptype']).upper()) in PHONETYPEKEYS:
                             phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(
-                                (dao.addPhoneToService(cursor=None, sid=sid, pid=(dao.insertPhone
-                                                                                  (cursor=None, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))[0]))))
+                                (dao.addPhoneToService(cursor=None, sid=sid, uid=uid, pid=(dao.insertPhone
+                                                                                  (cursor=None, uid=uid, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))[0]))))
                         else:
                             phoneInfo.append(({"pid": None}))
                 except:
@@ -81,7 +81,7 @@ class PhoneHandler:
             return response
         return jsonify(response)
 
-    def removePhoneByServiceID(self, sid, json):
+    def removePhoneByServiceID(self, sid, json, uid):
         """
         """
         for key in SERVICEPHONEKEYS:
@@ -100,7 +100,7 @@ class PhoneHandler:
             for x in phones:
 
                 ID = (dao.removePhonesByServiceID(
-                    sid=sid, phoneid=x['phoneid']))
+                    sid=sid, phoneid=x['phoneid'], uid=uid))
                 # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
                     phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))

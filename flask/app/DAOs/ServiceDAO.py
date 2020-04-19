@@ -69,7 +69,7 @@ class ServiceDAO(MasterDAO):
 
             for num in numbers:
                 PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
-                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor), cursor=cursor)
+                    self, pnumber=num['pnumber'], ptype=num['ptype'], uid=uid, cursor=cursor, uid=uid), cursor=cursor)
 
         # Commit changes if no errors occur.
             self.conn.commit()
