@@ -181,6 +181,7 @@ class WebsiteHandler:
             KeyError
         """
         if list_of_websites:
+            checked_urls=[]
             for site in list_of_websites:
                 if not isinstance(site['url'], str) or site['url'].isspace() or site['url'] == "":
                     raise ValueError("Invalid url value: " + str(site['url']))
@@ -188,3 +189,8 @@ class WebsiteHandler:
                     if not isinstance(site['wdescription'], str) or site['wdescription'].isspace() or site['wdescription'] == "":
                         raise ValueError(
                             "Invalid wdescription value: " + str(site['wdescription']))
+
+                if site['url'] not in checked_urls:
+                    checked_urls.append(site['url'])
+                else:
+                    raise ValueError("Duplicate url's provided: " + str(site["url"]))
