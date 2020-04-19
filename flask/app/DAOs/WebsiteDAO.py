@@ -1,4 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql, errors
 
 
@@ -64,11 +65,17 @@ class WebsiteDAO(MasterDAO):
             result.append(row)
         return result
 
-    def createWebsite(self, url):
+    def createWebsite(self, url, uid):
         """
         """
         if url is not None and url != "":
             cursor = self.conn.cursor()
+
+            audit = AuditDAO()
+            tablename = "websites"
+            pkey = "url"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s) "
@@ -81,6 +88,9 @@ class WebsiteDAO(MasterDAO):
 
                 ]))
             cursor.execute(query, (str(url), str(url)))
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
             result = cursor.fetchone()
         else:
@@ -88,7 +98,7 @@ class WebsiteDAO(MasterDAO):
             result = [None, None]
         return result[0]
 
-    def addWebsite(self, url, cursor):
+    def addWebsite(self, url, cursor, uid):
         """Inserts a website into the website table DOES NOT COMMIT CHANGES TO DB.
         Parameters:
             url: the url for the website
@@ -98,6 +108,11 @@ class WebsiteDAO(MasterDAO):
             """
         if url is not None and url != "" and not url.isspace():
             cursor = cursor
+            audit = AuditDAO()
+            tablename = "websites"
+            pkey = "url"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s) "
@@ -111,11 +126,15 @@ class WebsiteDAO(MasterDAO):
             cursor.execute(query, (str(url), str(url)))
 
             result = cursor.fetchone()
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+
         else:
             result = [None, None]
         return result
 
-    def addWebsitesToService(self, sid, wid, wdescription, cursor):
+    def addWebsitesToService(self, sid, wid, wdescription, cursor, uid):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
         DB.
@@ -126,6 +145,12 @@ class WebsiteDAO(MasterDAO):
         """
 
         cursor = cursor
+        audit = AuditDAO()
+        tablename = 'servicewebsites'
+        pkeys = ["sid", "wid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=sid, pkeyval2=wid, cursor=cursor)
+
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s, %s, %s );").format(
@@ -137,9 +162,13 @@ class WebsiteDAO(MasterDAO):
                 sql.Identifier('isdeleted')
             ]))
         cursor.execute(query, (sid, wid, wdescription, False))
+        newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=sid, pkeyval2=wid, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         return
 
-    def addWebsitesToEvent(self, eid, wid, wdescription, cursor):
+    def addWebsitesToEvent(self, eid, wid, wdescription, cursor, uid):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
         DB.
@@ -150,6 +179,11 @@ class WebsiteDAO(MasterDAO):
             cursor: createEvent method call connection cursor to database.
         """
         cursor = cursor
+        audit = AuditDAO()
+        tablename = 'eventwebsites'
+        pkeys = ["eid", "wid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=eid, pkeyval2=wid, cursor=cursor)
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s, %s);").format(
@@ -160,9 +194,13 @@ class WebsiteDAO(MasterDAO):
                 sql.Identifier('wdescription')
             ]))
         cursor.execute(query, (int(eid), int(wid), wdescription))
+        newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=eid, pkeyval2=wid, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         return
 
-    def insertWebsiteToService(self, sid, wid, wdescription):
+    def insertWebsiteToService(self, sid, wid, wdescription, uid):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
         DB.
@@ -173,6 +211,12 @@ class WebsiteDAO(MasterDAO):
         """
 
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        tablename = 'servicewebsites'
+        pkeys = ["sid", "wid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=sid, pkeyval2=wid, cursor=cursor)
+
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s,%s,%s) "
@@ -189,14 +233,23 @@ class WebsiteDAO(MasterDAO):
             wid), str(wdescription), False, False))
 
         result = cursor.fetchone()
+        newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=sid, pkeyval2=wid, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
 
         return result
 
-    def removeWebsitesGivenServiceID(self, wid, sid):
+    def removeWebsitesGivenServiceID(self, wid, sid, uid):
         """
         """
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        tablename = 'servicewebsites'
+        pkeys = ["sid", "wid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=sid, pkeyval2=wid, cursor=cursor)
         query = sql.SQL("update {table1} set isdeleted = True  "
                         "where ( {pkey1} = %s AND {pkey2} = %s ) "
                         "returning {pkey1} ,sid,isdeleted,wdescription ").format(
@@ -206,6 +259,10 @@ class WebsiteDAO(MasterDAO):
         try:
             cursor.execute(query, (int(wid), int(sid)))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=sid, pkeyval2=wid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e

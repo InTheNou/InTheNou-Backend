@@ -83,8 +83,8 @@ class ServiceDAO(MasterDAO):
                                    newValue=newValue, uid=uid, cursor=cursor)
 
             for site in websites:
-                WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,
-                                                                                      url=site['url'], cursor=cursor)), wdescription=site['wdescription'], cursor=cursor)
+                WebsiteDAO().addWebsitesToService(sid=sid,uid=uid, wid=(WebsiteDAO.addWebsite(self,
+                                                                                      url=site['url'], cursor=cursor, uid=uid)), wdescription=site['wdescription'], cursor=cursor)
 
             for num in numbers:
                 PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(

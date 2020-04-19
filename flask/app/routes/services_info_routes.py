@@ -42,18 +42,19 @@ def createService():
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/website/remove", methods=['POST'])
 def removeServiceWebsite(sid):
     if request.method == 'POST':
-        return WebsiteHandler().removeServiceWebsite(sid=sid, json=request.json)
+        return WebsiteHandler().removeServiceWebsite(sid=sid, json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/website/add", methods=['POST'])
 def addServiceWebsite(sid):
     if request.method == 'POST':
-        return WebsiteHandler().insertServiceWebsite(sid=sid, json=request.json)
+        return WebsiteHandler().insertServiceWebsite(sid=sid, json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
