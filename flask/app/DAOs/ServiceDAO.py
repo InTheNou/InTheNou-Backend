@@ -1,5 +1,6 @@
 from app.DAOs.MasterDAO import MasterDAO
 from psycopg2 import sql, errors
+from app.DAOs.AuditDAO import AuditDAO
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.DAOs.WebsiteDAO import WebsiteDAO
 from app.DAOs.PhoneDAO import PhoneDAO
@@ -23,8 +24,13 @@ class ServiceDAO(MasterDAO):
                 fields.append(key + " = " + "'"+str(service[key])+"'")
         return fields
 
-    def deleteService(self, sid):
+    def deleteService(self, sid, uid):
         cursor = self.conn.cursor()
+
+        audit = AuditDAO()
+        tablename = "services"
+        pkey = "sid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
 
         query = sql.SQL("update {table1} set isdeleted = true  "
                         "where  {pkey1} = %s "
@@ -33,6 +39,10 @@ class ServiceDAO(MasterDAO):
             pkey1=sql.Identifier('sid'))
         cursor.execute(query, (int(sid), ))
         result = cursor.fetchone()
+
+        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=photourl, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
         if result is None:
             return None
@@ -45,6 +55,12 @@ class ServiceDAO(MasterDAO):
 
         # Build the query to create an event entry.
         try:
+            audit = AuditDAO()
+            tablename = "services"
+            pkey = "sid"
+            # TODO: UPDATE WITH APPROPRIATE CALL TO ACTUAL VALUE ON TABLE IF NEEDED.
+            oldValue = None
+
             query = sql.SQL("insert into {table1} ({insert_fields})"
                             "values (%s, %s, %s, %s, %s) "
                             "returning {pkey1}").format(
@@ -62,6 +78,9 @@ class ServiceDAO(MasterDAO):
                 sdescription), str(sschedule), False))
             result = cursor.fetchone()
             sid = result[0]
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
 
             for site in websites:
                 WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,
@@ -176,10 +195,15 @@ class ServiceDAO(MasterDAO):
             result.append(row)
         return result
 
-    def updateServiceInformation(self, sid, service):
+    def updateServiceInformation(self, sid, service, uid):
         cursor = self.conn.cursor()
         try:
             fields_list = self.serviceInfoArgs(service)
+            audit = AuditDAO()
+            tablename = "services"
+            pkey = "sid"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+
             query = sql.SQL("update {table1} set {fields}  "
                             "where  {pkey1} = %s AND isdeleted=false  "
                             "returning {pkey1}  ").format(
@@ -188,6 +212,9 @@ class ServiceDAO(MasterDAO):
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(sid), ))
 
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
             result = cursor.fetchone()
             return result

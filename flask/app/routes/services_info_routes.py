@@ -33,11 +33,11 @@ def getServicesByRoomID(rid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: verify this is working with audit
 @app.route("/API/Dashboard/Services/create", methods=['POST'])
 def createService():
     if request.method == 'POST':
-        return ServiceHandler().createService(json=request.json)
+        return ServiceHandler().createService(json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -75,20 +75,23 @@ def removeServicePhone(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Services/sid=<int:sid>/update", methods=['POST'])
 def updateService(sid):
     if request.method == 'POST':
-        return ServiceHandler().updateServiceInformation(sid=sid, json=request.json)
+        return ServiceHandler().updateServiceInformation(sid=sid, json=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
+# TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Services/sid=<int:sid>/delete", methods=['POST'])
 def deleteService(sid):
     if request.method == 'POST':
-        return ServiceHandler().deleteService(sid=sid)
+        return ServiceHandler().deleteService(sid=sid, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
+
 
 # TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Rooms/rid=<int:rid>/changeCoordinates", methods=['POST'])
