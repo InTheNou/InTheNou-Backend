@@ -21,7 +21,7 @@ class TagDAO(MasterDAO):
         cursor.execute(query, (str(tname), str(tname)))
         result = cursor.fetchone()
         newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tname, cursor=cursor)
-        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
         return result
