@@ -416,7 +416,7 @@ def setUserTagsToDefault():
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: verify audit function is working
 @app.route(route_prefix + "/Dashboard/Tags/Create", methods=['POST'])
 @login_required
 @admin_role_required
@@ -424,7 +424,7 @@ def createTag():
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().createTags(jsonTags=request.json)
+        return TagHandler().createTags(jsonTags=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -436,7 +436,7 @@ def editTagName(tid):
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().editTagName(tid=tid, json=request.json)
+        return TagHandler().editTagName(tid=tid, json=request.json, uid=int(current_user.id))
 
     else:
         return jsonify(Error="Method not allowed."), 405

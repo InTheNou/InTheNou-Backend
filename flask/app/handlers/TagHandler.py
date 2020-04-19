@@ -27,7 +27,7 @@ def _buildCoreWeightedTagResponse(tag_tuple):
 
 class TagHandler:
 
-    def createTags(self, jsonTags):
+    def createTags(self, jsonTags, uid):
         tags = []
         if "Tags" in jsonTags:
             json = jsonTags['Tags']
@@ -41,17 +41,17 @@ class TagHandler:
         response = []
         for tname in tags:
             response.append(_buildTagResponse(
-                dao.createTag(tname=tname)))
+                dao.createTag(tname=tname, uid=uid)))
         return jsonify(response)
 
-    def editTagName(self, tid, json):
+    def editTagName(self, tid, json, uid):
         dao = TagDAO()
         response = []
         tagname = ""
         tagname = str(json['tname'])
         if tagname is not None:
             try:
-                tag = dao.editTagName(tid=tid, tname=tagname)
+                tag = dao.editTagName(tid=tid, tname=tagname, uid=uid)
                 if tag is not None:
                     response.append(_buildTagResponse(tag))
                     return jsonify(response)
@@ -185,6 +185,7 @@ class TagHandler:
                 return response
             return jsonify(response)
 
+    # TODO: THIS METHOD IS NOT CURRENTLY USED.
     def setUserTag(self, uid, tid, weight):
         """
         Set/create the weight of the user's tag to the specified value.
@@ -200,6 +201,7 @@ class TagHandler:
         if not isinstance(tid, int) or not tid > 0:
             return jsonify(Error="Invalid tid: " + str(tid)), 400
         dao = TagDAO()
+        # todo: this method call requires a cursor.
         user_tag = dao.setUserTag(uid=uid, tid=tid, weight=weight)
         user_tag_dict = _buildWeightedTagResponse(tag_tuple=user_tag)
         return user_tag_dict
