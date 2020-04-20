@@ -52,6 +52,10 @@ def _buildServiceByRoomResponse(service_tuple):
     response['sname'] = service_tuple[1]
     response['sdescription'] = service_tuple[2]
     response['sschedule'] = service_tuple[3]
+    response['PNumbers'] = PhoneHandler().getPhonesByServiceID(
+                sid=service_tuple[0], no_json=True)
+    response['Websites'] = WebsiteHandler().getWebistesByServiceID(
+                sid=service_tuple[0], no_json=True)
     return response
 
 
@@ -150,11 +154,14 @@ class ServiceHandler:
         serviceInfo = []
         for row in services:
             serviceInfo.append(_buildServiceByRoomResponse(row))
-        
+            
         if no_json:
             return(serviceInfo)
         
-        return jsonify(serviceInfo)
+        if len(serviceInfo) > 0:
+            return jsonify({"Services": serviceInfo})
+        else:
+            return jsonify({"Services": None})
 
     def getServicesSegmented(self, offset, limit):
         """
