@@ -59,14 +59,14 @@ def google_logged_in(blueprint, token):
             
             print("USER CAN NOT BE CREATED ERROR CODE  =  0 ")
             flash("User must create account in the InTheNou App")
+            jsonuser = UserHandler().getUserByID(int(user.id))
+
+            response = jsonuser
             
-            response = redirect("http://localhost:8080/#/login/fail/?error=0") 
             return response
   
     try:
-        if int(user.user_role) < 3:
-            response = redirect("http://localhost:8080/#/login/fail/?error=1") 
-            return response
+       
         
         query = OAuth.query.filter_by(
             token=str(token['access_token']), user=user, id=user.id)
@@ -85,7 +85,7 @@ def google_logged_in(blueprint, token):
                 flash("Successfully signed in.")
                 jsonuser = UserHandler().getUserByID(int(user.id))
 
-                response = redirect("http://localhost:8080/#/login/succeed/?uid="+str(user.id)) 
+                response = jsonuser
                 return response
     
 
@@ -102,45 +102,55 @@ def google_error(blueprint, message, response):
 def admin_role_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if current_user.user_role == 4:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to be an admin for this action.")
-            return jsonify(Error="Admin role required"),401
-
+        try:    
+            if current_user.user_role == 4:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be an admin for this action.")
+                return jsonify(Error="Admin role required"),401
+        except:
+                return jsonify(Error="You need to be logged in  "),403
     return wrap
 
 
 def mod_role_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if current_user.user_role >= 3:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to be a moderator for this action.")
-            return jsonify(Error="Moderator role required"),401
-
+        try:
+            if current_user.user_role >= 3:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be a moderator for this action.")
+                return jsonify(Error="Moderator role required"),401
+        except:
+                return jsonify(Error="You need to be logged in  "),403
     return wrap
 
 
 def event_creator_role_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if current_user.user_role >= 2:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to be a event creator for this action.")
-            return jsonify(Error="Event creator role required "),401
+        try:
+            if current_user.user_role >= 2:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be a event creator for this action.")
+                return jsonify(Error="Event creator role required "),401
+        except:
+                return jsonify(Error="You need to be logged in  "),403
     return wrap
 
 
-def token_required(f):
+def user_role_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        
         try:
-            session['token'] = str(session['token'])
-            return f(*args, **kwargs)
+            if current_user.user_role >= 1:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be a user for this action.")
+                return jsonify(Error="Event creator role required "),401
         except:
-            flash("You need to be authorized to use this function yo.")
-
+                return jsonify(Error="You need to be logged in  "),403
     return wrap

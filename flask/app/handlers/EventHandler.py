@@ -28,7 +28,7 @@ def _buildCoreEventResponse(event_tuple):
     response = {}
     response['eid'] = event_tuple[0]
     response['ecreator'] = event_tuple[1]
-    response['room'] = RoomHandler().getTinyRoomByID(rid=event_tuple[2], no_json=True)
+    response['room'] = RoomHandler().safeGetRoomByID(rid=event_tuple[2])
     response['etitle'] = event_tuple[3]
     response['edescription'] = event_tuple[4]
     response['estart'] = str(event_tuple[5])

@@ -71,6 +71,7 @@ class TagHandler:
             ValueError
             KeyError
         """
+        
         tags = []
         for tag in json_tags:
             if 'tid' not in tag:
@@ -80,6 +81,7 @@ class TagHandler:
                 raise ValueError("Invalid tid: " + str(tid))
             if tid not in tags:
                 tags.append(tid)
+       
         return tags
 
     def buildCoreUserTagResponse(self, tag_tuple):
@@ -208,6 +210,7 @@ class TagHandler:
         """
         Set the weight for the given tags in a JSON to a specified value
         """
+       
         try:
             # Temporary until Merge with Diego's Code
             if uid is None:
@@ -221,12 +224,14 @@ class TagHandler:
                 raise KeyError("Key not found in JSON: tags")
 
             tags = self.unpackTags(json_tags=json['tags'])
+            
         except ValueError as e:
             return jsonify(Error=str(e)), 400
         except KeyError as e:
             return jsonify(Error=str(e)), 400
 
         updated_usertags = []
+        print(str(tags))
         rows = TagDAO().batchSetUserTags(uid=uid, tags=tags, weight=weight)
         try:
             for user_tag in rows:
@@ -237,5 +242,6 @@ class TagHandler:
 
         response = {"tags": updated_usertags}
         if no_json:
+            print(response)
             return response
         return jsonify(response), 201
