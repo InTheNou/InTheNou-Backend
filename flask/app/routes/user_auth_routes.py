@@ -18,7 +18,7 @@ load_dotenv()
 
 # route used to logout user, must be logged in to access
 @app.route("/API/App/logout")
-@login_required
+@user_role_required
 def app_logout():
     query = OAuth.query.filter_by(token=str(session['token']))
     try:

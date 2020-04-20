@@ -14,7 +14,6 @@ def not_found(Error):
 
 
 @app.route("/API/App/Users/uid=<int:uid>", methods=['GET'])
-# @login_required
 # @mod_role_required
 def getUserByID(uid):
     if request.method == 'GET':
@@ -80,7 +79,6 @@ def getDelegatedUserByID(uid):
 
 
 @app.route("/API/Dashboard/Users/Permissions/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-# @login_required
 # @mod_role_required
 def geUsersAndIssuersSegmented(offset, limit):
     if request.method == 'GET':
@@ -90,7 +88,6 @@ def geUsersAndIssuersSegmented(offset, limit):
 
 
 @app.route("/API/Dashboard/Users/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-# @login_required
 # @admin_role_required
 def geUsersSegmented(offset, limit):
     if request.method == 'GET':
@@ -100,6 +97,7 @@ def geUsersSegmented(offset, limit):
 
 
 @app.route("/API/Dashboard/Users/roleid=<int:roleid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+# @admin_role_required
 def getAllUsersByRoleID(roleid, offset, limit):
     if request.method == 'GET':
         return UserHandler().getAllUsersByRoleIDSegmented(roleid=roleid, offset=offset, limit=limit)
@@ -108,7 +106,6 @@ def getAllUsersByRoleID(roleid, offset, limit):
 
 
 @app.route("/API/Dashboard/Stats/roleid=<int:roleid>", methods=['GET'])
-# @login_required
 # @admin_role_required
 def geNumberOdUsersByRole(roleid):
     if request.method == 'GET':
