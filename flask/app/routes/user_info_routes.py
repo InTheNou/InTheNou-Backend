@@ -3,7 +3,7 @@ from flask import Flask, redirect, url_for, session, jsonify, request
 from flask_dance.contrib.google import make_google_blueprint, google
 from app.handlers.UserHandler import UserHandler
 from flask_login import login_required, logout_user, current_user
-from app.oauth import admin_role_required, mod_role_required
+from app.oauth import admin_role_required, mod_role_required,user_role_required
 
 
 @app.errorhandler(404)
@@ -32,7 +32,6 @@ def getUsersThatCanModifyEvent(eid):
         return jsonify(Error='Method not allowed.'), 405
 
 @app.route("/App/Users/email=<string:email>", methods=['GET'])
-# @login_required
 # @mod_role_required
 def getUserByEmail(email):
     if request.method == 'GET':
@@ -65,12 +64,9 @@ def changeRole(uid,roleid):
 
 
 @app.route("/Dashboard/Users/uid=<int:uid>/Delegated", methods=['GET'])
-#@login_required
+@user_role_required
 def getDelegatedUserByID(uid):
     if request.method == 'GET':
-    
-        
-        try:
             if(current_user.id == uid ):
                 return UserHandler().getUsersDelegatedByID(uid=int(current_user.id))
             else:
@@ -78,15 +74,12 @@ def getDelegatedUserByID(uid):
                 if int(current_user.user_role) > 3:
                     return UserHandler().getUsersDelegatedByID(uid=int(uid))
                 else:
-                    return jsonify(Error='Method not allowed for user role'), 401
-        except:
-            return jsonify(Error='User Must sign in'), 401
+                    return jsonify(Error='Method not allowed for user role'), 401    
     else:
         return jsonify(Error='Method not allowed.'), 405
 
 
 @app.route("/Dashboard/Users/Permissions/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-# @login_required
 # @mod_role_required
 def geUsersAndIssuersSegmented(offset, limit):
     if request.method == 'GET':
@@ -96,7 +89,6 @@ def geUsersAndIssuersSegmented(offset, limit):
 
 
 @app.route("/Dashboard/Users/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
-# @login_required
 # @admin_role_required
 def geUsersSegmented(offset, limit):
     if request.method == 'GET':
@@ -106,6 +98,7 @@ def geUsersSegmented(offset, limit):
 
 
 @app.route("/Dashboard/Users/roleid=<int:roleid>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
+#@admin_role_required
 def getAllUsersByRoleID(roleid, offset, limit):
     if request.method == 'GET':
         return UserHandler().getAllUsersByRoleIDSegmented(roleid=roleid, offset=offset, limit=limit)
@@ -114,8 +107,7 @@ def getAllUsersByRoleID(roleid, offset, limit):
 
 
 @app.route("/Dashboard/Stats/roleid=<int:roleid>", methods=['GET'])
-# @login_required
-# @admin_role_required
+#@admin_role_required
 def geNumberOfUsersByRole(roleid):
     if request.method == 'GET':
         return UserHandler().getNumberOfUsersByRole(roleid=roleid)

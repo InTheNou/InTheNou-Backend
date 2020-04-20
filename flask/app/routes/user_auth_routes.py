@@ -153,21 +153,21 @@ def app_home():
 ################## DASHBOARD ROUTES ######################
 
 
-@app.route("/Dashboard/login", methods=['GET'])
-# @login_required
+@app.route("/API/login", methods=['GET'])
+@login_required
 def dashboard_login():
-    # try:
-    #     (current_user.id)
-    #     return UserHandler().getUserByID(int(current_user.id))
-    # except:
+    try:
+        (current_user.id)
+        return UserHandler().getUserByID(int(current_user.id))
+    except:
         session['AppLogin'] = False
-        query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
-        user = query.one()
-        print('Session Defined as ' + str(session['AppLogin']))
-        login_user(user)
-        #flash ("No user found ")
+        # query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
+        # user = query.one()
+        # print('Session Defined as ' + str(session['AppLogin']))
+        # login_user(user)
+        # #flash ("No user found ")
         
-        return redirect("https://localhost:8080/#/login/succeed?uid=3") 
+        return redirect(url_for(("google.login")))
         
 
 
