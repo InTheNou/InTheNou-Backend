@@ -76,9 +76,7 @@ def signup():
 @app.route("/API/App/login", methods=['POST'])
 def app_login():
     info = request.json
-   
     user_usub = info["id"]
-
     query = User.query.filter_by(provider=user_usub)
     try:
         user = query.one()
@@ -113,20 +111,11 @@ def app_login():
     return (response)
 
 
-@oauth_before_login.connect
-def before_google_login(blueprint, url):
-    try:
-        Usersession = request.headers['session']
-        print("session Cached")
-    except:
-        print("redirecting to google")
-
-
-# home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
-@app.route("/API/App/home")
-def app_home():
-    return redirect(url_for("google.login"))
-    return render_template("home.html")
+# # home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
+# @app.route("/API/App/home")
+# def app_home():
+#     return redirect(url_for("google.login"))
+#     return render_template("home.html")
 
 
 ############## Google oAuth Test routes ##############
@@ -153,6 +142,14 @@ def app_home():
 
 ################## DASHBOARD ROUTES ######################
 
+@oauth_before_login.connect
+def before_google_login(blueprint, url):
+    try:
+        Usersession = request.headers['session']
+        print("session Cached")
+    except:
+        print("redirecting to google")
+
 
 @app.route("/API/login", methods=['GET'])
 @login_required
@@ -172,7 +169,7 @@ def dashboard_login():
         
 
 
-@app.route("/Dashboard/logout")
+@app.route("/API/logout")
 @login_required
 def dashboard_logout():
     query = OAuth.query.filter_by(token=str(session['token']))
@@ -187,6 +184,7 @@ def dashboard_logout():
     return render_template("dashhome.html")
 
 
-@app.route("/Dashboard/home")
+@app.route("/API/home")
+@login_required
 def dashboard_home():
     return render_template("dashhome.html")
