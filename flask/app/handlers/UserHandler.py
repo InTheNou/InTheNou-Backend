@@ -68,6 +68,7 @@ def _buildDelegatedUserResponse(user_tuple):
     Returns:
         Dict: Delegated User information
     """
+    
     response = {}
     response['issuer_role'] = user_tuple[0]
     response['issuer_email'] = user_tuple[1]
@@ -75,6 +76,7 @@ def _buildDelegatedUserResponse(user_tuple):
     response['user_role'] = user_tuple[3]
     response['user_email'] = user_tuple[4]
     response['user_id'] = user_tuple[5]
+    
     return response
 
 
@@ -110,7 +112,7 @@ def _checkUser(id, user_tuple):
     """
     
     for row in user_tuple:
-        if (int(id) == int(row)):
+        if (int(id) == int(row[0])):
             return True
     return False
 
@@ -186,7 +188,7 @@ class UserHandler:
         dao = UserDAO()
         users = dao.getUsersAndIssuersSegmented(offset=offset, limit=limit)
         if not users:
-            response = {'users': None}
+            response = {'Users': None}
         else:
             user_list = []
             for row in users:
@@ -270,7 +272,7 @@ class UserHandler:
             response = _buildUserResponse(user_tuple=user)
             return jsonify(response)
 
-    # TODO:MAKE THIS ROUTE SEGMENTED?
+  
     def getUserIssuers(self, uid, id, no_json=False):
         """
         Returns a list of users that can be issuers for a given user ID
@@ -291,9 +293,10 @@ class UserHandler:
         users = dao.getUserIssuers(userID=userID)
         if not users:
             response = {'Users': None}
+            return jsonify(response)
         
         if no_json:
-            return _checkUser(id=id, user_tuple=users[0])
+            return _checkUser(id=id, user_tuple=users)
         else:
             user_list = []
             for row in users:

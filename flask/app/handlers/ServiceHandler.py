@@ -80,7 +80,18 @@ class ServiceHandler:
 
     def createService(self, json):
         """
+        Creates a new service and adds websites and phones to it 
+        Parameters:
+        json:JSON containing parameters to create the service, these include:
+        uid: The user ID for the creator of the service 
+        rid: The ID for the room that would provide the service 
+        sname: The name of the service 
+        sdescription: A description of the service 
+        sschedule: The service's schedule 
+        websites: Websites to be asociated with the service 
+        numbers : Phone numbers to be added to the service 
         """
+        
        # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
         for key in CREATESERVICEKEYS:
             if key not in json:

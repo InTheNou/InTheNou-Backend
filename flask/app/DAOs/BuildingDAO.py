@@ -6,6 +6,10 @@ from psycopg2.extensions import AsIs
 class BuildingDAO(MasterDAO):
     def getAllBuildingsSegmented(self, limit, offset):
         """
+        Returns a list of all buildings in the system, segmented
+        Params:
+        limit: The amount of records to ignore 
+        offset: The amount of rows to return in the list  
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -92,6 +96,11 @@ class BuildingDAO(MasterDAO):
         return result
 
     def getDistinctFloorNumbersByBuildingID(self, bid):
+        """
+        gets a list of distinct floors given a building ID
+        Parameters:
+        bid: The building ID to get the distinct floors from
+        """
         cursor = self.conn.cursor()
         query = sql.SQL("select distinct rfloor "
                         "from {table} "
@@ -109,6 +118,13 @@ class BuildingDAO(MasterDAO):
         return result
 
     def searchBuildingsByKeyword(self, offset, limit, keyword):
+        """
+        Returns Buildings list that contain some keyword 
+        prameters:
+        Keyword: word to filter buildings with
+        limit: The amount of records to ignore 
+        offset: The amount of rows to return in the list  
+        """
         keyword = "'%" + keyword + "%'"
         keyword = AsIs(keyword)
         print(keyword)
