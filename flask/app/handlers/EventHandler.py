@@ -142,21 +142,20 @@ def _validate_uid_eid(uid, eid):
 class EventHandler:
     # todo: extract all/most of hardcoded key names to variables.
 
-    def createEvent(self, json, uid=None):
+    def createEvent(self, json, uid):
         """Attempt to create an event.
         Parameters:
             uid: User ID.
             json: JSON object with the following keys:
-                ecreator, roomid, etitle, edescription, estart, eend, photourl, websites, tags
+                roomid, etitle, edescription, estart, eend, photourl, websites, tags
         Return:
             JSON Response Object: JSON containing success or error response.
         """
         for key in CREATEEVENTKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-        # TODO: pass uid not through json.
         try:
-            _validateEventParameters(json=json, uid=json['ecreator'])
+            _validateEventParameters(json=json, uid=uid)
             tags = TagHandler().unpackTags(json_tags=json['tags'])
             WebsiteHandler().validateWebsites(list_of_websites=json['websites'])
         except ValueError as e:
@@ -168,7 +167,7 @@ class EventHandler:
             return jsonify(Error="Improper number of unique tags provided: " + str(len(tags))), 400
 
         dao = EventDAO()
-        eid = dao.createEvent(ecreator=json['ecreator'], roomid=json['roomid'], etitle=json['etitle'],
+        eid = dao.createEvent(ecreator=uid, roomid=json['roomid'], etitle=json['etitle'],
                               edescription=json['edescription'], estart=json['estart'],
                               eend=json['eend'], photourl=json['photourl'], tags=tags,
                               websites=json['websites'])
