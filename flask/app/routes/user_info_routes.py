@@ -29,7 +29,7 @@ def getUsersThatCanModifyEvent(eid):
     else:
         return jsonify(Error='Method not allowed.'), 405
 
-@app.route("/Dashboard/Users/email=<string:email>", methods=['GET'])
+@app.route("/API/Dashboard/Users/email=<string:email>", methods=['GET'])
 @mod_role_required
 def getUserByEmail(email):
     if request.method == 'GET':
