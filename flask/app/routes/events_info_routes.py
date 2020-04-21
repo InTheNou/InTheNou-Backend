@@ -122,8 +122,7 @@ def setEventStatus(eid, estatus):
             for user in list_of_valid_users["Users"]:
                 if user["user_id"][0] == int(current_user.id):
                     return EventHandler().setEventStatus(eid=eid, uid=int(current_user.id), estatus=estatus)
-            # TODO: MAKE TEST THAT EXPECTS A 401
-            return jsonify(Error="User is not authorized to modify this event."), 401
+            return jsonify(Error="User is not authorized to modify this event."), 403
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -241,9 +240,8 @@ def getEventsCreatedByOtherUser(ecreator, offset, limit):
         is_user_issuer = UserHandler().getUserIssuers(json=issuer_check_json, no_json=True)
         if is_user_issuer:
             return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
-        #  TODO: Make test that expects 401.
         return jsonify(Error="Currently logged in user is not authorized to "
-                             "view events created by the requested user."), 401
+                             "view events created by the requested user."), 403
     else:
         return jsonify(Error="Method not allowed."), 405
 
