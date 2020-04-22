@@ -88,11 +88,12 @@ class WebsiteDAO(MasterDAO):
 
                 ]))
             cursor.execute(query, (str(url), str(url)))
+            result = cursor.fetchone()
             newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
-            result = cursor.fetchone()
+
         else:
 
             result = [None, None]
@@ -235,7 +236,7 @@ class WebsiteDAO(MasterDAO):
         result = cursor.fetchone()
         newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
                                                  pkeyval1=sid, pkeyval2=wid, cursor=cursor)
-        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
 
