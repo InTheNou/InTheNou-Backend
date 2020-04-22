@@ -53,8 +53,19 @@ services:
     depends_on:
       - flask
       - pgadmin
-    volumes:
-      - ./../InTheNou-AdminDashboard/inthenou-dashboard/dist:/usr/share/nginx/html
     ports:
     - "80:80"
     - "443:443"
+
+ 
+  dashboardcontainer:
+      build:
+        context: ./dashboard
+        args:
+          config: nginx.conf
+      container_name: dashboardcontainer
+      restart: always
+      volumes:
+        - ./dashboard/dist:/usr/share/nginx/html
+      
+     
