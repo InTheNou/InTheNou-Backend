@@ -261,8 +261,9 @@ class WebsiteDAO(MasterDAO):
             result = cursor.fetchone()
             newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
                                                      pkeyval1=sid, pkeyval2=wid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
-                                   newValue=newValue, uid=uid, cursor=cursor)
+            if oldValue and newValue:
+                audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                       newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e
