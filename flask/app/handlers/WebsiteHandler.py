@@ -137,7 +137,7 @@ class WebsiteHandler:
                     website.append(
                         {"wid": None})
 
-        return jsonify({"Websites":website})
+        return jsonify({"Websites":website}),201
 
     def removeServiceWebsite(self, sid, json):
         """
