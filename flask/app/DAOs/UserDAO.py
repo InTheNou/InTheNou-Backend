@@ -76,7 +76,12 @@ class UserDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
-        return result
+        if result:   
+          
+            return result
+        else:
+            
+            return None
 
 
     # TODO:MAKE THIS ROUTE DYANMIC and segmented
