@@ -85,9 +85,9 @@ class PhoneDAO(MasterDAO):
         cursor = self.conn.cursor()
 
         audit = AuditDAO()
-        tablename = "phones"
-        pkey = "pnumber"
-        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=pnumber, cursor=cursor)
+        tablename = "servicephones"
+        pkey = "phoneid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=phoneid, cursor=cursor)
 
         query = sql.SQL("update {table1} set isdeleted = True  "
                         "where ( {pkey1} = %s AND {pkey2} = %s  ) "
@@ -98,7 +98,7 @@ class PhoneDAO(MasterDAO):
         try:
             cursor.execute(query, (int(phoneid), int(sid)))
             result = cursor.fetchone()
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=phoneid, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()

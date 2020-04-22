@@ -46,7 +46,7 @@ class ServiceDAO(MasterDAO):
         cursor.execute(query, (int(sid), ))
         result = cursor.fetchone()
 
-        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=photourl, cursor=cursor)
+        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
         audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
                                newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
@@ -232,12 +232,11 @@ class ServiceDAO(MasterDAO):
                 fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(sid), ))
-
+            result = cursor.fetchone()
             newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
-            result = cursor.fetchone()
             return result
         except errors.TypeError as badkey:
             return badkey
