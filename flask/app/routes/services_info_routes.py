@@ -1,5 +1,6 @@
 from app import app
 from flask import Flask, redirect, url_for, session, jsonify, request
+from flask_login import current_user
 from flask_dance.contrib.google import make_google_blueprint, google
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
