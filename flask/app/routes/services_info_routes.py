@@ -1,5 +1,6 @@
 from app import app
 from flask import Flask, redirect, url_for, session, jsonify, request
+from flask_login import current_user
 from flask_dance.contrib.google import make_google_blueprint, google
 from app.handlers.EventHandler import EventHandler
 from app.handlers.RoomHandler import RoomHandler
@@ -41,7 +42,7 @@ def getServicesByRoomID(rid):
 @mod_role_required
 def createService():
     if request.method == 'POST':
-        return ServiceHandler().createService(json=request.json)
+        return ServiceHandler().createService(json=request.json,uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 

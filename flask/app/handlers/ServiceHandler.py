@@ -1,4 +1,5 @@
 from flask import jsonify
+from flask_login import current_user
 from psycopg2 import IntegrityError
 from app.DAOs.ServiceDAO import ServiceDAO
 from app.DAOs.WebsiteDAO import WebsiteDAO
@@ -78,7 +79,7 @@ def _buildCoreWebsiteResponse(website_tuple):
 
 class ServiceHandler:
 
-    def createService(self, json):
+    def createService(self, json,uid):
         """
         Creates a new service and adds websites and phones to it 
         Parameters:
@@ -105,7 +106,7 @@ class ServiceHandler:
             return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
 
         # MAKE DICTIONARY TO CRREATE THESE
-        user = json['uid']
+        user = uid
         roomID = json['rid']
         name = json['sname']
         description = json['sdescription']
