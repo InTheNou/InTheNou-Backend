@@ -28,8 +28,8 @@ services:
     # and set host directory for data persistance.
     volumes:
       - ./InTheNou_Database_Scripts:/docker-entrypoint-initdb.d
-      - /InTheNou/Database_data:/var/lib/postgresql/data
-      - /InTheNou/Database_backups:/backups
+    #  - ./../InTheNou/Database_data:/var/lib/postgresql/data
+
 
   pgadmin:
     image: dpage/pgadmin4
@@ -40,8 +40,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: 'admin@gmail.com'
       PGADMIN_DEFAULT_PASSWORD: 'admin'
     # Current workaround: manually make the host directory and set its pgadmin folder permissions to 777
-    volumes:
-      - /InTheNou/private/var/lib/pgadmin:/var/lib/pgadmin
+    #volumes:
+     # - ./../InTheNou/private/var/lib/pgadmin:/var/lib/pgadmin
 
   nginx:
     build:
