@@ -10,6 +10,7 @@ class ServiceDAO(MasterDAO):
 
     def serviceInfoArgs(self, service):
         """
+        given a service return a list of keys and values
         """
 
         fields = []
@@ -25,6 +26,11 @@ class ServiceDAO(MasterDAO):
         return fields
 
     def deleteService(self, sid, uid):
+        """
+        remove a service from the database,given a service ID
+        parameters:
+        sid: the ID for the service to delete
+        """
         cursor = self.conn.cursor()
 
         audit = AuditDAO()
@@ -50,6 +56,15 @@ class ServiceDAO(MasterDAO):
 
     def createService(self, uid, rid, sname, sdescription, sschedule, websites, numbers):
         """
+        Creates a new service and adds websites and phones to it
+        Parameters:
+        uid: The user ID for the creator of the service
+        rid: The ID for the room that would provide the service
+        sname: The name of the service
+        sdescription: A description of the service
+        sschedule: The service's schedule
+        websites: Websites to be asociated with the service
+        numbers : Phone numbers to be added to the service
         """
         cursor = self.conn.cursor()
 
@@ -196,6 +211,12 @@ class ServiceDAO(MasterDAO):
         return result
 
     def updateServiceInformation(self, sid, service, uid):
+        """
+        Change the insformation of a service given its ID
+        Params:
+        service: JSON containing parameters to update, these include
+        the service name, service description, service schedule and service room
+        """
         cursor = self.conn.cursor()
         try:
             fields_list = self.serviceInfoArgs(service)

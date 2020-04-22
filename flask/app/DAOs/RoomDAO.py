@@ -7,6 +7,7 @@ from psycopg2 import sql
 class RoomDAO(MasterDAO):
     def roomInfoArgs(self, roomKeys):
         """
+        Given a list of Room information, return a list of fields and values
         """
 
         fields = []
@@ -93,6 +94,12 @@ class RoomDAO(MasterDAO):
         return result
 
     def changeRoomCoordinates(self, rid, roomKeys, uid):
+        """
+        Change the Room coordinates given a room ID
+        Parameters
+        rid: The Id of the room to update coordinates for
+        roomkeys : The Json object containing the Coordinates to update
+        """
         cursor = self.conn.cursor()
         fields_list = self.roomInfoArgs(roomKeys=roomKeys)
 

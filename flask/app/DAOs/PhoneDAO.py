@@ -6,6 +6,11 @@ from psycopg2 import sql, errors
 class PhoneDAO(MasterDAO):
 
     def getPhoneByID(self, phoneid):
+        """
+        Return a phone number given a phone ID 
+        parameters:
+        phoneid: the ID for the phone number to look for 
+        """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
 
@@ -71,6 +76,10 @@ class PhoneDAO(MasterDAO):
 
     def removePhonesByServiceID(self, sid, phoneid, uid):
         """
+        Remove a phone number from a service, given a service ID and a phone ID 
+        Parameters 
+        sid: The unique ID of a service 
+        phoneid: The ID for the phone to eliminate from the database 
         """
         #print('Number ID from Phone remove Query: '+phoneid)
         cursor = self.conn.cursor()

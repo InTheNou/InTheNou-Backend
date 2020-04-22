@@ -52,6 +52,10 @@ def _buildServiceByRoomResponse(service_tuple):
     response['sname'] = service_tuple[1]
     response['sdescription'] = service_tuple[2]
     response['sschedule'] = service_tuple[3]
+    response['PNumbers'] = PhoneHandler().getPhonesByServiceID(
+                sid=service_tuple[0], no_json=True)
+    response['Websites'] = WebsiteHandler().getWebistesByServiceID(
+                sid=service_tuple[0], no_json=True)
     return response
 
 
@@ -76,7 +80,18 @@ class ServiceHandler:
 
     def createService(self, json):
         """
+        Creates a new service and adds websites and phones to it 
+        Parameters:
+        json:JSON containing parameters to create the service, these include:
+        uid: The user ID for the creator of the service 
+        rid: The ID for the room that would provide the service 
+        sname: The name of the service 
+        sdescription: A description of the service 
+        sschedule: The service's schedule 
+        websites: Websites to be asociated with the service 
+        numbers : Phone numbers to be added to the service 
         """
+        
        # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
         for key in CREATESERVICEKEYS:
             if key not in json:
@@ -150,11 +165,14 @@ class ServiceHandler:
         serviceInfo = []
         for row in services:
             serviceInfo.append(_buildServiceByRoomResponse(row))
-        
+            
         if no_json:
             return(serviceInfo)
         
-        return jsonify(serviceInfo)
+        if len(serviceInfo) > 0:
+            return jsonify({"Services": serviceInfo})
+        else:
+            return jsonify({"Services": None})
 
     def getServicesSegmented(self, offset, limit):
         """

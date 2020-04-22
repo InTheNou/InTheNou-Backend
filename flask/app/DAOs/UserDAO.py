@@ -247,7 +247,7 @@ class UserDAO(MasterDAO):
                             "join "
                             "(select uid as users,iID, roleid as permisions from users u1 "
                             "join "
-                            "(select uid as user_id,roleissuer  as iID from users "
+                            "(select uid as user_id,roleissuer as iID from users "
                             "where uid = %s ) as users_issuers "
                             "on (users_issuers.iID=u1.uid  ))as users_issuers2 "
                             "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) ) ")
@@ -257,10 +257,17 @@ class UserDAO(MasterDAO):
         for row in cursor:
             result.append(row)
         
-        
+        print(result)
         return result
 
     def getAllUsersByRoleID(self, roleid, offset, limit):
+        """
+        Returns a segmented list of all users that have a given role ID 
+        Params: 
+        roleid: The ID for the role of users to return
+        offset:Number of records to ignore , ordered by user ID biggest first
+        limit:maximum number of records to recieve
+        """
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info} where user_role = %s ) as delegated offset %s limit %s ").format(
             users=sql.SQL(',').join([

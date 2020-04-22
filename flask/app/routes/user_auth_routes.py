@@ -18,19 +18,18 @@ load_dotenv()
 
 # route used to logout user, must be logged in to access
 @app.route("/API/App/logout")
-@login_required
+@user_role_required
 def app_logout():
-
     query = OAuth.query.filter_by(token=str(session['token']))
     try:
         oauth = query.one()
         db.session.delete(oauth)
         db.session.commit()
     except NoResultFound:
-        print("NO RESULT FOUND ")
+        return jsonify(Error="You need a session in the system, try loggin in  "),403
     logout_user()
-    flash("You have logged out")
-    return render_template("home.html")
+    
+    return jsonify(Error="You have loged out "),200
 
 @app.route("/API/App/signup", methods=['POST'])
 def signup():
@@ -65,19 +64,19 @@ def signup():
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
-                TagHandler().batchSetUserTags(json=info,uid=user.id, weight=100,no_json=True)
-            
-           
-            return (UserHandler().getUserByID(current_user.id))
+                info['uid']=int(current_user.id)
+                print("Registering tags : "+str(info["tags"]))
+                
+                tags =   TagHandler().batchSetUserTags(json=info, weight=100, no_json=True)
+                tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
+            return (tags)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 @app.route("/API/App/login", methods=['POST'])
 def app_login():
     info = request.json
-   
     user_usub = info["id"]
-
     query = User.query.filter_by(provider=user_usub)
     try:
         user = query.one()
@@ -86,7 +85,7 @@ def app_login():
         return jsonify(Error="User must create account for: "+str(info['email'])),200
 
     query = OAuth.query.filter_by(
-        token= info['access_token'], id=user.id, user=user)
+        token = info['access_token'], id=user.id, user=user)
     try:
         oauth = query.one()
     except NoResultFound:
@@ -112,20 +111,11 @@ def app_login():
     return (response)
 
 
-@oauth_before_login.connect
-def before_google_login(blueprint, url):
-    try:
-        Usersession = request.headers['session']
-        print("session Cached")
-    except:
-        print("redirecting to google")
-
-
-# home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
-@app.route("/API/App/home")
-def app_home():
-    return redirect(url_for("google.login"))
-    return render_template("home.html")
+# # home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
+# @app.route("/API/App/home")
+# def app_home():
+#     return redirect(url_for("google.login"))
+#     return render_template("home.html")
 
 
 ############## Google oAuth Test routes ##############
@@ -152,26 +142,34 @@ def app_home():
 
 ################## DASHBOARD ROUTES ######################
 
+@oauth_before_login.connect
+def before_google_login(blueprint, url):
+    try:
+        Usersession = request.headers['session']
+        print("session Cached")
+    except:
+        print("redirecting to google")
 
-@app.route("/Dashboard/login", methods=['GET'])
-# @login_required
+
+@app.route("/API/login", methods=['GET'])
+@login_required
 def dashboard_login():
-    # try:
-    #     (current_user.id)
-    #     return UserHandler().getUserByID(int(current_user.id))
-    # except:
+    try:
+        (current_user.id)
+        return UserHandler().getUserByID(int(current_user.id))
+    except:
         session['AppLogin'] = False
-        query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
-        user = query.one()
-        print('Session Defined as ' + str(session['AppLogin']))
-        login_user(user)
-        #flash ("No user found ")
+        # query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
+        # user = query.one()
+        # print('Session Defined as ' + str(session['AppLogin']))
+        # login_user(user)
+        # #flash ("No user found ")
         
-        return redirect("https://localhost:8080/#/login/succeed?uid=3") 
+        return redirect(url_for(("google.login")))
         
 
 
-@app.route("/Dashboard/logout")
+@app.route("/API/logout")
 @login_required
 def dashboard_logout():
     query = OAuth.query.filter_by(token=str(session['token']))
@@ -186,6 +184,7 @@ def dashboard_logout():
     return render_template("dashhome.html")
 
 
-@app.route("/Dashboard/home")
+@app.route("/API/home")
+@login_required
 def dashboard_home():
     return render_template("dashhome.html")
