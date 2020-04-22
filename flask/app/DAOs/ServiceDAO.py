@@ -99,11 +99,11 @@ class ServiceDAO(MasterDAO):
 
             for site in websites:
                 WebsiteDAO().addWebsitesToService(sid=sid,uid=uid, wid=(WebsiteDAO.addWebsite(self,
-                                                                                      url=site['url'], cursor=cursor, uid=uid)), wdescription=site['wdescription'], cursor=cursor)
+                                                                                      url=site['url'], cursor=cursor, uid=uid))[0], wdescription=site['wdescription'], cursor=cursor)
 
             for num in numbers:
                 PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
-                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor, uid=uid), cursor=cursor, uid=uid)
+                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor, uid=uid)[0], cursor=cursor, uid=uid)
 
         # Commit changes if no errors occur.
             self.conn.commit()

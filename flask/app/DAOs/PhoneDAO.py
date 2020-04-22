@@ -66,7 +66,7 @@ class PhoneDAO(MasterDAO):
             cursor.execute(query, (pnumber, ptype[0], pnumber))
             result = cursor.fetchone()
 
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=pnumber, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
@@ -154,9 +154,10 @@ class PhoneDAO(MasterDAO):
             cursor = cursor
 
             audit = AuditDAO()
-            tablename = "phones"
-            pkey = "pnumber"
-            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=pnumber, cursor=cursor)
+            tablename = 'servicephones'
+            pkeys = ["sid", "phoneid"]
+            oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=sid, pkeyval2=pid, cursor=cursor)
 
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
@@ -172,7 +173,8 @@ class PhoneDAO(MasterDAO):
             cursor.execute(query, (sid, pid, False))
             result = cursor.fetchone()
 
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=sid, pkeyval2=pid, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
