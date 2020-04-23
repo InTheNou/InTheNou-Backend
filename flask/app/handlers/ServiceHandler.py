@@ -1,4 +1,5 @@
 from flask import jsonify
+from flask_login import current_user
 from psycopg2 import IntegrityError
 from app.DAOs.ServiceDAO import ServiceDAO
 from app.DAOs.WebsiteDAO import WebsiteDAO
