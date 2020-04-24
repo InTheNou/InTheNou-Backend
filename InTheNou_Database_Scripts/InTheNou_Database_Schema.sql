@@ -163,8 +163,9 @@ execute procedure vectorizeService
 Create table Phones
 (
    phoneID serial primary key,
-   pNumber text NOT NULL UNIQUE CHECK (pNumber <> ''),
-   pType char(1) NOT NULL
+   pNumber text NOT NULL CHECK (pNumber <> ''),
+   pType char(1) NOT NULL,
+   UNIQUE(pNumber,pType)
 );
 
 /* Relate Phones with Services */
@@ -192,7 +193,8 @@ Create table ServiceWebsites
    wid integer references Websites(wid) NOT NULL,
    wDescription text,
    isDeleted boolean NOT NULL,
-   primary key (sid,wid)
+   primary key (sid,wid) 
+  
 );
 
 /* Create Events, related with Users, Rooms, Photos, and Websites. */
