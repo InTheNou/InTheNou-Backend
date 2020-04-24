@@ -1,5 +1,14 @@
 from app.DAOs.MasterDAO import MasterDAO
 from psycopg2 import sql, errors
+from flask import jsonify
+import re
+
+def Find(string): 
+    # findall() has been used  
+    # with valid conditions for urls in string 
+    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] |[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', string) 
+    return url 
+      
 
 
 class WebsiteDAO(MasterDAO):
@@ -66,10 +75,11 @@ class WebsiteDAO(MasterDAO):
 
     def createWebsite(self, url):
         """
-        """
-        if url is not None and url != "":
-            cursor = self.conn.cursor()
-            query = sql.SQL("insert into {table1} "
+        """       
+        try:
+            if url is not None and url != "":
+                cursor = self.conn.cursor()
+                query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s) "
                             "on CONFLICT (url) do update "
@@ -80,13 +90,14 @@ class WebsiteDAO(MasterDAO):
                     sql.Identifier('url'),
 
                 ]))
-            cursor.execute(query, (str(url), str(url)))
-            self.conn.commit()
-            result = cursor.fetchone()
-        else:
-
-            result = [None, None]
-        return result[0]
+                cursor.execute(query, (url, url))
+                result = cursor.fetchone()
+                return result    
+            else:
+                result = [None, None]
+        except:
+           result = [None, None]
+           return result 
 
     def addWebsite(self, url, cursor):
         """Inserts a website into the website table DOES NOT COMMIT CHANGES TO DB.
@@ -95,26 +106,30 @@ class WebsiteDAO(MasterDAO):
             cursor: createEvent method call connection cursor to database.
         Returns:
             wid: website ID
-            """
-        if url is not None and url != "" and not url.isspace():
-            cursor = cursor
-            query = sql.SQL("insert into {table1} "
+           """
+        temp =url
+        url = Find(url)
+        
+        cursor = cursor    
+        if (url is not None )and (url != "") and len(url)> 0:
+                query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s) "
                             "on CONFLICT (url) do update "
-                            "set url=%s"
-                            "returning wid;").format(
-                table1=sql.Identifier('websites'),
-                insert_fields=sql.SQL(',').join([
-                    sql.Identifier('url')
-                ]))
-            cursor.execute(query, (str(url), str(url)))
-
-            result = cursor.fetchone()
+                            "set url=%s "
+                            "returning wid, url").format(
+                    table1=sql.Identifier('websites'),
+                    insert_fields=sql.SQL(',').join([
+                        sql.Identifier('url')
+                                                    ]))
+                cursor.execute(query, (temp,temp ))
+                result = cursor.fetchone()
+                return result
         else:
-            result = [None, None]
-        return result
-
+            result = None
+        
+      
+        
     def addWebsitesToService(self, sid, wid, wdescription, cursor):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
@@ -124,20 +139,28 @@ class WebsiteDAO(MasterDAO):
             wid: website IDs
             cursor: createService method call connection cursor to database.
         """
-
-        cursor = cursor
+        
+        cursor =cursor
+        
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
-                        "values (%s, %s, %s, %s );").format(
-            table1=sql.Identifier('servicewebsites'),
-            insert_fields=sql.SQL(',').join([
+                        "values (%s, %s,%s,%s) "
+                        "on CONFLICT (wid,sid) do update set isdeleted = %s "
+                        "returning wid, sid, isdeleted, wdescription").format(
+        table1=sql.Identifier('servicewebsites'),
+        insert_fields=sql.SQL(',').join([
                 sql.Identifier('sid'),
                 sql.Identifier('wid'),
                 sql.Identifier('wdescription'),
                 sql.Identifier('isdeleted')
             ]))
-        cursor.execute(query, (sid, wid, wdescription, False))
-        return
+        
+        try:
+            cursor.execute(query, (int(sid), str(wid), str(wdescription), False, False))
+            result = cursor.fetchone()
+            return result
+        except:
+            return None
 
     def addWebsitesToEvent(self, eid, wid, wdescription, cursor):
         """
@@ -162,7 +185,7 @@ class WebsiteDAO(MasterDAO):
         cursor.execute(query, (int(eid), int(wid), wdescription))
         return
 
-    def insertWebsiteToService(self, sid, wid, wdescription):
+    def insertWebsiteToService(self, sites,sid):
         """
         Relates the websites to the event. DOES NOT COMMIT CHANGES TO
         DB.
@@ -171,28 +194,28 @@ class WebsiteDAO(MasterDAO):
             wid: website IDs
             cursor: createService method call connection cursor to database.
         """
-
+        websites =[]
         cursor = self.conn.cursor()
-        query = sql.SQL("insert into {table1} "
-                        "({insert_fields}) "
-                        "values (%s, %s,%s,%s) "
-                        "on CONFLICT (sid,wid) do update set isdeleted = %s "
-                        "returning wid, sid, isdeleted, wdescription").format(
-            table1=sql.Identifier('servicewebsites'),
-            insert_fields=sql.SQL(',').join([
-                sql.Identifier('sid'),
-                sql.Identifier('wid'),
-                sql.Identifier('wdescription'),
-                sql.Identifier('isdeleted')
-            ]))
-        cursor.execute(query, (int(sid), int(
-            wid), str(wdescription), False, False))
-
-        result = cursor.fetchone()
+        
+        for site in sites:
+            website =self.addWebsite(cursor=cursor,url=site['url'])
+            if website:
+                websites.append({"url":website[1],"wid":website[0],"wdescription":site['wdescription']})
+            else:
+                return jsonify(Error= "Error creating website "+str(site['url']))
+        
+        
+        
+        for site in websites:
+            result= self.addWebsitesToService(cursor=cursor,sid=sid,wid=site['wid'],wdescription=site['wdescription'])
+            if result is None:
+                return jsonify(Error= "Error assigning website to sid: "+str(sid)),400
+            
+       
         self.conn.commit()
 
-        return result
-
+        return {"Websites":websites}
+        
     def removeWebsitesGivenServiceID(self, wid, sid):
         """
         """

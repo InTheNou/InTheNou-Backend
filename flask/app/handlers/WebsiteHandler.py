@@ -1,6 +1,9 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.WebsiteDAO import WebsiteDAO
+
+
+
 import validators
 SERVICEWEBSITEKEYS = ['Websites']
 
@@ -115,29 +118,24 @@ class WebsiteHandler:
         for key in SERVICEWEBSITEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
+        
+        
         handler = WebsiteHandler()
-
+       
         sites = []
         website = []
         sites = (handler.unpackWebsites(json['Websites']))
         dao = WebsiteDAO()
-
+        
         if not sites:
-            website = None
+            return jsonify(Error='Missing websites for submission: '), 400
+        
+        website = dao.insertWebsiteToService(sites,sid)
 
+        if website:
+            return (website)
         else:
-
-            for row in sites:
-                print(row)
-                if(validators.url(row['url'])):
-                    website.append(_buildInsertWebsiteResponse(url=row['url'], website_tuple=dao.insertWebsiteToService(
-                        sid=sid, wid=(dao.createWebsite(url=row['url'])), wdescription=row['wdescription'])))
-
-                else:
-                    website.append(
-                        {"wid": None})
-
-        return jsonify({"Websites":website}),201
+            return jsonify(Error="Service with sid: "+sid+" not found"),401
 
     def removeServiceWebsite(self, sid, json):
         """
