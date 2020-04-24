@@ -4,6 +4,7 @@ from app.DAOs.AuditDAO import AuditDAO
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.DAOs.WebsiteDAO import WebsiteDAO
 from app.DAOs.PhoneDAO import PhoneDAO
+from flask import jsonify
 
 
 class ServiceDAO(MasterDAO):
@@ -91,27 +92,30 @@ class ServiceDAO(MasterDAO):
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(rid), str(sname), str(
                 sdescription), str(sschedule), False))
+           
             result = cursor.fetchone()
             sid = result[0]
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
-                                   newValue=newValue, uid=uid, cursor=cursor)
-
+            
             for site in websites:
-                WebsiteDAO().addWebsitesToService(sid=sid,uid=uid, wid=(WebsiteDAO.addWebsite(self,
-                                                                                      url=site['url'], cursor=cursor, uid=uid))[0], wdescription=site['wdescription'], cursor=cursor)
-
+                website=(WebsiteDAO.addWebsite(self,url=site['url'], cursor=cursor))
+                if website is None:
+                    print("Website faulty")
+                    return jsonify(Error='Website problem '+site['url'] )
+                else:
+                    WebsiteDAO().addWebsitesToService(sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor)
+            
             for num in numbers:
-                PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
-                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor, uid=uid)[0], cursor=cursor, uid=uid)
+                phone = PhoneDAO.addPhone(self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor)
+                
+                PhoneDAO().addPhoneToService(sid=sid, pid=phone[0], cursor=cursor)
 
         # Commit changes if no errors occur.
             self.conn.commit()
 
         except errors.UniqueViolation as badkey:
-            return badkey
+            return jsonify(Error='Website problem ')
 
-        return result
+        return self.getServiceByID(sid)
 
     def getServiceByID(self, sid):
         """

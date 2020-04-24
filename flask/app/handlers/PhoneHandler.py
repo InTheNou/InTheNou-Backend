@@ -48,22 +48,11 @@ class PhoneHandler:
         if not phones:
             phoneInfo = None
         else:
-            for row in phones:
+           phoneInfo = dao.insertPhones(phones,sid)
+            
+                
 
-                try:
-                    number = phonenumbers.parse(row['pnumber'],"US")
-                    if((phonenumbers.is_possible_number(number))):
-
-                        if ((row['ptype']).upper()) in PHONETYPEKEYS:
-                            phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(
-                                (dao.addPhoneToService(cursor=None, sid=sid, uid=uid, pid=(dao.insertPhone
-                                                                                  (cursor=None, uid=uid, pnumber=row['pnumber'], ptype=row['ptype'].upper()))))[0]))))
-                        else:
-                            phoneInfo.append(({"pid": None}))
-                except:
-                    phoneInfo.append(({"pid": None}))
-
-        return jsonify({"PNumbers":(phoneInfo)}),201
+        return phoneInfo
 
     def getPhonesByServiceID(self, sid, no_json=False):
         """
@@ -97,25 +86,31 @@ class PhoneHandler:
         for key in SERVICEPHONEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-
+        print("sending pids")
         phones = []
         phoneIDs = []
         phoneInfo = []
         phones = (self.unpackPhones(json['PNumbers']))
         dao = PhoneDAO()
-
+        print(phones)
         if not phones:
             phoneInfo = None
         else:
             for x in phones:
-
-                ID = (dao.removePhonesByServiceID(
-                    sid=sid, phoneid=x['phoneid'], uid=uid))
+                
+                if x['phoneid']!="" :
+                        ID = (dao.removePhonesByServiceID(
+                        sid=sid, phoneid=x['phoneid']))
+                
                 # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
-                if(ID == None):
-                    phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))
+                    
+                        if(ID == None):
+                            phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))
+                        else:
+                            phoneIDs.append((ID))
                 else:
-                    phoneIDs.append((ID))
+                    phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))
+
                 # print('Phones deleted IDs: '+ str(phoneIDs))
             for row in phoneIDs:
                 phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(row))))

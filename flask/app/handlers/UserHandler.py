@@ -154,10 +154,11 @@ class UserHandler:
             user_list = []
             for row in users:
                 user_list.append(_buildUserIDList(user_tuple=row))
+            
             response = {"Users": user_list}
             if no_json:
-                return response
-        return jsonify(response)
+                return response['Users']
+            return jsonify(response)
 
     def getUsersDelegatedByID(self,uid):
         """

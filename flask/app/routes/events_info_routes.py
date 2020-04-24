@@ -115,11 +115,11 @@ def unfollowEvent(eid):
 def setEventStatus(eid, estatus):
     if request.method == 'POST':
         # Todo: verify after merging to Dev. that this does not cause errors.
-        list_of_valid_users = UserHandler().getUsersThatCanModifyEvent(eid=eid, no_json=True)
-        if not list_of_valid_users or not list_of_valid_users["Users"]:
-            return jsonify(Error="no users")
+        list_of_valid_users = (UserHandler().getUsersThatCanModifyEvent(eid=eid, no_json=True))
+        if list_of_valid_users is None :
+            return jsonify({"eid":eid}),201
         else:
-            for user in list_of_valid_users["Users"]:
+            for user in list_of_valid_users:
                 if user["user_id"][0] == int(current_user.id):
                     return EventHandler().setEventStatus(eid=eid, uid=int(current_user.id), estatus=estatus)
             return jsonify(Error="User is not authorized to modify this event."), 403
@@ -236,8 +236,8 @@ def getAllEventsSegmented(offset, limit):
 def getEventsCreatedByOtherUser(ecreator, offset, limit):
     if request.method == 'GET':
         # Json used because current implementation of getUserIssuers() requires it.
-        issuer_check_json = jsonify({"id": int(current_user.id), "uid": ecreator, "roleid": 1})
-        is_user_issuer = UserHandler().getUserIssuers(json=issuer_check_json, no_json=True)
+        
+        is_user_issuer = UserHandler().getUserIssuers(id= current_user.id,uid=ecreator, no_json=True)
         if is_user_issuer:
             return EventHandler().getEventsCreatedByUser(uid=ecreator, offset=offset, limit=limit)
         return jsonify(Error="Currently logged in user is not authorized to "

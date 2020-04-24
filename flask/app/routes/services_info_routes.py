@@ -42,7 +42,7 @@ def getServicesByRoomID(rid):
 @mod_role_required
 def createService():
     if request.method == 'POST':
-        return ServiceHandler().createService(json=request.json, uid=int(current_user.id))
+        return ServiceHandler().createService(json=request.json,uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 

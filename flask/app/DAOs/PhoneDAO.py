@@ -1,6 +1,8 @@
 from app.DAOs.MasterDAO import MasterDAO
 from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql, errors
+import phonenumbers
+from flask import jsonify
 
 
 class PhoneDAO(MasterDAO):
@@ -30,7 +32,7 @@ class PhoneDAO(MasterDAO):
 
         return result
 
-    def insertPhone(self, pnumber, ptype, cursor, uid):
+    def addPhone(self, pnumber, ptype, cursor):
         """Inserts a phone number into the database 
         Parameters:
             pnumber: number of the entry
@@ -39,7 +41,7 @@ class PhoneDAO(MasterDAO):
         Returns:
             pid: phone ID
         """
-
+        
         if pnumber is not None and pnumber != "":
             if cursor == None:
                 cursor = self.conn.cursor()
@@ -54,27 +56,43 @@ class PhoneDAO(MasterDAO):
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s, %s) "
-                            "on CONFLICT (pnumber) do update "
-                            "set pnumber=%s"
-                            "returning phoneid;").format(
+                            "on CONFLICT (pnumber, ptype) do update "
+                            "set pnumber=%s , ptype =%s "
+                            "returning phoneid, ptype;").format(
                 table1=sql.Identifier('phones'),
                 insert_fields=sql.SQL(',').join([
                     sql.Identifier('pnumber'),
                     sql.Identifier('ptype')
 
                 ]))
-            cursor.execute(query, (pnumber, ptype[0], pnumber))
+            cursor.execute(query, (pnumber, ptype[0], pnumber,ptype[0]))
             result = cursor.fetchone()
-
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=pnumber, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
-                                   newValue=newValue, uid=uid, cursor=cursor)
-            self.conn.commit()
+            print(result)
+            return result
         else:
             result = [None, None]
-        return result
-
-    def removePhonesByServiceID(self, sid, phoneid, uid):
+    
+    def insertPhones(self,phones,sid):
+        """
+        """
+        cursor = self.conn.cursor()
+        
+        for row in phones:
+                number = phonenumbers.parse(row['pnumber'],"US")
+                if((phonenumbers.is_possible_number(number))):
+                    phone =self.addPhone(cursor=cursor, pnumber=row['pnumber'], ptype=row['ptype'].upper())      
+                    if phone:
+                       pid=  self.addPhoneToService(sid=sid,pid=phone[0],cursor=cursor)
+                       if pid is None:
+                           return jsonify(Error= "Service with sid: "+str(sid)+ " not found"),400
+                           
+                    else:
+                        return jsonify(Error="Phone number error : "+str(number)),400
+        self.conn.commit()
+        return ({"PNumbers":(phones )})
+                    
+                    
+    def removePhonesByServiceID(self, sid, phoneid):
         """
         Remove a phone number from a service, given a service ID and a phone ID 
         Parameters 
@@ -95,16 +113,12 @@ class PhoneDAO(MasterDAO):
             table1=sql.Identifier('servicephones'),
             pkey1=sql.Identifier('phoneid'),
             pkey2=sql.Identifier('sid'))
-        try:
-            cursor.execute(query, (int(phoneid), int(sid)))
-            result = cursor.fetchone()
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=phoneid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
-                                   newValue=newValue, uid=uid, cursor=cursor)
-            self.conn.commit()
-        except errors.ForeignKeyViolation as e:
-            result = e
-            print('Result from Phone remove Query: ' + str(result))
+     
+        cursor.execute(query, (phoneid, sid))
+        result = cursor.fetchone()
+        self.conn.commit()
+       
+        print('Result from Phone remove Query: ' + str(result))
 
         #print('Result from Phone remove Query: ' + str(result))
         if result == None:
@@ -140,7 +154,7 @@ class PhoneDAO(MasterDAO):
             result.append(row)
         return result
 
-    def addPhoneToService(self, sid, pid, uid, cursor):
+    def addPhoneToService(self, sid, pid, cursor):
         """
         Relates the phone number to the service. 
         Parameters:
@@ -170,14 +184,15 @@ class PhoneDAO(MasterDAO):
                     sql.Identifier('phoneid'),
                     sql.Identifier('isdeleted')
                 ]))
-            cursor.execute(query, (sid, pid, False))
-            result = cursor.fetchone()
-
-            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
-                                                     pkeyval1=sid, pkeyval2=pid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
-                                   newValue=newValue, uid=uid, cursor=cursor)
-            self.conn.commit()
+            
+            try:
+                result = cursor.execute(query, (sid, pid, False))
+                result = cursor.fetchone()
+                print( result)
+                return result
+            except:
+                return None
         else:
             result = [None, None]
-        return result
+        
+        

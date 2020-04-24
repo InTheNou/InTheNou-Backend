@@ -89,7 +89,7 @@ Create table rooms
 (
    rid serial primary key,
    bid int references Buildings(bid),
-   rCode text NOT NULL UNIQUE CHECK (rCode <> ''),
+   rCode text NOT NULL CHECK (rCode <> ''),
    rFloor int NOT NULL CHECK (rFloor >= 0 AND rFloor <= getBuildingNumFloors(bid)),
    rDescription text,
    rOccupancy int,
@@ -99,7 +99,8 @@ Create table rooms
    rLatitude decimal(10,6) NOT NULL,
    rAltitude decimal(10,6) NOT NULL,
    photoID int references Photos(photoID),
-   rdescription_tokens tsvector
+   rdescription_tokens tsvector,
+   constraint Unique_rcode_per_building UNIQUE (bid, rcode)
 );
 
 /* For searching the tokens of rooms, use both languages:
@@ -162,8 +163,9 @@ execute procedure vectorizeService
 Create table Phones
 (
    phoneID serial primary key,
-   pNumber text NOT NULL UNIQUE CHECK (pNumber <> ''),
-   pType char(1) NOT NULL
+   pNumber text NOT NULL CHECK (pNumber <> ''),
+   pType char(1) NOT NULL,
+   UNIQUE(pNumber,pType)
 );
 
 /* Relate Phones with Services */
@@ -191,7 +193,8 @@ Create table ServiceWebsites
    wid integer references Websites(wid) NOT NULL,
    wDescription text,
    isDeleted boolean NOT NULL,
-   primary key (sid,wid)
+   primary key (sid,wid) 
+  
 );
 
 /* Create Events, related with Users, Rooms, Photos, and Websites. */

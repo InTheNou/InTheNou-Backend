@@ -263,7 +263,6 @@ class EventHandler:
 
         # If it's not a dictionary, it is an error JSON.
         if not isinstance(event_response, dict):
-            print(type(event_response))
             return event_response
 
         # TODO: consider moving this to User Handler/Dao
