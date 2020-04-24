@@ -247,7 +247,7 @@ class UserDAO(MasterDAO):
                             "(select uid as user_id,roleissuer as iID from users "
                             "where uid = %s ) as users_issuers "
                             "on (users_issuers.iID=u1.uid  ))as users_issuers2 "
-                            "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) ) ")
+                            "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) or u2.roleid > 3 ) ")
         cursor.execute(query, (userID, userID))
         result = []
 
