@@ -908,6 +908,7 @@ class EventDAO(MasterDAO):
                                    str(estart), str(eend), 'active', None, photoid))
             result = cursor.fetchone()
             eid = result[0]
+            
         except errors.UniqueViolation as unique_error:
             return errors.UniqueViolation("An event with the same name, in the same room, "
                                           "that starts at the same time, already exists in the system.")
@@ -915,6 +916,7 @@ class EventDAO(MasterDAO):
         # Once the event is created, tag it with the list of tags provided. Catch any bad tags.
         try:
             for tag in tags:
+                
                 TagDAO().tagEvent(eid=eid, tid=tag, cursor=cursor)
         except errors.ForeignKeyViolation as fk_error:
             return fk_error
@@ -923,14 +925,14 @@ class EventDAO(MasterDAO):
         if websites is not None:
             try:
                 for website in websites:
-                    wid = WebsiteDAO().addWebsite(url=website['url'], cursor=cursor, uid=ecreator)[0]
-
-                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, wdescription=website['wdescription'],
+                    wid = WebsiteDAO().addWebsite(url=website['url'], cursor=cursor, uid=ecreator)
+                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid[0], wdescription=website['wdescription'],
                                                     cursor=cursor, uid=ecreator)
             # Do not know if this is the right error to expect.
             except TypeError as e:
                 return e
-
+            except ValueError as e:
+                return e
         # Commit changes if no errors occur.
         self.conn.commit()
         return result

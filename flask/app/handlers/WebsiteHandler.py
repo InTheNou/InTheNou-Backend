@@ -137,7 +137,7 @@ class WebsiteHandler:
         else:
             return jsonify(Error="Service with sid: "+sid+" not found"),401
 
-    def removeServiceWebsite(self, sid, json, uid):
+    def removeServiceWebsite(self, sid, json,uid):
         """
         """
         for key in SERVICEWEBSITEKEYS:
@@ -156,7 +156,7 @@ class WebsiteHandler:
         else:
             for x in sites:
 
-                ID = (dao.removeWebsitesGivenServiceID(sid=sid, wid=x['wid'], uid=uid))
+                ID = (dao.removeWebsitesGivenServiceID(sid=sid, wid=x['wid'],uid =uid))
                 # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
                     websiteInfo.append(

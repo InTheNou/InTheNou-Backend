@@ -74,7 +74,7 @@ class WebsiteDAO(MasterDAO):
             result.append(row)
         return result
 
-    def createWebsite(self, url, uid):
+    def createWebsite(self, url,uid):
         """
         """       
         try:
@@ -100,7 +100,7 @@ class WebsiteDAO(MasterDAO):
            result = [None, None]
            return result 
 
-    def addWebsite(self, url, cursor):
+    def addWebsite(self, url, cursor,uid):
         """Inserts a website into the website table DOES NOT COMMIT CHANGES TO DB.
         Parameters:
             url: the url for the website
@@ -110,7 +110,6 @@ class WebsiteDAO(MasterDAO):
            """
         temp =url
         url = Find(url)
-        
         cursor = cursor    
         if (url is not None )and (url != "") and len(url)> 0:
                 query = sql.SQL("insert into {table1} "
@@ -127,7 +126,7 @@ class WebsiteDAO(MasterDAO):
                 result = cursor.fetchone()
                 return result
         else:
-            result = None
+            raise ValueError("URL not valid: "+str(temp))
         
       
         
@@ -226,7 +225,7 @@ class WebsiteDAO(MasterDAO):
 
         return {"Websites":websites}
         
-    def removeWebsitesGivenServiceID(self, wid, sid):
+    def removeWebsitesGivenServiceID(self, wid, sid,uid):
         """
         """
         cursor = self.conn.cursor()
