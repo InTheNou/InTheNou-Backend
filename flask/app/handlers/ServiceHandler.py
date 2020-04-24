@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify,Response
 from flask_login import current_user
 from psycopg2 import IntegrityError
 from app.DAOs.ServiceDAO import ServiceDAO
@@ -39,7 +39,7 @@ def _buildServiceResponse(service_tuple):
 def _buildCoreServiceResponse(service_tuple):
     response = {}
     response['sid'] = service_tuple[0]
-    response['rid'] = service_tuple[1]
+    response['rid'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
     response['sname'] = service_tuple[2]
     response['sdescription'] = service_tuple[3]
     response['sschedule'] = service_tuple[4]
@@ -101,6 +101,8 @@ class ServiceHandler:
         websites = WebsiteHandler().unpackWebsites(json=json['Websites'])
         if len(websites) > 10:
             return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
+        
+        
         phones = PhoneHandler().unpackPhones(json=json['PNumbers'])
         if len(websites) > 10:
             return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
@@ -124,9 +126,13 @@ class ServiceHandler:
         try:
             sid = service[0]
         except TypeError:
-            return jsonify(Error="Room has service witht the same name, rid: " + str(roomID) + " service name: "+str(name)), 400
-
-        return jsonify({"sid": sid}), 201
+                return jsonify(Error="Error in input Parameters" ), 400
+        
+        if isinstance(service, Response):
+            return service
+        
+        else:
+            return self.getServiceByID(sid)
 
     def deleteService(self, sid):
         dao = ServiceDAO()

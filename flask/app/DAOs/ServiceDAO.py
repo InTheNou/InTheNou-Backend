@@ -3,6 +3,7 @@ from psycopg2 import sql, errors
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.DAOs.WebsiteDAO import WebsiteDAO
 from app.DAOs.PhoneDAO import PhoneDAO
+from flask import jsonify
 
 
 class ServiceDAO(MasterDAO):
@@ -75,24 +76,30 @@ class ServiceDAO(MasterDAO):
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(rid), str(sname), str(
                 sdescription), str(sschedule), False))
+           
             result = cursor.fetchone()
             sid = result[0]
-
+            
             for site in websites:
-                WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,
-                                                                                      url=site['url'], cursor=cursor)), wdescription=site['wdescription'], cursor=cursor)
-
+                website=(WebsiteDAO.addWebsite(self,url=site['url'], cursor=cursor))
+                if website is None:
+                    print("Website faulty")
+                    return jsonify(Error='Website problem '+site['url'] )
+                else:
+                    WebsiteDAO().addWebsitesToService(sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor)
+            
             for num in numbers:
-                PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
-                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor), cursor=cursor)
+                phone = PhoneDAO.addPhone(self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor)
+                
+                PhoneDAO().addPhoneToService(sid=sid, pid=phone[0], cursor=cursor)
 
         # Commit changes if no errors occur.
             self.conn.commit()
 
         except errors.UniqueViolation as badkey:
-            return badkey
+            return jsonify(Error='Website problem ')
 
-        return result
+        return self.getServiceByID(sid)
 
     def getServiceByID(self, sid):
         """
