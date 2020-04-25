@@ -303,6 +303,14 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
 @app.route(route_prefix + "/App/Buildings/bid=<int:bid>", methods=['GET'])
 @user_role_required
 def getBuildingByID(bid):
+    """Get Building By ID
+
+    .. :quickref: Building; Get Building By bid
+
+    :param bid: Building ID
+    :type bid: int
+    :return: JSON
+    """
     if request.method == 'GET':
         return BuildingHandler().getBuildingByID(bid=bid)
     else:
