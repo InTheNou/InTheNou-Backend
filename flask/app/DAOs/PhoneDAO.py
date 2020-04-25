@@ -1,4 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql, errors
 import phonenumbers
 from flask import jsonify
@@ -46,6 +47,12 @@ class PhoneDAO(MasterDAO):
                 cursor = self.conn.cursor()
             else:
                 cursor = cursor
+
+            audit = AuditDAO()
+            tablename = "phones"
+            pkey = "pnumber"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=pnumber, cursor=cursor)
+
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s, %s) "
@@ -94,6 +101,12 @@ class PhoneDAO(MasterDAO):
         """
         #print('Number ID from Phone remove Query: '+phoneid)
         cursor = self.conn.cursor()
+
+        audit = AuditDAO()
+        tablename = "servicephones"
+        pkey = "phoneid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=phoneid, cursor=cursor)
+
         query = sql.SQL("update {table1} set isdeleted = True  "
                         "where ( {pkey1} = %s AND {pkey2} = %s  ) "
                         "returning {pkey1} ").format(
@@ -153,6 +166,13 @@ class PhoneDAO(MasterDAO):
             if cursor == None:
                 cursor = self.conn.cursor()
             cursor = cursor
+
+            audit = AuditDAO()
+            tablename = 'servicephones'
+            pkeys = ["sid", "phoneid"]
+            oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=sid, pkeyval2=pid, cursor=cursor)
+
             query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s, %s,%s) "

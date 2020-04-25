@@ -134,9 +134,9 @@ class ServiceHandler:
         else:
             return self.getServiceByID(sid)
 
-    def deleteService(self, sid):
+    def deleteService(self, sid, uid):
         dao = ServiceDAO()
-        service = dao.deleteService(sid)
+        service = dao.deleteService(sid, uid=uid)
         if service is not None:
             return jsonify(_buildCoreServiceResponse(service))
         return jsonify(Error="No service with that ID"), 404
@@ -201,7 +201,7 @@ class ServiceHandler:
             response = {'Services': service_list}
             return jsonify(response)
 
-    def updateServiceInformation(self, sid, json):
+    def updateServiceInformation(self, sid, json, uid):
         """
         """
         service = {}
@@ -210,7 +210,7 @@ class ServiceHandler:
                 service[key] = (json[key])
         dao = ServiceDAO()
 
-        id = dao.updateServiceInformation(service=service, sid=sid)
+        id = dao.updateServiceInformation(service=service, sid=sid, uid=uid)
 
         if id is not None:
             response = _buildServiceResponse(dao.getServiceByID(id[0]))

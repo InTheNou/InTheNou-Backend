@@ -1,11 +1,17 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql, errors
 
 
 class TagDAO(MasterDAO):
 
-    def createTag(self, tname):
+    def createTag(self, tname, uid):
         cursor = self.conn.cursor()
+
+        audit = AuditDAO()
+        tablename = "tags"
+        pkey = "tname"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tname, cursor=cursor)
         # Build the query to create an event entry.
         query = sql.SQL("insert into {table1} (tname)  "
                         "VALUES (  %s ) "
@@ -14,13 +20,21 @@ class TagDAO(MasterDAO):
             table1=sql.Identifier('tags'))
         cursor.execute(query, (str(tname), str(tname)))
         result = cursor.fetchone()
+        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tname, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
         return result
 
-    def editTagName(self, tid, tname):
+    def editTagName(self, tid, tname, uid):
         cursor = self.conn.cursor()
         # Build the query to create an event entry.\
         try:
+            audit = AuditDAO()
+            tablename = "tags"
+            pkey = "tid"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tid, cursor=cursor)
+
             query = sql.SQL("update  {table1} SET   "
                             "tname =  %s  "
                             "WHERE tid = %s "
@@ -28,6 +42,9 @@ class TagDAO(MasterDAO):
                 table1=sql.Identifier('tags'))
             cursor.execute(query, (str(tname), int(tid)))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
             return result
 
@@ -141,7 +158,7 @@ class TagDAO(MasterDAO):
             cursor: createEvent method call connection cursor to database.
         """
         cursor = cursor
-
+        # Currently not auditing this method, since creating an event stores info on who and when.
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s);").format(
@@ -152,6 +169,7 @@ class TagDAO(MasterDAO):
             ]))
         cursor.execute(query, (int(eid), int(tid)))
 
+#TODO: METHOD NOT CURRENTLY AUDITING.
     def setUserTag(self, uid, tid, weight, cursor):
         """
         Sets the weight for the users's tag.
@@ -174,6 +192,7 @@ class TagDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
+#TODO: METHOD NOT CURRENTLY AUDITING
     def batchSetUserTags(self, uid, tags, weight):
         cursor = self.conn.cursor()
         result = []

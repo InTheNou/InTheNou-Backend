@@ -28,7 +28,7 @@ class PhoneHandler:
             numbers.append(num)
         return numbers
 
-    def insertServicePhone(self, sid, json):
+    def insertServicePhone(self, sid, uid, json):
         """
         Create a phone number and add it to a service given its ID 
         Parameters:
@@ -76,7 +76,7 @@ class PhoneHandler:
             return response
         return jsonify(response)
 
-    def removePhoneByServiceID(self, sid, json):
+    def removePhoneByServiceID(self, sid, json, uid):
         """
         Remove  a list of phones from a given service ID 
         Paramters:

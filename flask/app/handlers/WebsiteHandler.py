@@ -61,14 +61,14 @@ def _buildWebsiteIDResponse(website_tuple):
 
 
 class WebsiteHandler:
-    def createWebsite(self, url):
+    def createWebsite(self, url, uid):
         """
         Creeates a website entry and returns the wid 
         Parameters:
         url: The url of the website to create
         """
         dao = WebsiteDAO()
-        websiteID = dao.createWebsite(url=url)
+        websiteID = dao.createWebsite(url=url,uid=uid)
         return _buildWebsiteIDResponse(websiteID)
 
     def getWebsiteByID(self, wid):
@@ -112,7 +112,7 @@ class WebsiteHandler:
             return response
         return jsonify(response)
 
-    def insertServiceWebsite(self, sid, json):
+    def insertServiceWebsite(self, sid, json, uid):
         """
         """
         for key in SERVICEWEBSITEKEYS:
@@ -137,7 +137,7 @@ class WebsiteHandler:
         else:
             return jsonify(Error="Service with sid: "+sid+" not found"),401
 
-    def removeServiceWebsite(self, sid, json):
+    def removeServiceWebsite(self, sid, json,uid):
         """
         """
         for key in SERVICEWEBSITEKEYS:
@@ -156,7 +156,7 @@ class WebsiteHandler:
         else:
             for x in sites:
 
-                ID = (dao.removeWebsitesGivenServiceID(sid=sid, wid=x['wid']))
+                ID = (dao.removeWebsitesGivenServiceID(sid=sid, wid=x['wid'],uid =uid))
                 # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
                     websiteInfo.append(

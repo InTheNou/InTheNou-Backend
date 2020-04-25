@@ -1,11 +1,13 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
+
 from psycopg2 import sql
 
 
 class RoomDAO(MasterDAO):
     def roomInfoArgs(self, roomKeys):
         """
-        Given a list of Room information, return a list of fields and values 
+        Given a list of Room information, return a list of fields and values
         """
 
         fields = []
@@ -91,15 +93,20 @@ class RoomDAO(MasterDAO):
             result.append(row)
         return result
 
-    def changeRoomCoordinates(self, rid, roomKeys):
+    def changeRoomCoordinates(self, rid, roomKeys, uid):
         """
-        Change the Room coordinates given a room ID 
-        Parameters 
-        rid: The Id of the room to update coordinates for 
-        roomkeys : The Json object containing the Coordinates to update 
+        Change the Room coordinates given a room ID
+        Parameters
+        rid: The Id of the room to update coordinates for
+        roomkeys : The Json object containing the Coordinates to update
         """
         cursor = self.conn.cursor()
         fields_list = self.roomInfoArgs(roomKeys=roomKeys)
+
+        audit = AuditDAO()
+        tablename = "rooms"
+        pkey = "rid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=rid, cursor=cursor)
 
         query = sql.SQL("update {table1} set {fields}  "
                         "where  {pkey1} = %s  "
@@ -109,6 +116,10 @@ class RoomDAO(MasterDAO):
             pkey1=sql.Identifier('rid'))
         cursor.execute(query, (int(rid), ))
         result = cursor.fetchone()
+
+        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=rid, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
 
         if result is None:
