@@ -5,14 +5,14 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    app.DAOs
    app.handlers
    app.routes
 
 app Submodules
-----------
+--------------
 
 app.config module
 -----------------

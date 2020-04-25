@@ -20,10 +20,9 @@ TIMESTAMP = 'timestamp'
 def _buildCoreEventResponse(event_tuple):
     """
     Private Method to build core event dictionary to be JSONified.
-    Parameters:
-        event_tuple: response tuple from SQL query
-    Returns:
-        Dict: Event information.
+
+    :param event_tuple: response tuple from SQL query
+    :returns Dict: Event information.
     """
     response = {}
     response['eid'] = event_tuple[0]
@@ -43,10 +42,9 @@ def _buildCoreEventResponse(event_tuple):
 def _buildEventResponse(event_tuple):
     """
     Private Method to build event dictionary to be JSONified.
-    Parameters:
-        event_tuple: response tuple from SQL query
-    Returns:
-        Dict: Event information.
+
+    :param event_tuple: response tuple from SQL query
+    :returns Dict: Event information..
     """
     response = {}
     response['eid'] = event_tuple[0]
@@ -69,12 +67,11 @@ def _buildEventResponse(event_tuple):
 
 def _buildTinyEventResponse(event_tuple):
     """
-        Private Method to build tiny event dictionary to be JSONified.
-        Parameters:
-            event_tuple: response tuple from SQL query
-        Returns:
-            Dict: Event information.
-        """
+    Private Method to build tiny event dictionary to be JSONified.
+
+    :param event_tuple: response tuple from SQL query
+    :returns Dict: Event information.
+    """
     response = {}
     response['eid'] = event_tuple[0]
     response['estart'] = str(event_tuple[5])
@@ -86,6 +83,13 @@ def _buildTinyEventResponse(event_tuple):
 
 
 def _validateEventParameters(json, uid):
+    """
+    Private method to validate the parameters passed via JSON to create an event.
+
+    :param json: JSON used to create event.
+    :param uid: User ID of person trying to create the event.
+    :raises: ValueError
+    """
     if not isinstance(uid, int) or uid <= 0:
         raise ValueError("ecreator uid value not valid: " + str(uid))
     if not isinstance(json['roomid'], int) or json['roomid'] <= 0:
@@ -112,12 +116,25 @@ def _validateEventParameters(json, uid):
 
 
 def _validateItype(itype):
+    """
+    Validates itype.
+
+    :param itype: type of interaction
+    :return: bool
+    """
     if itype not in ITYPES:
         return False
     return True
 
 
 def _validateTimestamp(datestring):
+    """
+    Validates timestamp
+
+    :param: datestring
+    :return: bool
+    :raises: ValueError
+    """
     try:
         if datestring != datetime.strptime(datestring, DATETIME_FORMAT).strftime(DATETIME_FORMAT):
             raise ValueError
@@ -127,12 +144,26 @@ def _validateTimestamp(datestring):
 
 
 def _validateStartEndDates(start, end):
+    """
+    Validate that Event Start time is not less than the end time.
+
+    :param start: Start timestamp
+    :param end: end timestamp
+    :return: bool
+    """
     if datetime.strptime(start, DATETIME_FORMAT) < datetime.strptime(end, DATETIME_FORMAT):
         return True
     return False
 
 
 def _validate_uid_eid(uid, eid):
+    """
+    Validate that a User ID and Event ID are integers.
+
+    :param uid: User ID
+    :param eid: Event ID
+    :raises: ValueError
+    """
     if not isinstance(uid, int) or uid < 0:
         raise ValueError("Invalid uid: " + str(uid))
     if not isinstance(eid, int) or eid < 0:
@@ -217,6 +248,14 @@ class EventHandler:
         return jsonify(response)
 
     def getAllEventsSegmented(self, offset, limit=20):
+        """Get all events.
+
+           :param offset: Number of results to skip from top of list.
+           :type offset: int
+           :param limit: Number of results to return. Default = 20.
+           :type limit: int
+           :returns JSON Response Object: JSON Response Object containing success or error response.
+           """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
@@ -234,6 +273,14 @@ class EventHandler:
         return jsonify(response)
 
     def getAllPastEventsSegmented(self, offset, limit=20):
+        """Get all events whose end dates are equal to or less than the current timestamp of the database.
+
+           :param offset: Number of results to skip from top of list.
+           :type offset: int
+           :param limit: Number of results to return. Default = 20.
+           :type limit: int
+           :returns JSON Response Object: JSON Response Object containing success or error response.
+           """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
@@ -252,7 +299,12 @@ class EventHandler:
 
     def getEventByID(self, eid, no_json=False):
         """Return the event entry belonging to the specified eid.
-        eid -- event ID.
+
+        :param eid: Event ID
+        :type eid: int
+        :param no_json: States whether or not to return the successful response as a dictionary.
+        :type no_json: bool
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         if not isinstance(eid, int) or not eid > 0:
             return jsonify(Error="Invalid eid: " + str(eid)), 400
@@ -267,14 +319,14 @@ class EventHandler:
             return jsonify(response)
 
     def getEventByIDWithInteraction(self, eid, uid):
-        """Return the event entry belonging to the specified eid, plus the user interaction entry
-        for the given uid.
-        Parameters:
-            eid: event id
-            uid: user ID
-        Return:
-            JSON: json response with event IDs and tags for each event.
-            """
+        """Return the event entry belonging to the specified eid, plus the user interaction entry for the given uid.
+
+        :param eid: Event ID
+        :type eid: int
+        :param uid: User ID
+        :type uid: int
+        :returns JSON Response Object: json response with event IDs and tags for each event.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         if not isinstance(eid, int) or not eid > 0:
@@ -302,11 +354,12 @@ class EventHandler:
         """
         Get the upcoming active event IDs that a user has not interacted with,
         along with the tags for that event.
-        Parameters:
-            timestamp: ISO formatted timestamp string.
-            uid: the user's ID.
-        Return:
-            JSON: json response with event IDs and tags for each event.
+
+        :param timestamp: ISO formatted timestamp string. ("%Y-%m-%d %H:%M:%S")
+        :type timestamp: str
+        :param uid: the user's ID.
+        :type uid: int
+        :returns JSON Response Object: json response with event IDs and tags for each event.
         """
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
@@ -327,13 +380,15 @@ class EventHandler:
 
     def getEventsCreatedByUser(self, uid, offset, limit=20):
         """Return the events created by a given user, specified by offset and limit parameters.
-        Parameters:
-            uid: User ID
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Return:
-            JSON Response Object: JSON containing limit-defined number of events created by a user.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events created by a user.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -356,13 +411,15 @@ class EventHandler:
 
     def getDismissedEvents(self, uid, offset, limit=20):
         """Return the dismissed event entries specified by offset and limit parameters.
-        Parameters:
-            uid: User ID
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Return:
-            JSON Response Object: JSON containing limit-defined number of dismissed events.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events dismissed by a user.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -385,6 +442,13 @@ class EventHandler:
         return jsonify(response)
 
     def getNewDeletedEvents(self, timestamp):
+        """
+        Get a list of the core information for events deleted at or after the given timestamp.
+
+        :param timestamp: Time used to look for events that have been deleted at or after. ("%Y-%m-%d %H:%M:%S")
+        :type timestamp: str
+        :returns JSON Response Object: JSON containing limit-defined number of events dismissed by a user.
+        """
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
         dao = EventDAO()
@@ -401,13 +465,15 @@ class EventHandler:
 
     def getPastFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the user's followed event entries that have ended, specified by offset and limit parameters.
-        Parameters:
-            uid: User ID
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Return:
-            JSON Response Object: JSON containing limit-defined number past, followed events.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events followed by a user that have ended.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -431,13 +497,15 @@ class EventHandler:
 
     def getUpcomingFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, followed event entries specified by offset and limit parameters.
-        Parameters:
-            uid: User ID
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Return:
-            JSON Response Object: JSON containing limit-defined number of upcoming, active events.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events followed by a user that have not ended.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -461,13 +529,15 @@ class EventHandler:
 
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
-        Parameters:
-            uid: User ID
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Return:
-            JSON Response Object: JSON containing limit-defined number of upcoming, active events.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events that have not ended.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -492,14 +562,17 @@ class EventHandler:
 
     def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
-               Parameters:
-                   uid: User ID
-                   searchstring: string with search terms separated by whitespaces
-                   offset: Number of result rows to ignore from top of query results.
-                   limit: Max number of result rows to return. Default=10.
-               Return:
-                   JSON Response Object: JSON containing limit-defined number of upcoming, active events.
-                       """
+
+        :param uid: User ID
+        :type uid: int
+        :param searchstring: String to use as search criteria for general events. Search terms must be separated by whitespaces.
+        :type searchstring: str
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events that have not ended and match search criteria.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -526,13 +599,15 @@ class EventHandler:
 
     def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, recommended event entries specified by offset and limit parameters.
-        Parameters:
-            uid: User ID
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Return:
-            JSON Response Object: JSON containing limit-defined number of upcoming, active events.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of events recommended to a user that have not ended.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -556,14 +631,17 @@ class EventHandler:
 
     def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
-               Parameters:
-                   uid: User ID
-                   searchstring: string with search terms separated by whitespaces
-                   offset: Number of result rows to ignore from top of query results.
-                   limit: Max number of result rows to return. Default=20.
-               Return:
-                   JSON Response Object: JSON containing limit-defined number of upcoming, active events.
-                       """
+
+        :param uid: User ID
+        :type uid: int
+        :param searchstring: String to use as search criteria for recommended events. Search terms must be separated by whitespaces.
+        :type searchstring: str
+        :param offset: Number of result rows to ignore from top of query results.
+        :type offset: int
+        :param limit: Max number of result rows to return. Default=20.
+        :type limit: int
+        :returns JSON Response Object: JSON containing limit-defined number of recommended events that have not ended and match search criteria.
+        """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
         try:
@@ -590,13 +668,15 @@ class EventHandler:
 
     def setEventStatus(self, uid, eid, estatus):
         """Set the estatus of an event entry to the specified value.
-        Parameters:
-            uid: User ID
-            eid: Event ID.
-            estatus: status string.
-        Return:
-            JSON Response Object: JSON containing successful post response.
-                """
+
+        :param uid: User ID
+        :type uid: int
+        :param eid: Event ID.
+        :type eid: int
+        :param estatus: New status for event. Current Accepted statuses: ['active', 'deleted']
+        :type estatus: str
+        :returns JSON Response Object: JSON containing successful post response.
+        """
         try:
             _validate_uid_eid(uid=uid, eid=eid)
         except ValueError as ve:
@@ -614,15 +694,16 @@ class EventHandler:
             return jsonify(Error=str(uid_eid_pair)), 400
 
     def setInteraction(self, uid, eid, itype):
-        """Set an eventuserinteractions entry that states the user has interacted with
-        the specified event.
-        Parameters:
-            uid: User ID
-            eid: Event ID.
-            itype: type of interaction string.
-        Return:
-            JSON Response Object: JSON containing successful post response.
-                """
+        """Set an eventuserinteractions entry that states the user has interacted with the specified event.
+
+        :param uid: User ID
+        :type uid: int
+        :param eid: Event ID.
+        :type eid: int
+        :param itype: type of interaction. Currently accepted interactions: ["following", "unfollowed", "dismissed"]
+        :type itype: str
+        :returns JSON Response Object: JSON containing post response.
+        """
         try:
             _validate_uid_eid(uid=uid, eid=eid)
         except ValueError as ve:
@@ -653,15 +734,16 @@ class EventHandler:
             return jsonify(Error=str(result)), 400
 
     def setRecommendation(self, uid, eid, recommendstatus):
-        """Set an eventuserinteractions entry that states if the specified event
-        has been recommended to the user or not.
-        Parameters:
-            uid: User ID
-            eid: Event ID.
-            recommendstatus: qualitative result of recommendation calculation.
-        Return:
-            JSON Response Object: JSON containing successful post response.
-                """
+        """Set an eventuserinteractions entry that states if the specified event has been recommended to the user or not.
+
+        :param uid: User ID
+        :type uid: int
+        :param eid: Event ID.
+        :type eid: int
+        :param recommendstatus: qualitative result of recommendation calculation. Currently accepted recommendstatus: ["R", "N"]
+        :type recommendstatus: str
+        :returns JSON Response Object: JSON containing post response.
+        """
         try:
             _validate_uid_eid(uid=uid, eid=eid)
         except ValueError as ve:
@@ -677,5 +759,3 @@ class EventHandler:
                             "eid": uid_eid_pair[1]}), 201
         except TypeError:
             return jsonify(Error=str(uid_eid_pair)), 400
-
-
