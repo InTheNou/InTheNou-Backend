@@ -67,7 +67,7 @@ def signup():
                 info['uid']=int(current_user.id)
                 print("Registering tags : "+str(info["tags"]))
                 
-                tags =   TagHandler().batchSetUserTags(json=info, weight=100, no_json=True)
+                tags =   TagHandler().batchSetUserTags(uid= user.id,json=info, weight=100, no_json=True)
                 tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
             return (tags)
     else:
@@ -82,7 +82,8 @@ def app_login():
         user = query.one()
         
     except NoResultFound:
-        return jsonify(Error="User must create account for: "+str(info['email'])),200
+        token = {"Token":"This_is_a_token"}
+        return jsonify(token),200
 
     query = OAuth.query.filter_by(
         token = info['access_token'], id=user.id, user=user)

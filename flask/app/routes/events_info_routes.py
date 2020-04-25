@@ -348,12 +348,31 @@ def getServicesByKeywords(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# This route is used before signup is called/before session is created.
-# TODO: Figure out if there is some other way to secure this route without sessions.
+
 @app.route(route_prefix + "/App/Tags", methods=['GET'])
 def getAllTags():
     if request.method == 'GET':
-        return TagHandler().getAllTags()
+        try:
+            #Check for session 
+            if current_user.id:
+                print(str(current_user.id))
+                return TagHandler().getAllTags()
+            
+        except:
+            #No session Found
+            #Check for token in Json body
+                try:
+                    #TODO Make this check for token dynamically 
+                    if str(request.headers['Token']) == 'This_is_a_token':
+                        
+                        return TagHandler().getAllTags()
+                    else:
+                        return jsonify(Error="Try loggin in first "), 401
+                except: 
+                #No Token found
+                    return jsonify(Error="Try loggin in first "), 401
+        
+        return jsonify(Error="Try loggin in first "), 401   
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -408,14 +427,14 @@ def setUserTagsToDefault():
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
+# TODO: verify audit function is working
 @app.route(route_prefix + "/Dashboard/Tags/Create", methods=['POST'])
 @admin_role_required
 def createTag():
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().createTags(jsonTags=request.json)
+        return TagHandler().createTags(jsonTags=request.json, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -426,7 +445,7 @@ def editTagName(tid):
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
-        return TagHandler().editTagName(tid=tid, json=request.json)
+        return TagHandler().editTagName(tid=tid, json=request.json, uid=int(current_user.id))
 
     else:
         return jsonify(Error="Method not allowed."), 405

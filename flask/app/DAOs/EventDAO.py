@@ -1,4 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from app.DAOs.PhotoDAO import PhotoDAO
 from app.DAOs.TagDAO import TagDAO
 from app.DAOs.WebsiteDAO import WebsiteDAO
@@ -13,6 +14,10 @@ DELETED_STRING = 'deleted'
 
 
 class EventDAO(MasterDAO):
+    """
+    All Methods in this DAO close connections upon proper completion.
+    Do not instantiate this class and assign it, as running a method call will render it useless afterwards.
+    """
 
 
     def getEventByID(self, eid):
@@ -48,6 +53,7 @@ class EventDAO(MasterDAO):
             pkey=sql.Identifier('eid'))
         cursor.execute(query, (int(eid),))
         result = cursor.fetchone()
+        self.conn.close()
         return result
 
     def getAllEventsSegmented(self, offset, limit):
@@ -87,6 +93,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getAllPastEventsSegmented(self, offset, limit):
@@ -127,6 +134,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getAllDeletedEventsSegmented(self, offset, limit):
@@ -167,6 +175,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit):
@@ -219,6 +228,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, keywords, offset, limit):
@@ -274,6 +284,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getUpcomingFollowedEventsSegmented(self, uid, offset, limit):
@@ -325,6 +336,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit):
@@ -378,6 +390,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, keywords, offset, limit):
@@ -433,6 +446,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getPastFollowedEventsSegmented(self, uid, offset, limit):
@@ -484,6 +498,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getDismissedEvents(self, uid, offset, limit):
@@ -534,6 +549,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getNewDeletedEvents(self, timestamp):
@@ -565,6 +581,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getEventIDsCreatedAfterTimestamp(self, uid, timestamp):
@@ -593,6 +610,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getEventsCreatedByUser(self, uid, offset, limit):
@@ -638,6 +656,7 @@ class EventDAO(MasterDAO):
         result = []
         for row in cursor:
             result.append(row)
+        self.conn.close()
         return result
 
     def getEventInteractionByUserID(self, eid, uid):
@@ -662,6 +681,7 @@ class EventDAO(MasterDAO):
             pkey2=sql.Identifier('uid'))
         cursor.execute(query, (int(eid), int(uid)))
         result = cursor.fetchone()
+        self.conn.close()
         return result
 
     def setInteraction(self, uid, eid, itype):
@@ -734,6 +754,12 @@ class EventDAO(MasterDAO):
         except errors.ForeignKeyViolation as fke:
             return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
 
+        audit = AuditDAO()
+        tablename='eventuserinteractions'
+        pkeys = ["eid", "uid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=eid, pkeyval2=uid, cursor=cursor)
+
         # if you get here with no errors, update the interaction and finish.
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
@@ -755,10 +781,19 @@ class EventDAO(MasterDAO):
             ukey1=sql.Identifier('itype'))
         try:
             cursor.execute(query, (str(itype), int(uid), int(eid), str(itype)))
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=eid, pkeyval2=uid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
+            self.conn.close()
             result = updated_usertags
         except errors.ForeignKeyViolation as fke:
+            self.conn.close()
             return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
+        except ValueError as e:
+            self.conn.close()
+            return e
         return result
 
     def setRecommendation(self, uid, eid, recommendstatus):
@@ -774,6 +809,11 @@ class EventDAO(MasterDAO):
             List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        tablename = 'eventuserinteractions'
+        pkeys = ["eid", "uid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=eid, pkeyval2=uid, cursor=cursor)
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "VALUES ('none', %s, %s, %s) "
@@ -795,14 +835,23 @@ class EventDAO(MasterDAO):
         try:
             cursor.execute(query, (str(recommendstatus), int(uid), int(eid), str(recommendstatus)))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=eid, pkeyval2=uid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+
             self.conn.commit()
+            self.conn.close()
         except errors.ForeignKeyViolation as e:
+            self.conn.close()
             return ValueError("Invalid values: eid=" + str(eid) + " uid=" + str(uid))
+        except ValueError as e:
+            self.conn.close()
+            return e
         return result
 
-
 # todo: Conisder setting the statusdate via trigger.
-    def setEventStatus(self, eid, estatus):
+    def setEventStatus(self, eid, estatus, uid):
         """
          Sets the estatus for a given event.
         Parameters:
@@ -812,6 +861,10 @@ class EventDAO(MasterDAO):
             List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        tablename = "events"
+        pkey = "eid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
         query = sql.SQL("update {table1} "
                         "set {ukey1} = %s,"
                         "estatusdate = CURRENT_TIMESTAMP  "
@@ -823,9 +876,18 @@ class EventDAO(MasterDAO):
         try:
             cursor.execute(query, (str(estatus), int(eid)))
             result = cursor.fetchone()
+
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=eid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
+            self.conn.close()
         except errors.ForeignKeyViolation as e:
+            self.conn.close()
             return ValueError("Invalid values: eid=" + str(eid))
+        except ValueError as e:
+            self.conn.close()
+            return e
         return result
 
     def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, tags, photourl, websites):
@@ -847,7 +909,7 @@ class EventDAO(MasterDAO):
         cursor = self.conn.cursor()
 
         # Insert photo into table if it does not exist, then get the photoid.
-        photoid = PhotoDAO().insertPhoto(photourl=photourl, cursor=cursor)[0]
+        photoid = PhotoDAO().insertPhoto(photourl=photourl, uid=ecreator, cursor=cursor)[0]
 
         # Build the query to create an event entry.
         query = sql.SQL("insert into {table1} ({insert_fields})"
@@ -874,29 +936,36 @@ class EventDAO(MasterDAO):
                                    str(estart), str(eend), 'active', None, photoid))
             result = cursor.fetchone()
             eid = result[0]
+            
         except errors.UniqueViolation as unique_error:
+            self.conn.close()
             return errors.UniqueViolation("An event with the same name, in the same room, "
                                           "that starts at the same time, already exists in the system.")
 
         # Once the event is created, tag it with the list of tags provided. Catch any bad tags.
         try:
             for tag in tags:
+                
                 TagDAO().tagEvent(eid=eid, tid=tag, cursor=cursor)
         except errors.ForeignKeyViolation as fk_error:
+            self.conn.close()
             return fk_error
 
         # Once tagged, insert the websites, if any, that do not already exist, and relate them to the event.
         if websites is not None:
             try:
                 for website in websites:
-                    wid = WebsiteDAO().addWebsite(url=website['url'], cursor=cursor)[0]
-
-                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid, wdescription=website['wdescription'],
-                                                    cursor=cursor)
+                    wid = WebsiteDAO().addWebsite(url=website['url'], cursor=cursor, uid=ecreator)
+                    WebsiteDAO().addWebsitesToEvent(eid=eid, wid=wid[0], wdescription=website['wdescription'],
+                                                    cursor=cursor, uid=ecreator)
             # Do not know if this is the right error to expect.
             except TypeError as e:
+                self.conn.close()
                 return e
-
+            except ValueError as e:
+                self.conn.close()
+                return e
         # Commit changes if no errors occur.
         self.conn.commit()
+        self.conn.close()
         return result
