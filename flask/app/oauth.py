@@ -108,8 +108,8 @@ def admin_role_required(f):
             else:
                 flash("You need to be an admin for this action.")
                 return jsonify(Error="Admin role required"),401
-        except:
-                return jsonify(Error="You need to be logged in  "),403
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap
 
 
@@ -122,8 +122,8 @@ def mod_role_required(f):
             else:
                 flash("You need to be a moderator for this action.")
                 return jsonify(Error="Moderator role required"),401
-        except:
-                return jsonify(Error="You need to be logged in  "),403
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap
 
 
@@ -136,8 +136,8 @@ def event_creator_role_required(f):
             else:
                 flash("You need to be a event creator for this action.")
                 return jsonify(Error="Event creator role required "),401
-        except:
-                return jsonify(Error="You need to be logged in  "),403
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap
 
 
@@ -151,6 +151,6 @@ def user_role_required(f):
             else:
                 flash("You need to be a user for this action.")
                 return jsonify(Error="Event creator role required "),401
-        except:
-                return jsonify(Error="You need to be logged in  "),403
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap
