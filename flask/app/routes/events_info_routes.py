@@ -310,6 +310,48 @@ def getBuildingByID(bid):
     :param bid: Building ID
     :type bid: int
     :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+      GET /API/App/Buildings/bid=1 HTTP/1.1
+      Host: inthenou.uprm.edu
+      Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept
+      Content-Type: text/javascript
+
+      [
+        {
+          "post_id": 12345,
+          "author_id": 123,
+          "tags": ["server", "web"],
+          "subject": "I tried Nginx"
+        },
+        {
+          "post_id": 12346,
+          "author_id": 123,
+          "tags": ["html5", "standards", "web"],
+          "subject": "We go to HTML 5"
+        }
+      ]
+
+    :query sort: one of ``hit``, ``created-at``
+    :query offset: offset number. default is 0
+    :query limit: limit number. default is 30
+    :reqheader Accept: the response content type depends on
+                      :mailheader:`Accept` header
+    :reqheader Authorization: optional OAuth token to authenticate
+    :resheader Content-Type: this depends on :mailheader:`Accept`
+                            header of request
+    :statuscode 200: no error
+    :statuscode 404: there's no user
     """
     if request.method == 'GET':
         return BuildingHandler().getBuildingByID(bid=bid)
