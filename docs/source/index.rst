@@ -10,7 +10,7 @@ Welcome to InTheNou Backend's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   app
    app.routes.api
 
 

@@ -11,16 +11,22 @@ Subpackages
    app.handlers
    app.routes
 
-Submodules
+app Submodules
 ----------
 
 app.config module
 -----------------
 
 .. automodule:: app.config
+.. autoclass:: app.config.Config
+.. autoclass:: app.config.SimpleSecureCookieSessionInterface
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. py:method:: app.config.decodeFlaskCookie
+.. py:method:: app.config.encodeFlaskCookie
+
 
 app.models module
 -----------------
@@ -34,15 +40,6 @@ app.oauth module
 ----------------
 
 .. automodule:: app.oauth
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: app
    :members:
    :undoc-members:
    :show-inheritance:

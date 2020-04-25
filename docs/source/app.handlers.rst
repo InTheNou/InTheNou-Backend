@@ -1,86 +1,74 @@
 app.handlers package
 ====================
 
-Submodules
-----------
-
-app.handlers.BuildingHandler module
------------------------------------
+BuildingHandler
+---------------
 
 .. automodule:: app.handlers.BuildingHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.EventHandler module
---------------------------------
+EventHandler
+------------
 
 .. automodule:: app.handlers.EventHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.PhoneHandler module
---------------------------------
+PhoneHandler
+------------
 
 .. automodule:: app.handlers.PhoneHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.RoomHandler module
--------------------------------
+RoomHandler
+-----------
 
 .. automodule:: app.handlers.RoomHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.ServiceHandler module
-----------------------------------
+ServiceHandler
+--------------
 
 .. automodule:: app.handlers.ServiceHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.SharedValidationFunctions module
----------------------------------------------
+SharedValidationFunctions
+-------------------------
 
 .. automodule:: app.handlers.SharedValidationFunctions
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.TagHandler module
-------------------------------
+TagHandler
+----------
 
 .. automodule:: app.handlers.TagHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.UserHandler module
--------------------------------
+UserHandler
+-----------
 
 .. automodule:: app.handlers.UserHandler
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.handlers.WebsiteHandler module
-----------------------------------
+WebsiteHandler
+--------------
 
 .. automodule:: app.handlers.WebsiteHandler
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: app.handlers
    :members:
    :undoc-members:
    :show-inheritance:

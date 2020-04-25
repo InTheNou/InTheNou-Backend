@@ -1,94 +1,82 @@
 app.DAOs package
 ================
 
-Submodules
-----------
-
-app.DAOs.BuildingDAO module
----------------------------
+BuildingDAO
+-----------
 
 .. automodule:: app.DAOs.BuildingDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.EventDAO module
-------------------------
+EventDAO
+--------
 
 .. automodule:: app.DAOs.EventDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.MasterDAO module
--------------------------
+MasterDAO
+---------
 
 .. automodule:: app.DAOs.MasterDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.PhoneDAO module
-------------------------
+PhoneDAO
+--------
 
 .. automodule:: app.DAOs.PhoneDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.PhotoDAO module
-------------------------
+PhotoDAO
+--------
 
 .. automodule:: app.DAOs.PhotoDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.RoomDAO module
------------------------
+RoomDAO
+-------
 
 .. automodule:: app.DAOs.RoomDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.ServiceDAO module
---------------------------
+ServiceDAO
+----------
 
 .. automodule:: app.DAOs.ServiceDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.TagDAO module
-----------------------
+TagDAO
+------
 
 .. automodule:: app.DAOs.TagDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.UserDAO module
------------------------
+UserDAO
+-------
 
 .. automodule:: app.DAOs.UserDAO
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.DAOs.WebsiteDAO module
---------------------------
+WebsiteDAO
+----------
 
 .. automodule:: app.DAOs.WebsiteDAO
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: app.DAOs
    :members:
    :undoc-members:
    :show-inheritance:

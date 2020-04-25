@@ -21,6 +21,14 @@ DB_URI = 'postgresql+psycopg2://{user}:{pw}@{hostname}:{port}/{db}'.format(
 
 
 class Config(object):
+    """
+    Configuration file that handles setting global variables for data access/connections.
+
+    :var: SECRET_KEY
+    :var: SQLALCHEMY_TRACK_MODIFICATIONS
+    :var: GOOGLE_OAUTH_CLIENT_ID
+    :var: GOOGLE_OAUTH_CLIENT_SECRET
+    """
     SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
