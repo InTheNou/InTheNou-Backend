@@ -100,7 +100,7 @@ Create table rooms
    rAltitude decimal(10,6) NOT NULL,
    photoID int references Photos(photoID),
    rdescription_tokens tsvector,
-   constraint Unique_rcode_per_building UNIQUE (bid, rcode)
+   constraint "Unique_rcode_per_building" UNIQUE (bid, rcode)
 );
 
 /* For searching the tokens of rooms, use both languages:
