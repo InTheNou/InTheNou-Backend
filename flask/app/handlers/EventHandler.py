@@ -140,16 +140,29 @@ def _validate_uid_eid(uid, eid):
 
 
 class EventHandler:
+    """
+    Handler Class to manage getting/creating/modifying events and event-user interactions.
+    """
     # todo: extract all/most of hardcoded key names to variables.
 
     def createEvent(self, json, uid):
         """Attempt to create an event.
-        Parameters:
-            uid: User ID.
-            json: JSON object with the following keys:
-                roomid, etitle, edescription, estart, eend, photourl, websites, tags
-        Return:
-            JSON Response Object: JSON containing success or error response.
+
+        :param uid: User ID.
+        :type uid: int
+        :param json: JSON object with the following keys:
+
+                * roomid
+                * etitle
+                * edescription
+                * estart
+                * eend
+                * photourl
+                * websites
+                * tags
+
+        :type json: JSON
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         for key in CREATEEVENTKEYS:
             if key not in json:
@@ -179,6 +192,14 @@ class EventHandler:
         return jsonify({"eid": eid}), 201
 
     def getAllDeletedEventsSegmented(self, offset, limit=20):
+        """Get all events that have been marked as deleted.
+
+                :param offset: Number of results to skip from top of list.
+                :type offset: int
+                :param limit: Number of results to return. Default = 20.
+                :type limit: int
+                :returns JSON Response Object: JSON Response Object containing success or error response.
+                """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
