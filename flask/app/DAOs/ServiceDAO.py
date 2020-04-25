@@ -97,7 +97,7 @@ class ServiceDAO(MasterDAO):
             sid = result[0]
             
             for site in websites:
-                website=(WebsiteDAO.addWebsite(self,url=site['url'], cursor=cursor))
+                website=(WebsiteDAO.addWebsite(self,url=site['url'], cursor=cursor,uid = uid))
                 if website is None:
                     print("Website faulty")
                     return jsonify(Error='Website problem '+site['url'] )
