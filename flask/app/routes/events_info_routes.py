@@ -32,36 +32,356 @@ def internal_server_error(error):
 @app.route(route_prefix + "/App/Events/eid=<int:eid>", methods=['GET'])
 @user_role_required
 def getEventByID(eid):
+    """
+       .. py:decorator:: user_role_required
+
+       Uses :func:`~app.handlers.EventHandler.EventHandler.getEventByID`
+
+       Get Event By ID
+
+       .. :quickref: Event; Get Event By bid
+
+       :param eid: Event ID
+       :type eid: int
+       :return: JSON
+
+       **Example request**:
+
+       .. sourcecode:: http
+
+         GET /API/App/Events/eid=1 HTTP/1.1
+         Host: inthenou.uprm.edu
+         Accept: application/json
+
+       **Example response**:
+
+       .. sourcecode:: http
+
+         HTTP/1.1 200 OK
+         Vary: Accept
+         Content-Type: text/javascript
+
+         {
+            "ecreation": "2020-04-25 21:42:57.094493",
+            "ecreator": {
+                "display_name": "Diego Amador",
+                "email": "diego.amador@upr.edu",
+                "roleid": 3,
+                "type": "Professor",
+                "uid": 2
+            },
+            "edescription": "Meeting to discuss plans for integration phase.",
+            "eend": "2020-08-05 17:41:00",
+            "eid": 1,
+            "estart": "2020-08-05 15:41:00",
+            "estatus": "active",
+            "estatusdate": "2020-04-25 21:44:00.365692",
+            "etitle": "Alpha Code Team Meeting",
+            "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
+            "room": {
+                "building": {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Academico",
+                    "distinctfloors": [1,2,3,4,5,6,7],
+                    "numfloors": 7,
+                    "photourl": null
+                },
+                "photourl": null,
+                "raltitude": 50.04,
+                "rcode": "123A1",
+                "rcustodian": "naydag.santiago@upr.edu",
+                "rdept": "INGENIERIA ELECTRICA",
+                "rdescription": "CAPSTONE",
+                "rfloor": 1,
+                "rid": 56,
+                "rlatitude": 50.04,
+                "rlongitude": 50.04,
+                "roccupancy": 0
+            },
+            "tags": [
+                {"tid": 6,"tname": "ARTE"},
+                {"tid": 42,"tname": "FILO"},
+                {"tid": 54,"tname": "ICOM"},
+                {"tid": 64,"tname": "INSO"}
+            ],
+            "websites": [
+                {
+                    "url": "http://ece.uprm.edu/~fvega/",
+                    "wdescription": "Our clients webpage",
+                    "wid": 2
+                }
+            ]
+         }
+
+       :reqheader Cookie: Must contain session token to authenticate.
+       :resheader Content-Type: application/json
+       :statuscode 200: no error
+       :statuscode 404: Event does not exist
+       """
     if request.method == 'GET':
         return EventHandler().getEventByID(eid=eid)
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
-# old route: /App/Events/eid=<int:eid>/uid=<int:uid>
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/Interaction", methods=['GET'])
 @user_role_required
 def getEventByIDWithInteractions(eid):
+    """
+          .. py:decorator:: user_role_required
+
+          Uses :func:`~app.handlers.EventHandler.EventHandler.getEventByIDWithInteraction`
+
+          Get Event By ID, and include the user's interactions with it (if any).
+
+          .. :quickref: Event; Get Event By bid with user's interaction
+
+          :param eid: Event ID
+          :type eid: int
+          :return: JSON
+
+          **Example request**:
+
+          .. sourcecode:: http
+
+            GET /API/App/Events/eid=1/Interaction HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
+
+          **Example response**:
+
+          .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+               "ecreation": "2020-04-25 21:42:57.094493",
+               "ecreator": {
+                   "display_name": "Diego Amador",
+                   "email": "diego.amador@upr.edu",
+                   "roleid": 3,
+                   "type": "Professor",
+                   "uid": 2
+               },
+               "edescription": "Meeting to discuss plans for integration phase.",
+               "eend": "2020-08-05 17:41:00",
+               "eid": 1,
+               "estart": "2020-08-05 15:41:00",
+               "estatus": "active",
+               "estatusdate": "2020-04-25 21:44:00.365692",
+               "etitle": "Alpha Code Team Meeting",
+               "itype": "unfollowed",
+               "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
+               "recommendstatus": "N",
+               "room": {
+                   "building": {
+                       "babbrev": "S",
+                       "bcommonname": "STEFANI",
+                       "bid": 1,
+                       "bname": "LUIS A STEFANI (INGENIERIA)",
+                       "btype": "Academico",
+                       "distinctfloors": [1,2,3,4,5,6,7],
+                       "numfloors": 7,
+                       "photourl": null
+                   },
+                   "photourl": null,
+                   "raltitude": 50.04,
+                   "rcode": "123A1",
+                   "rcustodian": "naydag.santiago@upr.edu",
+                   "rdept": "INGENIERIA ELECTRICA",
+                   "rdescription": "CAPSTONE",
+                   "rfloor": 1,
+                   "rid": 56,
+                   "rlatitude": 50.04,
+                   "rlongitude": 50.04,
+                   "roccupancy": 0
+               },
+               "tags": [
+                   {"tid": 6,"tname": "ARTE"},
+                   {"tid": 42,"tname": "FILO"},
+                   {"tid": 54,"tname": "ICOM"},
+                   {"tid": 64,"tname": "INSO"}
+               ],
+               "websites": [
+                   {
+                       "url": "http://ece.uprm.edu/~fvega/",
+                       "wdescription": "Our clients webpage",
+                       "wid": 2
+                   }
+               ]
+            }
+
+          :reqheader Cookie: Must contain session token to authenticate.
+          :resheader Content-Type: application/json
+          :statuscode 200: no error
+          :statuscode 404: Event does not exist
+          """
     if request.method == 'GET':
         return EventHandler().getEventByIDWithInteraction(eid=eid, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/CAT/timestamp=<string:timestamp>/uid=<int:uid>
 @app.route(route_prefix + "/App/Events/CAT/timestamp=<string:timestamp>", methods=['GET'])
 @user_role_required
 def getEventsCreatedAfterTimestamp(timestamp):
+    """
+              .. py:decorator:: user_role_required
+
+              Uses :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedAfterTimestamp`
+
+              Get Events created after the submitted timestamp.
+
+              .. :quickref: Event; Get events created after timestamp
+
+              :param timestamp: ISO formatted timestamp
+              :type timestamp: str
+              :return: JSON
+
+              **Example request**:
+
+              .. sourcecode:: http
+
+                GET /API/App/Events/CAT/timestamp=2020-01-30%2000:00:00 HTTP/1.1
+                Host: inthenou.uprm.edu
+                Accept: application/json
+
+              **Example response**:
+
+              .. sourcecode:: http
+
+                HTTP/1.1 200 OK
+                Vary: Accept
+                Content-Type: text/javascript
+
+                {
+                    "events": [
+                        {
+                            "eid": 4,
+                            "tags": [
+                                {"tid": 1,"tname": "ADMI"},
+                                {"tid": 2,"tname": "ADOF"},
+                                {"tid": 3,"tname": "AGRO"},
+                                {"tid": 4,"tname": "ALEM"},
+                                {"tid": 5,"tname": "ANTR"},
+                                {"tid": 6,"tname": "ARTE"}
+                            ]
+                        },
+                        {
+                            "eid": 6,
+                            "tags": [
+                                {"tid": 1,"tname": "ADMI"},
+                                {"tid": 2,"tname": "ADOF"},
+                                {"tid": 3,"tname": "AGRO"},
+                                {"tid": 4,"tname": "ALEM"},
+                                {"tid": 5,"tname": "ANTR"},
+                                {"tid": 6,"tname": "ARTE"},
+                                {"tid": 7,"tname": "ASTR"}
+                            ]
+                        },
+                        {
+                            "eid": 7,
+                            "tags": [
+                                {"tid": 1,"tname": "ADMI"},
+                                {"tid": 2,"tname": "ADOF"},
+                                {"tid": 3,"tname": "AGRO"},
+                                {"tid": 4,"tname": "ALEM"},
+                                {"tid": 5,"tname": "ANTR"},
+                                {"tid": 6,"tname": "ARTE"}
+                            ]
+                        }
+                    ]
+                }
+
+              :reqheader Cookie: Must contain session token to authenticate.
+              :resheader Content-Type: application/json
+              :statuscode 200: no error
+              :statuscode 400: Invalid Timestamp
+              """
     if request.method == 'GET':
         return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: Update api that ecreator is no longer necessary.
 @app.route(route_prefix + "/App/Events/Create", methods=['POST'])
 @event_creator_role_required
 def createEvent():
+    """
+    .. py:decorator:: event_creator_role_required
+
+    Uses :func:`~app.handlers.EventHandler.EventHandler.createEvent`
+
+    Create an event
+
+    .. :quickref: Event; Create Event
+
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /API/App/Events/Create HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+    **Body of Request**:
+
+    .. code-block:: json
+
+        {
+            "roomid": 5,
+            "etitle": "Test Event",
+            "edescription": "A test event to see the insert route working.",
+            "estart":"2020-10-26 15:40:00",
+            "eend": "2020-10-26 16:40:00",
+            "photourl": "https://link.to.fake.photo.com/fake-foto.jpg",
+            "tags": [
+                {"tid": 1},
+                {"tid": 2},
+                {"tid": 3},
+                {"tid": 4},
+                {"tid": 5},
+                {"tid": 6}
+            ],
+            "websites": [
+                {
+                    "url": "https://firstwebsite.com",
+                    "wdescription": "my  favorite website"
+                },
+                {
+                    "url": "https://secondsite.net",
+                    "wdescription": "my  worst website"
+                },
+                {
+                    "url": "https://thirdsite.edu",
+                    "wdescription": null
+                }
+            ]
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 CREATED
+        Vary: Accept
+        Content-Type: text/javascript
+
+        {"eid": 17}
+
+
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Event Created Successfully
+    :statuscode 400: Invalid parameter sent.
+    """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
