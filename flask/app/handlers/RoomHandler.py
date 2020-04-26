@@ -158,14 +158,14 @@ class RoomHandler:
                 return response
             return jsonify(response)
 
-    def changeRoomCoordinates(self, rid, json):
+    def changeRoomCoordinates(self, rid, json, uid):
         roomKeys = {}
         for key in json:
             if key in CHANGEROOMCOORDINATESKEYS:
                 roomKeys[key] = (json[key])
 
         dao = RoomDAO()
-        room = dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys)
+        room = dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys, uid=uid)
         if room is not None:
             response = _buildChangeCoordinatesRoomResponse(room)
             return jsonify(response)

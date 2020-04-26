@@ -1,4 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql, errors
 
 
@@ -213,6 +214,10 @@ class UserDAO(MasterDAO):
         roleid- The new role to give to the user
         """
         cursor = self.conn.cursor()
+        audit = AuditDAO()
+        tablename = "users"
+        pkey = "uid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=uid, cursor=cursor)
         query = sql.SQL(
             "update {table} "
             "SET  {issuer} = %s , {newRole} = %s  "
@@ -226,6 +231,9 @@ class UserDAO(MasterDAO):
         try:
             cursor.execute(query, (id, roleid, uid))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=uid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=id, cursor=cursor)
             self.conn.commit()
         except errors.ForeignKeyViolation as e:
             result = e
@@ -247,7 +255,7 @@ class UserDAO(MasterDAO):
                             "(select uid as user_id,roleissuer as iID from users "
                             "where uid = %s ) as users_issuers "
                             "on (users_issuers.iID=u1.uid  ))as users_issuers2 "
-                            "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) or u2.roleid > 3) ")
+                            "on ((u2.uid != %s and u2.roleid > permisions) or (u2.uid=iID) or u2.roleid > 3 ) ")
         cursor.execute(query, (userID, userID))
         result = []
 

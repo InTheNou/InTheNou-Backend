@@ -210,8 +210,7 @@ class EventHandler:
         if len(tags) < 3 or len(tags) > 10:
             return jsonify(Error="Improper number of unique tags provided: " + str(len(tags))), 400
 
-        dao = EventDAO()
-        eid = dao.createEvent(ecreator=uid, roomid=json['roomid'], etitle=json['etitle'],
+        eid = EventDAO().createEvent(ecreator=uid, roomid=json['roomid'], etitle=json['etitle'],
                               edescription=json['edescription'], estart=json['estart'],
                               eend=json['eend'], photourl=json['photourl'], tags=tags,
                               websites=json['websites'])
@@ -235,8 +234,7 @@ class EventHandler:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
-        dao = EventDAO()
-        events = dao.getAllDeletedEventsSegmented(offset=offset, limit=limit)
+        events = EventDAO().getAllDeletedEventsSegmented(offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -260,8 +258,7 @@ class EventHandler:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
-        dao = EventDAO()
-        events = dao.getAllEventsSegmented(offset=offset, limit=limit)
+        events = EventDAO().getAllEventsSegmented(offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -285,8 +282,7 @@ class EventHandler:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
-        dao = EventDAO()
-        events = dao.getAllPastEventsSegmented(offset=offset, limit=limit)
+        events = EventDAO().getAllPastEventsSegmented(offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -308,8 +304,7 @@ class EventHandler:
         """
         if not isinstance(eid, int) or not eid > 0:
             return jsonify(Error="Invalid eid: " + str(eid)), 400
-        dao = EventDAO()
-        event = dao.getEventByID(eid)
+        event = EventDAO().getEventByID(eid)
         if not event:
             return jsonify(Error='Event does not exist: eid=' + str(eid)), 404
         else:
@@ -366,8 +361,7 @@ class EventHandler:
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
 
-        dao = EventDAO()
-        event_ids = dao.getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
+        event_ids = EventDAO().getEventIDsCreatedAfterTimestamp(uid=uid, timestamp=timestamp)
         if not event_ids:
             response = {'events': None}
         else:
@@ -396,8 +390,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
+        events = EventDAO().getEventsCreatedByUser(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -427,8 +420,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getDismissedEvents(uid=uid, offset=offset, limit=limit)
+        events = EventDAO().getDismissedEvents(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -451,8 +443,7 @@ class EventHandler:
         """
         if not isinstance(timestamp, str) or not _validateTimestamp(datestring=timestamp):
             return jsonify(Error='Invalid timestamp: ' + str(timestamp)), 400
-        dao = EventDAO()
-        events = dao.getNewDeletedEvents(timestamp=timestamp)
+        events = EventDAO().getNewDeletedEvents(timestamp=timestamp)
         if not events:
             response = {'events': None}
         else:
@@ -481,8 +472,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        events = EventDAO().getPastFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -513,8 +503,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        events = EventDAO().getUpcomingFollowedEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -545,8 +534,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
+        events = EventDAO().getUpcomingGeneralEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -582,8 +570,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
+        events = EventDAO().getUpcomingGeneralEventsByKeywordsSegmented(uid=uid, keywords=keywords, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -615,8 +602,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getUpcomingRecommendedEventsSegmented(uid=uid, offset=offset, limit=limit)
+        events = EventDAO().getUpcomingRecommendedEventsSegmented(uid=uid, offset=offset, limit=limit)
         if not events:
             response = {'events': None}
         else:
@@ -651,8 +637,7 @@ class EventHandler:
         except ValueError as ve:
             return jsonify(Error=str(ve)), 400
 
-        dao = EventDAO()
-        events = dao.getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, keywords=keywords, offset=offset,
+        events = EventDAO().getUpcomingRecommendedEventsByKeywordSegmented(uid=uid, keywords=keywords, offset=offset,
                                                                     limit=limit)
         if not events:
             response = {'events': None}
@@ -686,8 +671,7 @@ class EventHandler:
         # TODO: During integration, add user verification from Diego's Handlers.
         # if userCanModifyEvent(uid, eid)
 
-        dao = EventDAO()
-        uid_eid_pair = dao.setEventStatus(eid=eid, estatus=estatus)
+        uid_eid_pair = EventDAO().setEventStatus(eid=eid, estatus=estatus, uid=uid)
         try:
             return jsonify({"eid": uid_eid_pair[0]}), 201
         except TypeError:
@@ -711,8 +695,8 @@ class EventHandler:
         if not isinstance(itype, str) or not _validateItype(itype=itype):
             return jsonify(Error="Invalid itype: " + str(itype)), 400
 
-        dao = EventDAO()
-        result = dao.setInteraction(uid=uid, eid=eid, itype=itype)
+        # dao = EventDAO()
+        result = EventDAO().setInteraction(uid=uid, eid=eid, itype=itype)
 
         # TODO: Implement a better way to do this error handling.
         try:
@@ -723,7 +707,7 @@ class EventHandler:
             # Calling this within the try block, because if the setInteraction call fails,
             # psql will block all transactions until current one finishes, and will cause
             # a 500 error instead of the intended 400 below.
-            event = dao.getEventByID(eid=eid)
+            event = EventDAO().getEventByID(eid=eid)
             tiny_event = _buildTinyEventResponse(event_tuple=event)
 
             response = {}
@@ -751,8 +735,7 @@ class EventHandler:
         if not isinstance(recommendstatus, str) or recommendstatus not in RECOMMENDATION_TYPES:
             return jsonify(Error='Invalid recommendstatus = ' + str(recommendstatus)), 400
 
-        dao = EventDAO()
-        uid_eid_pair = dao.setRecommendation(uid=uid, eid=eid, recommendstatus=recommendstatus)
+        uid_eid_pair = EventDAO().setRecommendation(uid=uid, eid=eid, recommendstatus=recommendstatus)
 
         try:
             return jsonify({"uid": uid_eid_pair[0],
