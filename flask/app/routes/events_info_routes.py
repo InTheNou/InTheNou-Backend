@@ -326,7 +326,7 @@ def createEvent():
 
     .. sourcecode:: http
 
-        GET /API/App/Events/Create HTTP/1.1
+        POST /API/App/Events/Create HTTP/1.1
         Host: inthenou.uprm.edu
         Accept: application/json
 
@@ -393,46 +393,179 @@ def createEvent():
 @app.route(route_prefix + "/App/Events/Deleted/New/timestamp=<string:timestamp>", methods=['GET'])
 @user_role_required
 def getNewDeletedEvents(timestamp):
+    """
+              .. py:decorator:: user_role_required
+
+              Uses :func:`~app.handlers.EventHandler.EventHandler.getNewDeletedEvents`
+
+              Get Events deleted after the submitted timestamp.
+
+              .. :quickref: Event; Get events deleted after timestamp
+
+              :param timestamp: ISO formatted timestamp
+              :type timestamp: str
+              :return: JSON
+
+              **Example request**:
+
+              .. sourcecode:: http
+
+                GET /API/App/Events/Deleted/New/timestamp=2020-01-30%2000:00:00 HTTP/1.1
+                Host: inthenou.uprm.edu
+                Accept: application/json
+
+
+              :reqheader Cookie: Must contain session token to authenticate.
+              :resheader Content-Type: application/json
+              :statuscode 200: no error
+              :statuscode 400: Invalid Timestamp
+              """
     if request.method == 'GET':
         return EventHandler().getNewDeletedEvents(timestamp=timestamp)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Follow
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/Follow", methods=['POST'])
 @user_role_required
 def followEvent(eid):
+    """
+    .. py:decorator:: user_role_required
+
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
+
+    Follow an event.
+
+    .. :quickref: Event; Follow an event.
+
+    :param eid: Event ID
+    :type eid: int
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /API/App/Events/eid=1/Follow HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Followed Successfully
+    :statuscode 404: Event does not exist.
+    """
     if request.method == 'POST':
         return EventHandler().setInteraction(eid=eid, uid=int(current_user.id), itype="following")
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Dismiss
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/Dismiss", methods=['POST'])
 @user_role_required
 def dismissEvent(eid):
+    """
+    .. py:decorator:: user_role_required
+
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
+
+    Dismiss an event.
+
+    .. :quickref: Event; Dismiss an event.
+
+    :param eid: Event ID
+    :type eid: int
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /API/App/Events/eid=1/Dismiss HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Dismissed event successfully
+    :statuscode 404: Event does not exist.
+    """
     if request.method == 'POST':
         return EventHandler().setInteraction(eid=eid, uid=int(current_user.id), itype="dismissed")
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/Unfollow
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/Unfollow", methods=['POST'])
 @user_role_required
 def unfollowEvent(eid):
+    """
+    .. py:decorator:: user_role_required
+
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
+
+    Unfollow an event.
+
+    .. :quickref: Event; Unfollow an event.
+
+    :param eid: Event ID
+    :type eid: int
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /API/App/Events/eid=1/Unfollow HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Unfollowed Successfully
+    :statuscode 404: Event does not exist.
+    """
     if request.method == 'POST':
         return EventHandler().setInteraction(eid=eid, uid=int(current_user.id), itype="unfollowed")
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/estatus=<string:estatus>
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/estatus=<string:estatus>", methods=['POST'])
 @event_creator_role_required
 def setEventStatus(eid, estatus):
+    """
+    .. py:decorator:: event_creator_role_required
+
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setEventStatus`
+
+    Set an existing event's status as either "active" or "deleted"
+
+    .. :quickref: Event; Set event status.
+
+    :param eid: Event ID
+    :type eid: int
+    :param estatus: New event status.
+    :type estatus: str
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /API/App/Events/eid=1/estatus=deleted HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Event Status set Successfully
+    :statuscode 400: Bad estatus.
+    """
     if request.method == 'POST':
         # Todo: verify after merging to Dev. that this does not cause errors.
         list_of_valid_users = (UserHandler().getUsersThatCanModifyEvent(eid=eid, no_json=True))
