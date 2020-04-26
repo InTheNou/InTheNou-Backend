@@ -303,7 +303,12 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
 @app.route(route_prefix + "/App/Buildings/bid=<int:bid>", methods=['GET'])
 @user_role_required
 def getBuildingByID(bid):
-    """Get Building By ID
+    """
+    .. py:decorator:: user_role_required
+
+    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getBuildingByID`
+
+    Get Building By ID
 
     .. :quickref: Building; Get Building By bid
 
@@ -327,31 +332,23 @@ def getBuildingByID(bid):
       Vary: Accept
       Content-Type: text/javascript
 
-      [
-        {
-          "post_id": 12345,
-          "author_id": 123,
-          "tags": ["server", "web"],
-          "subject": "I tried Nginx"
-        },
-        {
-          "post_id": 12346,
-          "author_id": 123,
-          "tags": ["html5", "standards", "web"],
-          "subject": "We go to HTML 5"
-        }
-      ]
+      {
+        "babbrev": "S",
+        "bcommonname": "STEFANI",
+        "bid": 1,
+        "bname": "LUIS A STEFANI (INGENIERIA)",
+        "btype": "Academico",
+        "distinctfloors": [1,2,3,4,5,6,7]
+        "numfloors": 7,
+        "photourl": null
+      }
 
-    :query sort: one of ``hit``, ``created-at``
-    :query offset: offset number. default is 0
-    :query limit: limit number. default is 30
     :reqheader Accept: the response content type depends on
                       :mailheader:`Accept` header
-    :reqheader Authorization: optional OAuth token to authenticate
-    :resheader Content-Type: this depends on :mailheader:`Accept`
-                            header of request
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
     :statuscode 200: no error
-    :statuscode 404: there's no user
+    :statuscode 404: Building does not exist
     """
     if request.method == 'GET':
         return BuildingHandler().getBuildingByID(bid=bid)
