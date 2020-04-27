@@ -21,8 +21,16 @@ def _buildCoreEventResponse(event_tuple):
     """
     Private Method to build core event dictionary to be JSONified.
 
+     Uses :func:`~app.handlers.RoomHandler.RoomHandler.safeGetRoomByID`
+
     :param event_tuple: response tuple from SQL query
-    :returns Dict: Event information.
+    :returns Dict: Event information with keys:
+
+    .. code-block:: python
+
+        {'eid', 'ecreator', 'room', 'etitle', 'edescription',
+        'estart', 'eend', 'ecreation',
+        'estatus', 'estatusdate', 'photourl'}
     """
     response = {}
     response['eid'] = event_tuple[0]
@@ -43,8 +51,22 @@ def _buildEventResponse(event_tuple):
     """
     Private Method to build event dictionary to be JSONified.
 
+    Uses:
+
+     * :func:`~app.handlers.UserHandler.UserHandler.getUserByID`
+     * :func:`~app.handlers.RoomHandler.RoomHandler.safeGetRoomByID`
+     * :func:`~app.handlers.TagHandler.TagHandler.safeGetTagsByEventID`
+     * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebistesByEventID`
+
     :param event_tuple: response tuple from SQL query
-    :returns Dict: Event information..
+    :returns Dict: Event information with keys:
+
+    .. code-block:: python
+
+        {'eid', 'ecreator', 'room', 'etitle', 'edescription',
+        'estart', 'eend', 'ecreation',
+        'estatus', 'estatusdate', 'photourl',
+        'tags', 'websites'}
     """
     response = {}
     response['eid'] = event_tuple[0]
@@ -70,7 +92,12 @@ def _buildTinyEventResponse(event_tuple):
     Private Method to build tiny event dictionary to be JSONified.
 
     :param event_tuple: response tuple from SQL query
-    :returns Dict: Event information.
+    :returns Dict: Event information with keys:
+
+    .. code-block:: python
+
+        {'eid', 'estart', 'eend', 'ecreation',
+        'estatus', 'estatusdate'}
     """
     response = {}
     response['eid'] = event_tuple[0]
@@ -85,6 +112,7 @@ def _buildTinyEventResponse(event_tuple):
 def _validateEventParameters(json, uid):
     """
     Private method to validate the parameters passed via JSON to create an event.
+    Uses :func:`~app.handlers.EventHandler._validateTimestamp`
 
     :param json: JSON used to create event.
     :param uid: User ID of person trying to create the event.
@@ -179,6 +207,11 @@ class EventHandler:
     def createEvent(self, json, uid):
         """Attempt to create an event.
 
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.createEvent` as well as:
+
+         * :func:`~app.handlers.TagHandler.TagHandler.unpackTags`
+         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.validateWebsites`
+
         :param uid: User ID.
         :type uid: int
         :param json: JSON object with the following keys:
@@ -224,12 +257,17 @@ class EventHandler:
     def getAllDeletedEventsSegmented(self, offset, limit=20):
         """Get all events that have been marked as deleted.
 
-                :param offset: Number of results to skip from top of list.
-                :type offset: int
-                :param limit: Number of results to return. Default = 20.
-                :type limit: int
-                :returns JSON Response Object: JSON Response Object containing success or error response.
-                """
+         Uses :func:`~app.DAOs.EventDAO.EventDAO.getAllDeletedEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
+
+        :param offset: Number of results to skip from top of list.
+        :type offset: int
+        :param limit: Number of results to return. Default = 20.
+        :type limit: int
+        :returns JSON Response Object: JSON Response Object containing success or error response.
+        """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
@@ -248,12 +286,17 @@ class EventHandler:
     def getAllEventsSegmented(self, offset, limit=20):
         """Get all events.
 
-           :param offset: Number of results to skip from top of list.
-           :type offset: int
-           :param limit: Number of results to return. Default = 20.
-           :type limit: int
-           :returns JSON Response Object: JSON Response Object containing success or error response.
-           """
+         Uses :func:`~app.DAOs.EventDAO.EventDAO.getAllEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
+
+       :param offset: Number of results to skip from top of list.
+       :type offset: int
+       :param limit: Number of results to return. Default = 20.
+       :type limit: int
+       :returns JSON Response Object: JSON Response Object containing success or error response.
+       """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
@@ -272,12 +315,17 @@ class EventHandler:
     def getAllPastEventsSegmented(self, offset, limit=20):
         """Get all events whose end dates are equal to or less than the current timestamp of the database.
 
-           :param offset: Number of results to skip from top of list.
-           :type offset: int
-           :param limit: Number of results to return. Default = 20.
-           :type limit: int
-           :returns JSON Response Object: JSON Response Object containing success or error response.
-           """
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getAllPastEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
+
+       :param offset: Number of results to skip from top of list.
+       :type offset: int
+       :param limit: Number of results to return. Default = 20.
+       :type limit: int
+       :returns JSON Response Object: JSON Response Object containing success or error response.
+       """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
         except ValueError as ve:
@@ -295,6 +343,9 @@ class EventHandler:
 
     def getEventByID(self, eid, no_json=False):
         """Return the event entry belonging to the specified eid.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getEventByID` as well as
+        :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param eid: Event ID
         :type eid: int
@@ -315,6 +366,9 @@ class EventHandler:
 
     def getEventByIDWithInteraction(self, eid, uid):
         """Return the event entry belonging to the specified eid, plus the user interaction entry for the given uid.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getEventInteractionByUserID` as well as
+        :func:`~app.handlers.EventHandler.getEventByID`
 
         :param eid: Event ID
         :type eid: int
@@ -350,6 +404,11 @@ class EventHandler:
         Get the upcoming active event IDs that a user has not interacted with,
         along with the tags for that event.
 
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getEventIDsCreatedAfterTimestamp` as well as:
+
+             * :func:`~app.handlers.TagHandler.TagHandler.safeGetTagsByEventID`
+             * :func:`~app.handlers.EventHandler._validateTimestamp`
+
         :param timestamp: ISO formatted timestamp string. ("%Y-%m-%d %H:%M:%S")
         :type timestamp: str
         :param uid: the user's ID.
@@ -374,6 +433,11 @@ class EventHandler:
 
     def getEventsCreatedByUser(self, uid, offset, limit=20):
         """Return the events created by a given user, specified by offset and limit parameters.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getEventsCreatedByUser` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -404,6 +468,11 @@ class EventHandler:
 
     def getDismissedEvents(self, uid, offset, limit=20):
         """Return the dismissed event entries specified by offset and limit parameters.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getDismissedEvents` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -437,6 +506,11 @@ class EventHandler:
         """
         Get a list of the core information for events deleted at or after the given timestamp.
 
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getNewDeletedEvents` as well as:
+
+             * :func:`~app.handlers.EventHandler._validateTimestamp`
+             * :func:`~app.handlers.EventHandler._buildTinyEventResponse`
+
         :param timestamp: Time used to look for events that have been deleted at or after. ("%Y-%m-%d %H:%M:%S")
         :type timestamp: str
         :returns JSON Response Object: JSON containing limit-defined number of events dismissed by a user.
@@ -456,6 +530,11 @@ class EventHandler:
 
     def getPastFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the user's followed event entries that have ended, specified by offset and limit parameters.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getPastFollowedEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -488,6 +567,11 @@ class EventHandler:
     def getUpcomingFollowedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, followed event entries specified by offset and limit parameters.
 
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getUpcomingFollowedEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
+
         :param uid: User ID
         :type uid: int
         :param offset: Number of result rows to ignore from top of query results.
@@ -518,6 +602,11 @@ class EventHandler:
 
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getUpcomingGeneralEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -550,6 +639,12 @@ class EventHandler:
 
     def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, active event entries specified by offset and limit parameters.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getUpcomingGeneralEventsByKeywordsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.SharedValidationFunctions.processSearchString`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -587,6 +682,11 @@ class EventHandler:
     def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit=20):
         """Return the upcoming, active, recommended event entries specified by offset and limit parameters.
 
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getUpcomingRecommendedEventsSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
+
         :param uid: User ID
         :type uid: int
         :param offset: Number of result rows to ignore from top of query results.
@@ -617,6 +717,12 @@ class EventHandler:
 
     def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, searchstring, offset, limit=20):
         """Return the upcoming, recommended, active event entries specified by offset and limit parameters.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.getUpcomingRecommendedEventsByKeywordSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.SharedValidationFunctions.processSearchString`
+             * :func:`~app.handlers.EventHandler._buildCoreEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -654,6 +760,9 @@ class EventHandler:
     def setEventStatus(self, uid, eid, estatus):
         """Set the estatus of an event entry to the specified value.
 
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.setEventStatus` as well as
+        :func:`~app.handlers.EventHandler._validate_uid_eid`
+
         :param uid: User ID
         :type uid: int
         :param eid: Event ID.
@@ -668,8 +777,6 @@ class EventHandler:
             return jsonify(Error=str(ve)), 400
         if not isinstance(estatus, str) or estatus not in ESTATUS_TYPES:
             return jsonify(Error='Invalid estatus = ' + str(estatus)), 400
-        # TODO: During integration, add user verification from Diego's Handlers.
-        # if userCanModifyEvent(uid, eid)
 
         uid_eid_pair = EventDAO().setEventStatus(eid=eid, estatus=estatus, uid=uid)
         try:
@@ -679,6 +786,14 @@ class EventHandler:
 
     def setInteraction(self, uid, eid, itype):
         """Set an eventuserinteractions entry that states the user has interacted with the specified event.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.setInteraction` as well as:
+
+            * :func:`~app.handlers.EventHandler._validate_uid_eid`
+            * :func:`~app.handlers.EventHandler._validateItype`
+            * :func:`~app.handlers.TagHandler.TagHandler.buildCoreUserTagResponse`
+            * :func:`~app.DAOs.EventDAO.EventDAO.getEventByID`
+            * :func:`~app.handlers.EventHandler._buildTinyEventResponse`
 
         :param uid: User ID
         :type uid: int
@@ -719,6 +834,9 @@ class EventHandler:
 
     def setRecommendation(self, uid, eid, recommendstatus):
         """Set an eventuserinteractions entry that states if the specified event has been recommended to the user or not.
+
+        Uses :func:`~app.DAOs.EventDAO.EventDAO.setRecommendation` as well as
+        :func:`~app.handlers.EventHandler._validate_uid_eid`
 
         :param uid: User ID
         :type uid: int
