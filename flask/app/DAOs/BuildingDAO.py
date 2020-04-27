@@ -1,7 +1,7 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql
 from psycopg2.extensions import AsIs
-import json
 import requests
 
 STANDARD_HEIGHT = 35
@@ -16,7 +16,6 @@ BUILDING_TYPES = {
 }
 DEFAULT_COORDINATES = [0.00, 0.00]
 
-# api-endpoint
 CTI_ROOMS_URL = "https://portal.upr.edu/rum/buildings/export.php?op1=1&building="
 
 
@@ -70,7 +69,7 @@ def _build_insert_room_sql(building_data):
     # extracting data in json format
     building_rooms_data = r.json()
 
-    print("Response: " + str(building_rooms_data))
+    print("Received response.")
 
     roomcodes = []
     list_of_queries= []
@@ -131,15 +130,30 @@ class BuildingDAO(MasterDAO):
         try:
             #TODO: FINISH ADDING AUDIT TO THIS AND TEST ROUTE.
             audit = AuditDAO()
-            tablename = "b"
-            pkey = "rid"
-            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=rid, cursor=cursor)
+            tablename = "buildings"
+            pkey = "bname"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=building_json["nomoficial"],
+                                                  cursor=cursor)
 
-            cursor.execute(building_query)
+            old_bid = cursor.execute(building_query)
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=building_json["nomoficial"],
+                                                  cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+            query = "select * from rooms where bid=(SELECT bid FROM buildings " \
+                       "WHERE bname='{bname}')".format(bname=building_json["nomoficial"])
+            oldvalue = str(cursor.execute(query))
             for query in rooms_queries:
                 cursor.execute(query)
+            newValue = str(cursor.execute(query))
+            audit.insertAuditEntry(changedTable="rooms", changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+
             self.conn.commit()
             self.conn.close()
+            response = "Building Added successfuly: " + str(building_json["nomoficial"]) + ".\nOld bid = " + str(old_bid)
+
+            return response
         except:
             self.conn.rollback()
             self.conn.close()
