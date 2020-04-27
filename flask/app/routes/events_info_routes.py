@@ -436,7 +436,7 @@ def followEvent(eid):
 
     Follow an event.
 
-    .. :quickref: Event; Follow an event.
+    .. :quickref: Event-User Interaction; Follow an event.
 
     :param eid: Event ID
     :type eid: int
@@ -472,7 +472,7 @@ def dismissEvent(eid):
 
     Dismiss an event.
 
-    .. :quickref: Event; Dismiss an event.
+    .. :quickref: Event-User Interaction; Dismiss an event.
 
     :param eid: Event ID
     :type eid: int
@@ -508,7 +508,7 @@ def unfollowEvent(eid):
 
     Unfollow an event.
 
-    .. :quickref: Event; Unfollow an event.
+    .. :quickref: Event-User Interaction; Unfollow an event.
 
     :param eid: Event ID
     :type eid: int
@@ -580,60 +580,226 @@ def setEventStatus(eid, estatus):
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/eid=<int:eid>/uid=<int:uid>/recommendstatus=<string:recommendstatus>
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/recommendstatus=<string:recommendstatus>", methods=['POST'])
 @user_role_required
 def setRecommendation(eid, recommendstatus):
+    """
+       .. py:decorator:: user_role_required
+
+       Uses :func:`~app.handlers.EventHandler.EventHandler.setRecommendation`
+
+       Set the recommendation status of an event for the user.
+
+       .. :quickref: Event-User Interaction; Set Recommendation.
+
+       :param eid: Event ID
+       :type eid: int
+       :param recommendstatus: Recommendation Status.
+       :type recommendstatus: str
+       :return: JSON
+
+       **Example request**:
+
+       .. sourcecode:: http
+
+           POST /API/App/Events/eid=1/recommendstatus=R HTTP/1.1
+           Host: inthenou.uprm.edu
+           Accept: application/json
+
+
+       :reqheader Cookie: Must contain session token to authenticate.
+       :resheader Content-Type: application/json
+       :statuscode 201: Posted recommendation successfully.
+       :statuscode 400: Invalid recommendstatus.
+       :statuscode 404: Event does not exist.
+       """
     if request.method == 'POST':
         return EventHandler().setRecommendation(eid=eid, uid=int(current_user.id), recommendstatus=recommendstatus)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/Created/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
 @app.route(route_prefix + "/App/Events/Created/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getEventsCreatedByUser(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedByUser`
+
+      Get a list of events created by the logged in user.
+
+      .. :quickref: Event; Get Events created by current user.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/Created/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getEventsCreatedByUser(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/Dismissed/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
 @app.route(route_prefix + "/App/Events/Dismissed/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getDismissedEvents(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getDismissedEvents`
+
+      Get a list of events dismissed by the logged in user.
+
+      .. :quickref: Event; Get Events dismissed by current user.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/Dismissed/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getDismissedEvents(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/Following/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
 @app.route(route_prefix + "/App/Events/Following/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getUpcomingFollowedEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingFollowedEventsSegmented`
+
+      Get a list of upcoming events that have been followed by the logged in user.
+
+      .. :quickref: Event; Get upcoming events current user is following.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/Following/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getUpcomingFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/General/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
 @app.route(route_prefix + "/App/Events/General/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getUpcomingGeneralEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingGeneralEventsSegmented`
+
+      Get a list of upcoming events.
+
+      .. :quickref: Event; Get upcoming events.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/General/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getUpcomingGeneralEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>
 @app.route(route_prefix + "/App/Events/General/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingGeneralEventsByKeywordsSegmented`
+
+      Get a list of upcoming events that are matched with the searchstring.
+
+      .. :quickref: Event; Get upcoming events by keywords.
+
+      :param searchstring: space-separated string of keywords to use for search of events.
+      :type searchstring: str
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/General/search=test%20event/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=int(current_user.id),
                                                                           searchstring=searchstring,
@@ -642,20 +808,74 @@ def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/History/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
 @app.route(route_prefix + "/App/Events/History/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getPastFollowedEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getPastFollowedEventsSegmented`
+
+      Get a list of events that have ended and the current user has followed (user's history).
+
+      .. :quickref: Event; Get past followed events.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/History/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getPastFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/Recommended/uid=<int:uid>/offset=<int:offset>/limit=<int:limit>
 @app.route(route_prefix + "/App/Events/Recommended/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getUpcomingRecommendedEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingRecommendedEventsSegmented`
+
+      Get a list of upcoming events that have been recommended to the current user.
+
+      .. :quickref: Event; Get upcoming recommended events.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/Recommended/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getUpcomingRecommendedEventsSegmented(uid=int(current_user.id),
                                                                     offset=offset, limit=limit)
@@ -663,10 +883,39 @@ def getUpcomingRecommendedEventsSegmented(offset, limit):
         return jsonify(Error="Method not allowed."), 405
 
 
-# old route: /App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>/uid=<int:uid>
 @app.route(route_prefix + "/App/Events/Recommended/search=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingRecommendedEventsByKeywordSegmented`
+
+      Get a list of upcoming events that have been recommended to the user and are matched with the searchstring.
+
+      .. :quickref: Event; Get upcoming recommended events by keywords.
+
+      :param searchstring: space-separated string of keywords to use for search of events.
+      :type searchstring: str
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Events/Recommended/search=test%20event/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=int(current_user.id),
                                                                              searchstring=searchstring,
@@ -678,6 +927,34 @@ def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
 @app.route(route_prefix + "/Dashboard/Events/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @mod_role_required
 def getAllEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: mod_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getAllEventsSegmented`
+
+      Get a list of all events.
+
+      .. :quickref: Event; Get all events segmented.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/Dashboard/Events/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
     else:
@@ -687,6 +964,37 @@ def getAllEventsSegmented(offset, limit):
 @app.route(route_prefix + "/Dashboard/Events/ecreator=<int:ecreator>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @mod_role_required
 def getEventsCreatedByOtherUser(ecreator, offset, limit):
+    """
+      .. py:decorator:: mod_role_required
+
+      Uses :func:`~app.handlers.UserHandler.UserHandler.getUserIssuers` &
+      :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedByUser`
+
+      Get a list of events created by another user.
+
+      .. :quickref: Event; Get events created by other user.
+
+      :param ecreator: User ID of whom the events are being searched.
+      :type ecreator: int
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/Dashboard/Events/ecreator=2/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         # Json used because current implementation of getUserIssuers() requires it.
         
@@ -702,6 +1010,34 @@ def getEventsCreatedByOtherUser(ecreator, offset, limit):
 @app.route(route_prefix + "/Dashboard/Events/Deleted/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @mod_role_required
 def getAllDeletedEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: mod_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getAllDeletedEventsSegmented`
+
+      Get a list of all deleted events.
+
+      .. :quickref: Event; Get all deleted events segmented.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/Dashboard/Events/Deleted/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
     else:
@@ -711,6 +1047,35 @@ def getAllDeletedEventsSegmented(offset, limit):
 @app.route(route_prefix + "/Dashboard/Events/Past/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @mod_role_required
 def getAllPastEventsSegmented(offset, limit):
+    """
+      .. py:decorator:: mod_role_required
+
+      Uses :func:`~app.handlers.EventHandler.EventHandler.getAllPastEventsSegmented`
+
+      Get a list of all events whose end time is less than or equal to the current timestamp.
+
+      .. :quickref: Event; Get all past events segmented.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/Dashboard/Events/Past/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      :statuscode 401: User does not have appropriate role to use route.
+      """
     if request.method == 'GET':
         return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
     else:
@@ -720,6 +1085,32 @@ def getAllPastEventsSegmented(offset, limit):
 @app.route(route_prefix + "/App/Rooms/rid=<int:rid>", methods=['GET'])
 @user_role_required
 def getRoomByID(rid):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomByID`
+
+      Get a room entry by ID.
+
+      .. :quickref: Room; Get room by ID.
+
+      :param rid: Room ID.
+      :type rid: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Rooms/rid=42 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return RoomHandler().getRoomByID(rid=rid)
     else:
@@ -729,6 +1120,38 @@ def getRoomByID(rid):
 @app.route(route_prefix + "/App/Rooms/babbrev=<string:babbrev>/rcode=<string:rcode>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByCodeSearchSegmented`
+
+      Get a list of rooms that match a search by room code, which consists of the building abbreviation and room number.
+
+      .. :quickref: Room; Get room by room code.
+
+      :param babbrev: Building abbreviation.
+      :type babbrev: str
+      :param rcode: Building room number/code.
+      :type rcode: str
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Rooms/babbrev=S/rcode=123/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return RoomHandler().getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode, offset=offset, limit=limit)
     else:
@@ -738,6 +1161,36 @@ def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
 @app.route(route_prefix + "/App/Rooms/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getRoomsByKeywordSegmented(searchstring, offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByKeywordSegmented`
+
+      Get a list of rooms that match a search by keywords.
+
+      .. :quickref: Room; Get room by keywords.
+
+      :param searchstring: space-separated keywords to search the room descriptions.
+      :type searchstring: str
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Rooms/searchstring=laboratorio%20capstone/offset=0/limit=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      """
     if request.method == 'GET':
         return RoomHandler().getRoomsByKeywordSegmented(searchstring=searchstring, offset=offset, limit=limit)
     else:
@@ -747,6 +1200,35 @@ def getRoomsByKeywordSegmented(searchstring, offset, limit):
 @app.route(route_prefix + "/App/Rooms/bid=<int:bid>/rfloor=<int:rfloor>", methods=['GET'])
 @user_role_required
 def getRoomsByBuildingAndFloor(bid, rfloor):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByBuildingAndFloor`
+
+      Get a list of all rooms that belong to a given building's given floor.
+
+      .. :quickref: Room; Get room by building and floor.
+
+      :param bid: Building ID.
+      :type bid: int
+      :param rfloor: Floor of building to search.
+      :type rfloor: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Rooms/bid=1/rfloor=2 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad bid/rfloor values.
+      :statuscode 404: No rooms found for given building ID and floor number.
+      """
     if request.method == 'GET':
         return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
     else:
@@ -813,6 +1295,30 @@ def getBuildingByID(bid):
 @app.route(route_prefix + "/Dev/Buildings", methods=['GET'])
 @user_role_required
 def getAllBuildings():
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getAllBuildings`
+
+      Get a list of all buildings in the system.
+
+      .. :quickref: Building; Get all buildings.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/Dev/Buildings HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'GET':
         return BuildingHandler().getAllBuildings()
     else:
@@ -822,6 +1328,35 @@ def getAllBuildings():
 @app.route(route_prefix + "/App/Buildings/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getAllBuildingsSegmented(offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getAllBuildingsSegmented`
+
+      Get a list of some buildings in the system.
+
+      .. :quickref: Building; Get all buildings segmented.
+
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Buildings/offset=0/limit=1 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'GET':
         return BuildingHandler().getAllBuildingsSegmented(offset=offset, limit=limit)
     else:
@@ -832,6 +1367,37 @@ def getAllBuildingsSegmented(offset, limit):
 @app.route(route_prefix + "/App/Buildings/Search/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getBuildingsByKeywords(searchstring, offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getBuildingsByKeyword`
+
+      Get a list of buildings in the system that match the searchstring.
+
+      .. :quickref: Building; Get all buildings by keywords.
+
+      :param searchstring: space-separated keywords to search the buildings.
+      :type searchstring: str
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Buildings/Search/searchstring=luis/offset=0/limit=1 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'GET':
         return BuildingHandler().getBuildingsByKeyword(keyword=searchstring,
                                                        offset=offset, limit=limit)
@@ -842,6 +1408,37 @@ def getBuildingsByKeywords(searchstring, offset, limit):
 @app.route(route_prefix + "/App/Services/searchstring=<string:searchstring>/offset=<int:offset>/limit=<int:limit>", methods=['GET'])
 @user_role_required
 def getServicesByKeywords(searchstring, offset, limit):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServicesByKeywords`
+
+      Get a list of services in the system that match the searchstring.
+
+      .. :quickref: Service; Get services by keywords.
+
+      :param searchstring: space-separated keywords to search the services.
+      :type searchstring: str
+      :param offset: Number of results to skip from top of list.
+      :type offset: int
+      :param limit: Number of results after offset to return.
+      :type limit: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Services/searchstring=oficina/offset=0/limit=1 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'GET':
         return ServiceHandler().getServicesByKeywords(searchstring=searchstring, offset=offset, limit=limit)
     else:
@@ -851,6 +1448,29 @@ def getServicesByKeywords(searchstring, offset, limit):
 
 @app.route(route_prefix + "/App/Tags", methods=['GET'])
 def getAllTags():
+    """
+      Uses :func:`~app.handlers.TagHandler.TagHandler.getAllTags`
+
+      Get all tags in the system. This route requires the user to either be logged in with a session, or to posses a server-issued token.
+
+      .. :quickref: Tag; Get all tags.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Tags HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :reqheader Token: If request does not contain session, it must contain a token header.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 401: User is not logged in and does not posses a valid Token
+      """
     if request.method == 'GET':
         try:
             #Check for session 
@@ -880,6 +1500,34 @@ def getAllTags():
 @app.route(route_prefix + "/App/Tags/eid=<int:eid>", methods=['GET'])
 @user_role_required
 def getTagsByEventID(eid):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.getTagsByEventID`
+
+      Get a list of all the tags associated with a given event.
+
+      .. :quickref: Tag; Get an event's tags.
+
+      :param eid: Event ID
+      :type eid: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Tags/eid=1 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 400: Bad eid value.
+      :statuscode 403: User is not logged in.
+      :statuscode 404: Event does not exist in system.
+      """
     if request.method == 'GET':
         return TagHandler().getTagsByEventID(eid=eid)
     else:
@@ -889,6 +1537,33 @@ def getTagsByEventID(eid):
 @app.route(route_prefix + "/App/Tags/tid=<int:tid>", methods=['GET'])
 @user_role_required
 def getTagByID(tid):
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.getTagByID`
+
+      Get a tag by its ID.
+
+      .. :quickref: Tag; Get tag by ID.
+
+      :param tid: Tag ID
+      :type tid: int
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Tags/tid=1 HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 403: User is not logged in.
+      :statuscode 404: Tag does not exist in system/string passed as tid value.
+      """
     if request.method == 'GET':
         return TagHandler().getTagByID(tid=tid)
     else:
@@ -898,6 +1573,30 @@ def getTagByID(tid):
 @app.route(route_prefix + "/App/Tags/UserTags", methods=['GET'])
 @user_role_required
 def getTagsByUserIDSession():
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.getTagsByUserID`
+
+      Get the current user's tags and tag weights.
+
+      .. :quickref: Tag; Get user's tags/weights.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        GET /API/App/Tags/UserTags HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 200: no error
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'GET':
         return TagHandler().getTagsByUserID(uid=int(current_user.id))
     else:
@@ -907,6 +1606,45 @@ def getTagsByUserIDSession():
 @app.route(route_prefix + "/App/Tags/User/Remove", methods=['POST'])
 @user_role_required
 def setUserTagsToZero():
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.batchSetUserTags`
+
+      Set the current user's specified tags to a weight of 0.
+
+      .. :quickref: Tag; Remove user tags.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        POST /API/App/Tags/User/Remove HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      **Body of Request**:
+
+      .. code-block:: json
+
+        {
+            "tags": [
+                {"tid": 1},
+                {"tid": 2},
+                {"tid": 3},
+                {"tid": 4},
+                {"tid": 5}
+                ]
+        }
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 201: Tags successfully set to 0.
+      :statuscode 400: Invalid JSON parameters.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -919,6 +1657,45 @@ def setUserTagsToZero():
 @app.route(route_prefix + "/App/Tags/User/Add", methods=['POST'])
 @user_role_required
 def setUserTagsToDefault():
+    """
+      .. py:decorator:: user_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.batchSetUserTags`
+
+      Set the current user's specified tags to a weight of 100.
+
+      .. :quickref: Tag; Add user tags.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        POST /API/App/Tags/User/Add HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      **Body of Request**:
+
+      .. code-block:: json
+
+        {
+            "tags": [
+                {"tid": 1},
+                {"tid": 2},
+                {"tid": 3},
+                {"tid": 4},
+                {"tid": 5}
+                ]
+        }
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 201: Tags successfully set to 100.
+      :statuscode 400: Invalid JSON parameters.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -927,10 +1704,46 @@ def setUserTagsToDefault():
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: verify audit function is working
 @app.route(route_prefix + "/Dashboard/Tags/Create", methods=['POST'])
 @admin_role_required
 def createTag():
+    """
+      .. py:decorator:: admin_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.createTags`
+
+      Create new tags.
+
+      .. :quickref: Tag; Create tags.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        POST /API/Dashboard/Tags/Create HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      **Body of Request**:
+
+      .. code-block:: json
+
+        {
+            "Tags": [
+                {"tname": "tag1"},
+                {"tname": "tag2"}
+                ]
+        }
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 201: Tags successfully set to 100.
+      :statuscode 400: Invalid JSON parameters.
+      :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -942,6 +1755,38 @@ def createTag():
 @app.route(route_prefix + "/Dashboard/Tags/tid=<int:tid>/Edit", methods=['POST'])
 @admin_role_required
 def editTagName(tid):
+    """
+      .. py:decorator:: admin_role_required
+
+      Uses :func:`~app.handlers.TagHandler.TagHandler.editTagName`
+
+      Edit an existing tag's name.
+
+      .. :quickref: Tag; Edit tag name.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        POST /API/Dashboard/Tags/tid=2/Edit HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      **Body of Request**:
+
+      .. code-block:: json
+
+        {"tname": "newName"}
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 201: Tags successfully set to 100.
+      :statuscode 400: Invalid JSON parameters.
+      :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
