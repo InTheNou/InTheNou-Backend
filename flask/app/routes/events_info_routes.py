@@ -449,3 +449,15 @@ def editTagName(tid):
 
     else:
         return jsonify(Error="Method not allowed."), 405
+
+
+@app.route(route_prefix + "/Dashboard/Building/Add", methods=['POST'])
+@admin_role_required
+def addFullBuilding():
+    if request.method == 'POST':
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
+        return BuildingHandler().addFullBuilding(json=request.json, uid=int(current_user.id))
+
+    else:
+        return jsonify(Error="Method not allowed."), 405
