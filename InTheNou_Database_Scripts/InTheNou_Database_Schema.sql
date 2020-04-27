@@ -165,7 +165,7 @@ Create table Phones
    phoneID serial primary key,
    pNumber text NOT NULL CHECK (pNumber <> ''),
    pType char(1) NOT NULL,
-   UNIQUE(pNumber,pType)
+   constraint "unique_pnumber_ptype" UNIQUE(pNumber,pType)
 );
 
 /* Relate Phones with Services */
