@@ -119,6 +119,7 @@ def getEventByID(eid):
        :reqheader Cookie: Must contain session token to authenticate.
        :resheader Content-Type: application/json
        :statuscode 200: no error
+       :statuscode 403: User is not logged in.
        :statuscode 404: Event does not exist
        """
     if request.method == 'GET':
@@ -218,6 +219,7 @@ def getEventByIDWithInteractions(eid):
           :reqheader Cookie: Must contain session token to authenticate.
           :resheader Content-Type: application/json
           :statuscode 200: no error
+          :statuscode 403: User is not logged in.
           :statuscode 404: Event does not exist
           """
     if request.method == 'GET':
@@ -301,6 +303,7 @@ def getEventsCreatedAfterTimestamp(timestamp):
               :resheader Content-Type: application/json
               :statuscode 200: no error
               :statuscode 400: Invalid Timestamp
+              :statuscode 403: User is not logged in.
               """
     if request.method == 'GET':
         return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=int(current_user.id))
@@ -381,6 +384,8 @@ def createEvent():
     :resheader Content-Type: application/json
     :statuscode 201: Event Created Successfully
     :statuscode 400: Invalid parameter sent.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
     """
     if request.method == 'POST':
         if not request.json:
@@ -419,6 +424,7 @@ def getNewDeletedEvents(timestamp):
               :resheader Content-Type: application/json
               :statuscode 200: no error
               :statuscode 400: Invalid Timestamp
+              :statuscode 403: User is not logged in.
               """
     if request.method == 'GET':
         return EventHandler().getNewDeletedEvents(timestamp=timestamp)
@@ -454,6 +460,7 @@ def followEvent(eid):
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 201: Followed Successfully
+    :statuscode 403: User is not logged in.
     :statuscode 404: Event does not exist.
     """
     if request.method == 'POST':
@@ -490,6 +497,7 @@ def dismissEvent(eid):
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 201: Dismissed event successfully
+    :statuscode 403: User is not logged in.
     :statuscode 404: Event does not exist.
     """
     if request.method == 'POST':
@@ -526,6 +534,7 @@ def unfollowEvent(eid):
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 201: Unfollowed Successfully
+    :statuscode 403: User is not logged in.
     :statuscode 404: Event does not exist.
     """
     if request.method == 'POST':
@@ -565,6 +574,8 @@ def setEventStatus(eid, estatus):
     :resheader Content-Type: application/json
     :statuscode 201: Event Status set Successfully
     :statuscode 400: Bad estatus.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
     """
     if request.method == 'POST':
         # Todo: verify after merging to Dev. that this does not cause errors.
@@ -611,6 +622,7 @@ def setRecommendation(eid, recommendstatus):
        :resheader Content-Type: application/json
        :statuscode 201: Posted recommendation successfully.
        :statuscode 400: Invalid recommendstatus.
+       :statuscode 403: User is not logged in.
        :statuscode 404: Event does not exist.
        """
     if request.method == 'POST':
@@ -649,6 +661,7 @@ def getEventsCreatedByUser(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getEventsCreatedByUser(uid=int(current_user.id), offset=offset, limit=limit)
@@ -686,6 +699,7 @@ def getDismissedEvents(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getDismissedEvents(uid=int(current_user.id), offset=offset, limit=limit)
@@ -723,6 +737,7 @@ def getUpcomingFollowedEventsSegmented(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getUpcomingFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
@@ -760,6 +775,7 @@ def getUpcomingGeneralEventsSegmented(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getUpcomingGeneralEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
@@ -799,6 +815,7 @@ def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=int(current_user.id),
@@ -838,6 +855,7 @@ def getPastFollowedEventsSegmented(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getPastFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
@@ -875,6 +893,7 @@ def getUpcomingRecommendedEventsSegmented(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getUpcomingRecommendedEventsSegmented(uid=int(current_user.id),
@@ -915,6 +934,7 @@ def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=int(current_user.id),
@@ -954,6 +974,8 @@ def getAllEventsSegmented(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
@@ -994,6 +1016,8 @@ def getEventsCreatedByOtherUser(ecreator, offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         # Json used because current implementation of getUserIssuers() requires it.
@@ -1037,6 +1061,8 @@ def getAllDeletedEventsSegmented(offset, limit):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
+      :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
@@ -1075,6 +1101,7 @@ def getAllPastEventsSegmented(offset, limit):
       :statuscode 200: no error
       :statuscode 400: Bad offset/limit values.
       :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
       """
     if request.method == 'GET':
         return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
@@ -1109,6 +1136,7 @@ def getRoomByID(rid):
       :reqheader Cookie: Must contain session token to authenticate.
       :resheader Content-Type: application/json
       :statuscode 200: no error
+      :statuscode 403: User is not logged in.
       :statuscode 400: Bad offset/limit values.
       """
     if request.method == 'GET':
@@ -1150,6 +1178,7 @@ def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
       :reqheader Cookie: Must contain session token to authenticate.
       :resheader Content-Type: application/json
       :statuscode 200: no error
+      :statuscode 403: User is not logged in.
       :statuscode 400: Bad offset/limit values.
       """
     if request.method == 'GET':
@@ -1189,6 +1218,7 @@ def getRoomsByKeywordSegmented(searchstring, offset, limit):
       :reqheader Cookie: Must contain session token to authenticate.
       :resheader Content-Type: application/json
       :statuscode 200: no error
+      :statuscode 403: User is not logged in.
       :statuscode 400: Bad offset/limit values.
       """
     if request.method == 'GET':
@@ -1227,6 +1257,7 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
       :resheader Content-Type: application/json
       :statuscode 200: no error
       :statuscode 400: Bad bid/rfloor values.
+      :statuscode 403: User is not logged in.
       :statuscode 404: No rooms found for given building ID and floor number.
       """
     if request.method == 'GET':
@@ -1283,6 +1314,7 @@ def getBuildingByID(bid):
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 200: no error
+    :statuscode 403: User is not logged in.
     :statuscode 404: Building does not exist
     """
     if request.method == 'GET':
