@@ -84,6 +84,7 @@ def _build_insert_room_sql(building_data):
             rlatitude = building_cooridnates[0]
             rlongitude = building_cooridnates[1]
             raltitude = STANDARD_HEIGHT + (AVG_STORY_HEIGHT * rfloor)
+            room_building = room['nomoficial']
         except KeyError as bk:
             raise KeyError("Key not found in building_rooms_data: " + str(bk))
 
@@ -97,6 +98,8 @@ def _build_insert_room_sql(building_data):
                 rcode) + ".\nSkipping room insertion\n")
         elif rdept.isspace() or not rdept:
             raise ValueError("No department assigned to room entry: " + str(room))
+        elif room_building != bname:
+            raise ValueError("Building name provided (" + str(bname) + ") does not match the one recieved in the room (" + str(room_building) + ").")
         else:
 
             insert_room_query = "Insert into rooms(bid, rcode, rfloor, rdescription, " \
