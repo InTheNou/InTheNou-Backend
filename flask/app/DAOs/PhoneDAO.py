@@ -6,12 +6,19 @@ from flask import jsonify
 
 
 class PhoneDAO(MasterDAO):
+    """
+    All Methods in this DAO close connections upon proper completion.
+    Do not instantiate this class and assign it, as running a method
+    call will render it useless afterwards.
+    """
 
     def getPhoneByID(self, phoneid):
         """
-        Return a phone number given a phone ID 
-        parameters:
-        phoneid: the ID for the phone number to look for 
+        Query Database for an Phone number, given a phone ID
+
+        :param phoneid: The phone ID
+        :type phoneid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -33,13 +40,16 @@ class PhoneDAO(MasterDAO):
         return result
 
     def addPhone(self, pnumber, ptype, cursor):
-        """Inserts a phone number into the database 
-        Parameters:
-            pnumber: number of the entry
-            ptype: The type of phone i.e. fax, cellphone etc.
-            ideleted: indicates if value is active in the database
-        Returns:
-            pid: phone ID
+        """
+        Creates a new phone entry
+        
+        :param pnumber: The phone number in the format of xxx-xxx-xxxx,xxxx in the case of a phone with extension
+        :type pnumber: string
+        :param ptype: The type of phone can be Fax [F], Land-line [L], Mobile [M] and Extension [E]
+        :type ptype: string
+        :param cursor: addPhone method call connection cursor to database.
+        :type sname: connection cursor
+        :return Tuple: SQL result of Query as a tuple.
         """
         
         if pnumber is not None and pnumber != "":
@@ -74,6 +84,15 @@ class PhoneDAO(MasterDAO):
     
     def insertPhones(self,phones,sid):
         """
+        Adds a list of phones to a service,given the service ID and a list of phone numbers,verifies numbers are valid
+        
+        :param phones: A list of phone numbers, containing pnumbers and ptypes
+        :type phones: array
+        :param sid: The Service ID
+        :type sid: int
+        :cursor cursor: insertPhone method call connection cursor to database.
+        :type cursor: connection cursor
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         
@@ -90,14 +109,16 @@ class PhoneDAO(MasterDAO):
                         return jsonify(Error="Phone number error : "+str(number)),400
         self.conn.commit()
         return ({"PNumbers":(phones )})
-                    
-                    
+                                   
     def removePhonesByServiceID(self, sid, phoneid):
         """
-        Remove a phone number from a service, given a service ID and a phone ID 
-        Parameters 
-        sid: The unique ID of a service 
-        phoneid: The ID for the phone to eliminate from the database 
+        Query Database and mark a phone number and service entry as deleted 
+        
+        :param phoneid: The phone ID
+        :type phoneid: int
+        :param sid: The service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         #print('Number ID from Phone remove Query: '+phoneid)
         cursor = self.conn.cursor()
@@ -128,12 +149,11 @@ class PhoneDAO(MasterDAO):
 
     def getPhonesByServiceID(self, sid):
         """
-         Query Database for all the phone entries belonging
-            to a Service, given the Service's ID.
-        Parameters:
-            sid: Service ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Gets a list of phones, given a service ID 
+        
+        :param sid: The Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -156,11 +176,13 @@ class PhoneDAO(MasterDAO):
 
     def addPhoneToService(self, sid, pid, cursor):
         """
-        Relates the phone number to the service. 
-        Parameters:
-            sid: newly created Service ID.
-            id: phone IDs
-            cursor: createService method call connection cursor to database.
+        Adds a list of phones to a service,given their respective IDs
+        
+        :param pid: The ID of a phone number
+        :type pid: int
+        :param sid: The Service ID
+        :type sid: int
+        
         """
         if pid is not None and pid != "":
             if cursor == None:
