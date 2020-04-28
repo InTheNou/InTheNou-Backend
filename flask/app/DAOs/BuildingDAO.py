@@ -76,7 +76,11 @@ def _build_insert_room_sql(building_data):
     for room in building_rooms_data:
         try:
             rcode = room["space_num"]
-            rfloor = int(room["num_piso"])
+            rfloor = room["num_piso"]
+            if not rfloor.isnumeric():
+                print("Room Floor is invalid: " + str(rfloor) + ", Skipping room insertion.\n")
+                continue
+            rfloor = int(rfloor)
             rdescription = room["descsp"]
             roccupancy = int(room["capacity"])
             rdept = room["department"]
