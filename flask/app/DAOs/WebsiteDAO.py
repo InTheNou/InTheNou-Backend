@@ -13,8 +13,20 @@ def Find(string):
 
 
 class WebsiteDAO(MasterDAO):
+    """
+    All Methods in this DAO close connections upon proper completion.
+    Do not instantiate this class and assign it, as running a method
+    call will render it useless afterwards.
+    """
 
     def getWebsiteByID(self, wid):
+        """
+        Query Database for an Website, given a website ID
+
+        :param wid: The website ID
+        :type wid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """
 
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -34,6 +46,13 @@ class WebsiteDAO(MasterDAO):
         return result
 
     def getWebsitesByEventID(self, eid):
+        """
+        Query Database for an Website, given a event ID
+
+        :param eid: The event ID
+        :type eid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
                         "natural join {table2} "
@@ -53,6 +72,13 @@ class WebsiteDAO(MasterDAO):
         return result
 
     def getWebsitesByServiceID(self, sid):
+        """
+        Query Database for an Website, given a service ID
+
+        :param sid: The service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
                         "natural join {table2} "
@@ -76,7 +102,14 @@ class WebsiteDAO(MasterDAO):
 
     def createWebsite(self, url,uid):
         """
-        """       
+        Create a new entry for service websites
+
+        :param url: The website link
+        :type url: string
+        :param uid: The user id of the route caller 
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """      
         try:
             if url is not None and url != "":
                 cursor = self.conn.cursor()
@@ -101,13 +134,17 @@ class WebsiteDAO(MasterDAO):
            return result 
 
     def addWebsite(self, url, cursor,uid):
-        """Inserts a website into the website table DOES NOT COMMIT CHANGES TO DB.
-        Parameters:
-            url: the url for the website
-            cursor: createEvent method call connection cursor to database.
-        Returns:
-            wid: website ID
-           """
+        """
+        Create a new entry for a website
+
+        :param url: The website link
+        :type url: string
+        :param uid: The user id of the route caller 
+        :type uid: int
+        :param cursor: addWebsite method call connection cursor to database.
+        :type sname: connection cursor
+        :return Tuple: SQL result of Query as a tuple.
+        """ 
         temp =url
         url = Find(url)
         cursor = cursor    
@@ -127,18 +164,21 @@ class WebsiteDAO(MasterDAO):
                 return result
         else:
             raise ValueError("URL not valid: "+str(temp))
-        
-      
-        
+              
     def addWebsitesToService(self, sid, wid, wdescription, cursor):
         """
-        Relates the websites to the event. DOES NOT COMMIT CHANGES TO
-        DB.
-        Parameters:
-            sid: newly created Service ID.
-            wid: website IDs
-            cursor: createService method call connection cursor to database.
-        """
+        Create a new entry for a website services table
+
+        :param sid: The Service ID
+        :type sid: int
+        :param wid: The website ID
+        :type wid: int
+        :param wdescription: Description for  the website 
+        :type wdescription: string
+        :param cursor: Method call connection cursor to database.
+        :type sname: connection cursor
+        :return Tuple: SQL result of Query as a tuple.
+        """ 
         
         cursor =cursor
         
@@ -164,13 +204,19 @@ class WebsiteDAO(MasterDAO):
 
     def addWebsitesToEvent(self, eid, wid, wdescription, cursor, uid):
         """
-        Relates the websites to the event. DOES NOT COMMIT CHANGES TO
-        DB.
-        Parameters:
-            eid: newly created Event ID.
-            wid: website IDs
-            wdescription: description of website
-            cursor: createEvent method call connection cursor to database.
+        Create a new entry for a website events table
+
+        :param eid: The Event ID
+        :type eid: int
+        :param wid: The website ID
+        :type wid: int
+        :param wdescription: Description for  the website 
+        :type wdescription: string
+        :param uid: The user id of the route caller 
+        :type uid: int
+        :param cursor: Method call connection cursor to database.
+        :type sname: connection cursor
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = cursor
         audit = AuditDAO()
@@ -196,13 +242,16 @@ class WebsiteDAO(MasterDAO):
 
     def insertWebsiteToService(self, sites,sid):
         """
-        Relates the websites to the event. DOES NOT COMMIT CHANGES TO
-        DB.
-        Parameters:
-            sid: newly created Service ID.
-            wid: website IDs
-            cursor: createService method call connection cursor to database.
-        """
+        Create a new entry for a website services table
+
+        :param sid: The Service ID
+        :type sid: int
+        :param sites: List of wids and wdescriptions\
+        :type sites: array
+        :param cursor: Method call connection cursor to database.
+        :type cursor: connection cursor
+        :return Tuple: SQL result of Query as a tuple.
+        """ 
         websites =[]
         cursor = self.conn.cursor()
         
@@ -227,7 +276,16 @@ class WebsiteDAO(MasterDAO):
         
     def removeWebsitesGivenServiceID(self, wid, sid,uid):
         """
-        """
+        Remove an entry from a website services table
+
+        :param sid: The Service ID
+        :type sid: int
+        :param wid: The website ID
+        :type wid: int
+        :param uid: The user id of the route caller 
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """ 
         cursor = self.conn.cursor()
         audit = AuditDAO()
         tablename = 'servicewebsites'
