@@ -16,16 +16,23 @@ UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
 SEARCHSTRING_VALUE = 'searchstring'
 
 
-def _buildPhoneResponse(phone_tuple):
-    response = {}
-    response['phoneid'] = phone_tuple[0]
-    response['pnumber'] = phone_tuple[1]
-    response['ptype'] = phone_tuple[2]
 
-    return response
 
 
 def _buildServiceResponse(service_tuple):
+    """
+    Private Method to build service dictionary to be JSONified.
+
+     Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
+
+    :param service_tuple: response tuple from SQL query
+    :returns Dict: Service information with keys:
+
+    .. code-block:: python
+
+        {'sid',  'room', 'sname', 'sdescription',
+        'sschedule', 'isdeleted'}
+    """
     response = {}
     response['sid'] = service_tuple[0]
     response['room'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
@@ -37,6 +44,19 @@ def _buildServiceResponse(service_tuple):
 
 
 def _buildCoreServiceResponse(service_tuple):
+    """
+    Private Method to build core service dictionary to be JSONified.
+
+     Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
+
+    :param service_tuple: response tuple from SQL query
+    :returns Dict: Service information with keys:
+
+    .. code-block:: python
+
+        {'sid',  'rid', 'sname', 'sdescription',
+        'sschedule'}
+    """
     response = {}
     response['sid'] = service_tuple[0]
     response['rid'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
@@ -48,6 +68,22 @@ def _buildCoreServiceResponse(service_tuple):
 
 
 def _buildServiceByRoomResponse(service_tuple):
+    """
+    Private Method to build service dictionary from a given room ID to be JSONified.
+
+     Uses :
+     
+     * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
+     * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebsitesByServiceID`
+     
+    :param service_tuple: response tuple from SQL query
+    :returns Dict: Service information with keys:
+
+    .. code-block:: python
+
+        {'sid', 'sname', 'sdescription',
+        'sschedule', 'PNumbers','Websites'}
+    """
     response = {}
     response['sid'] = service_tuple[0]
     response['sname'] = service_tuple[1]
@@ -60,44 +96,39 @@ def _buildServiceByRoomResponse(service_tuple):
     return response
 
 
-def _buildWebsiteResponse(website_tuple):
-    response = {}
-    response['wid'] = website_tuple[0]
-    response['url'] = website_tuple[1]
-    response['wdescription'] = website_tuple[2]
-
-    return response
-
-
-def _buildCoreWebsiteResponse(website_tuple):
-    response = {}
-    response['wid'] = website_tuple[0]
-    response['wdescription'] = website_tuple[3]
-    response['isdeleted'] = website_tuple[2]
-    return response
-
-
 class ServiceHandler:
-
+    """
+    Handler Class to manage getting/creating/modifying services
+    """
     def createService(self, json,uid):
-        """
-        Creates a new service and adds websites and phones to it 
-        Parameters:
-        json:JSON containing parameters to create the service, these include:
-        uid: The user ID for the creator of the service 
-        rid: The ID for the room that would provide the service 
-        sname: The name of the service 
-        sdescription: A description of the service 
-        sschedule: The service's schedule 
-        websites: Websites to be asociated with the service 
-        numbers : Phone numbers to be added to the service 
+        """Attempt to create a service.
+
+         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
+
+         * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+         
+         :param uid: User ID.
+         :type uid: int
+         :param json: JSON object with the following keys:
+
+                * rid (room ID)
+                * sname
+                * sdescription
+                * sschedule
+                * Websites
+                * PNumbers
+            
+
+        :type json: JSON
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         
-       # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
+         # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
         for key in CREATESERVICEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-       # TODO: NO LIMIT REQUIERED?
+      
         websites = WebsiteHandler().unpackWebsites(json=json['Websites'])
         if len(websites) > 10:
             return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
@@ -135,6 +166,25 @@ class ServiceHandler:
             return self.getServiceByID(sid)
 
     def deleteService(self, sid, uid):
+        """Attempt to delete a service.
+
+        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.deleteService`
+        :param uid: User ID.
+        :type uid: int
+        :param sid: Service ID.
+        :type uid: int
+        
+                * rid (room ID)
+                * sname
+                * sdescription
+                * sschedule
+                * Websites
+                * PNumbers
+            
+
+        :type json: JSON
+        :returns JSON Response Object: JSON Response Object containing success or error response.
+        """
         dao = ServiceDAO()
         service = dao.deleteService(sid, uid=uid)
         if service is not None:
@@ -142,13 +192,16 @@ class ServiceHandler:
         return jsonify(Error="No service with that ID"), 404
 
     def getServiceByID(self, sid, no_json=False):
-        """
-        Return the Service entry belonging to the specified sid.
-        Parameters:
-            sid: Service ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing room information. Error JSON otherwise.
+        """Return the Service entry belonging to the specified sid.
+
+        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByID` as well as
+        :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`
+
+        :param sid: Service ID
+        :type sid: int
+        :param no_json: States whether or not to return the successful response as a dictionary.
+        :type no_json: bool
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         Phonehandler = PhoneHandler()
         Websitehandler = WebsiteHandler()
@@ -167,6 +220,18 @@ class ServiceHandler:
             return jsonify(response)
 
     def getServicesByRoomID(self, rid, no_json=False):
+        """Return the Service entry belonging to the specified rid.
+        
+        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByRoomID` as well as
+        :func:`~app.handlers.ServiceHandler._buildServiceByRoomResponse`
+
+        :param rid: Room ID
+        :type rid: int
+        :param no_json: States whether or not to return the successful response as a dictionary.
+        :type no_json: bool
+        :returns JSON Response Object: JSON Response Object containing success or error response.
+        """
+        
         dao = ServiceDAO()
         services = dao.getServicesByRoomID(rid=rid)
         serviceInfo = []
@@ -182,7 +247,18 @@ class ServiceHandler:
             return jsonify({"Services": None})
 
     def getServicesSegmented(self, offset, limit):
-        """
+        """Get all services, segmented
+
+         Uses :func:`~app.DAOs.EventDAO.ServiceDAO.getAllServicesSegmented` as well as:
+
+             * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
+             * :func:`~app.handlers.EventHandler._buildCoreServiceResponse`
+
+        :param offset: Number of results to skip from top of list.
+        :type offset: int
+        :param limit: Number of results to return. Default = 20.
+        :type limit: int
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
@@ -202,7 +278,27 @@ class ServiceHandler:
             return jsonify(response)
 
     def updateServiceInformation(self, sid, json, uid):
-        """
+        """Attempt to update a service.
+
+         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
+
+         * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+         
+         :param uid: User ID.
+         :type uid: int
+         :param json: JSON object with the following keys:
+
+                * rid (room ID)
+                * sname
+                * sdescription
+                * sschedule
+                * Websites
+                * PNumbers
+            
+
+         :type json: JSON
+         :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         service = {}
         for key in json:
@@ -220,12 +316,20 @@ class ServiceHandler:
             return jsonify(Error="no service with that ID found")
 
     def getServicesByKeywords(self, searchstring, offset, limit=20):
-        """
-        Get non-deleted services whose names or descriptions match a search string.
-        Parameters:
-            searchstring:keywords to use to search for services.
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=20.
+        """Get all services by keyword, segmented
+
+         Uses :func:`~app.DAOs.EventDAO.ServiceDAO.getServicesByKeywords` as well as:
+
+          
+             * :func:`~app.handlers.EventHandler._buildServiceResponse`
+        
+        :param searchstring: Keyword to search for services.
+        :type offset: string
+        :param offset: Number of results to skip from top of list.
+        :type offset: int
+        :param limit: Number of results to return. Default = 20.
+        :type limit: int
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)

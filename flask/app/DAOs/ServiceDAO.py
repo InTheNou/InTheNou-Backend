@@ -8,10 +8,19 @@ from flask import jsonify
 
 
 class ServiceDAO(MasterDAO):
+    """
+    All Methods in this DAO close connections upon proper completion.
+    Do not instantiate this class and assign it, as running a method
+    call will render it useless afterwards.
+    """
 
     def serviceInfoArgs(self, service):
         """
-        given a service return a list of keys and values
+        Query Database for an Service's information by its sid.
+
+        :param sid: Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
 
         fields = []
@@ -28,9 +37,11 @@ class ServiceDAO(MasterDAO):
 
     def deleteService(self, sid, uid):
         """
-        remove a service from the database,given a service ID
-        parameters:
-        sid: the ID for the service to delete
+        Remove a service from the database,given a service ID
+        
+        :param sid: Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
 
@@ -58,14 +69,21 @@ class ServiceDAO(MasterDAO):
     def createService(self, uid, rid, sname, sdescription, sschedule, websites, numbers):
         """
         Creates a new service and adds websites and phones to it
-        Parameters:
-        uid: The user ID for the creator of the service
-        rid: The ID for the room that would provide the service
-        sname: The name of the service
-        sdescription: A description of the service
-        sschedule: The service's schedule
-        websites: Websites to be asociated with the service
-        numbers : Phone numbers to be added to the service
+        
+        :param uid: The user ID for the creator of the service
+        :type uid: int
+        :param rid: The ID for the room that would provide the service
+        :type rid: int
+        :param sname: The name of the service
+        :type sname: string
+        :param sdescription: A description of the service
+        :type sdescription: string 
+        :param sschedule: The service's schedule
+        :type sschedule: string 
+        :param websites: Websites to be asociated with the service
+        :type Websites: array
+        :param numbers : Phone numbers to be added to the service
+        :type PNumbers: array
         """
         cursor = self.conn.cursor()
 
@@ -120,10 +138,10 @@ class ServiceDAO(MasterDAO):
     def getServiceByID(self, sid):
         """
          Query Database for an Service's information by its sid.
-        Parameters:
-            sid: Service ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+         
+        :param sid: Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -144,12 +162,12 @@ class ServiceDAO(MasterDAO):
 
     def getServicesByRoomID(self, rid):
         """
-        Query Database for all users and their basic information
+        Query Database for an all services in a given room ID.
         Parameters:
-            offset:Number of records to ignore , ordered by user ID biggest first
-            limit:maximum number of records to recieve
-        Returns:
-            Tuple: SQL result of Query as tuple.
+
+        :param rid: Room ID.
+        :type rid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL(
@@ -162,12 +180,14 @@ class ServiceDAO(MasterDAO):
 
     def getServicesSegmented(self, offset, limit):
         """
-        Query Database for all users and their basic information
+        Query Database for an all services, segmented.
         Parameters:
-            offset:Number of records to ignore , ordered by user ID biggest first
-            limit:maximum number of records to recieve
-        Returns:
-            Tuple: SQL result of Query as tuple.
+
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select * from services WHERE isdeleted = false "
@@ -181,13 +201,16 @@ class ServiceDAO(MasterDAO):
 
     def getServicesByKeywords(self, searchstring, offset, limit):
         """
-         Query Database for services whose names or descriptions match a search string.
+        Query Database for an all services matching a given keyword.
         Parameters:
-            searchstring: pipe-separated string of keywords to search for.
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        :param searchstring: Keyword to search for services 
+        :type searchstring: string
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
+        Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -216,10 +239,16 @@ class ServiceDAO(MasterDAO):
 
     def updateServiceInformation(self, sid, service, uid):
         """
-        Change the insformation of a service given its ID
-        Params:
-        service: JSON containing parameters to update, these include
-        the service name, service description, service schedule and service room
+        Update the information about a service.
+        Parameters:
+
+        :param sid: Service ID.
+        :type sid: int
+        :param service: Dictionary with the service information to update.
+        :type service: string
+        :param uid: User ID of the caller of this function.
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         try:
