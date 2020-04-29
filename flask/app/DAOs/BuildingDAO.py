@@ -1,6 +1,6 @@
 from app.DAOs.MasterDAO import MasterDAO
 from app.DAOs.AuditDAO import AuditDAO
-from psycopg2 import sql
+from psycopg2 import sql, errors
 from psycopg2.extensions import AsIs
 import requests
 
@@ -92,7 +92,7 @@ def _build_insert_room_sql(building_data):
         except KeyError as bk:
             raise KeyError("Key not found in building_rooms_data: " + str(bk))
 
-        if rcode.isspace() or not rcode:
+        if not rcode or rcode.isspace():
             print("Entry with missing rcode found for building: " + str(bname) + ".\nRelated fields: " + str(room))
             print("Skipping Room Insertion.\n")
         elif rcode in roomcodes:
@@ -100,9 +100,11 @@ def _build_insert_room_sql(building_data):
             # raise ValueError("Duplicate room code in Data: " + str(insert_room_query))
             print("Duplicate Room Code found in building " + str(bname) + ": " + str(babbrev) + "-" + str(
                 rcode) + ".\nSkipping room insertion\n")
-        elif rdept.isspace() or not rdept:
-            raise ValueError("No department assigned to room entry: " + str(room))
-        elif room_building != bname:
+        elif not rdept or rdept.isspace():
+            print("No department assigned to room entry: " + str(room))
+            print("Inserting anyway.")
+            # raise ValueError("No department assigned to room entry: " + str(room))
+        elif bname not in room_building:
             raise ValueError("Building name provided (" + str(bname) + ") does not match the one recieved in the room (" + str(room_building) + ").")
         else:
 
@@ -147,12 +149,19 @@ class BuildingDAO(MasterDAO):
                                                   cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
-            query = "select * from rooms where bid=(SELECT bid FROM buildings " \
+            selectquery = "select * from rooms where bid=(SELECT bid FROM buildings " \
                        "WHERE bname='{bname}')".format(bname=building_json["nomoficial"])
-            oldvalue = str(cursor.execute(query))
+            oldvalue = str(cursor.execute(selectquery))
             for query in rooms_queries:
-                cursor.execute(query)
-            newValue = str(cursor.execute(query))
+                try:
+                    cursor.execute("savepoint my_save_point")
+                    cursor.execute(query)
+                except errors.CheckViolation as cv:
+                    cursor.execute("rollback to savepoint my_save_point")
+                    print("CheckViolation raised; continuing execution.\nError message: " + str(cv))
+                finally:
+                    cursor.execute("release savepoint my_save_point")
+            newValue = str(cursor.execute(selectquery))
             audit.insertAuditEntry(changedTable="rooms", changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
 
