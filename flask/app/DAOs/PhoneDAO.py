@@ -182,7 +182,7 @@ class PhoneDAO(MasterDAO):
         :type pid: int
         :param sid: The Service ID
         :type sid: int
-        
+        :return Tuple: SQL result of Query as a tuple.
         """
         if pid is not None and pid != "":
             if cursor == None:

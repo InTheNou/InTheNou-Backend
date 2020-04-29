@@ -5,8 +5,15 @@ from flask import jsonify
 import re
 
 def Find(string): 
-    # findall() has been used  
-    # with valid conditions for urls in string 
+    """
+    Private Method to verify if string is a website link (URL)
+
+     Uses :func:`~app.re.findall`
+
+    :param string: string to check URL for
+    :returns string: URL
+
+    """
     url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+] |[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', string) 
     return url 
       

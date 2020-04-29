@@ -19,9 +19,8 @@ class RoomDAO(MasterDAO):
         """
          Query Database for an Room's information by its rid.
         Parameters:
-            rid: event ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+            :param rid: event ID
+            :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -55,10 +54,10 @@ class RoomDAO(MasterDAO):
         """
          Query Database for all the rooms on a given building's floor..
         Parameters:
-            bid: building ID
-            rfloor: room floor
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+            :param bid: building ID
+            :param rfloor: room floor
+        
+            :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -97,8 +96,9 @@ class RoomDAO(MasterDAO):
         """
         Change the Room coordinates given a room ID
         Parameters
-        rid: The Id of the room to update coordinates for
-        roomkeys : The Json object containing the Coordinates to update
+            :param rid: The Id of the room to update coordinates for
+            :param roomkeys : The Json object containing the Coordinates to update
+            :return Tuple: SQL result of Query as a tuple.   
         """
         cursor = self.conn.cursor()
         fields_list = self.roomInfoArgs(roomKeys=roomKeys)
@@ -131,11 +131,11 @@ class RoomDAO(MasterDAO):
         """
          Query Database for an Room's information by description keywords.
         Parameters:
-            keywords: string of keywords separated by a pipe "|"
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+            :param keywords: string of keywords separated by a pipe "|"
+           :param offset: Number of rows to ignore from top results.
+           :param limit: Maximum number of rows to return from query results.
+        
+            :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -176,11 +176,11 @@ class RoomDAO(MasterDAO):
         """
          Query Database for an Room's information by description keywords.
         Parameters:
-            keywords: string of keywords separated by a pipe "|"
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+           :param  keywords: string of keywords separated by a pipe "|"
+           :param offset: Number of rows to ignore from top results.
+            :paramlimit: Maximum number of rows to return from query results.
+        
+           :return Tuple: SQL result of Query as a tuple.
         """
         babbrev = '%' + babbrev + '%'
         rcode = '%' + rcode + "%"

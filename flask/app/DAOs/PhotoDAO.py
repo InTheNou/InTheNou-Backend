@@ -4,16 +4,21 @@ from psycopg2 import sql, errors
 
 
 class PhotoDAO(MasterDAO):
+    """
+    All Methods in this DAO close connections upon proper completion.
+    Do not instantiate this class and assign it, as running a method
+    call will render it useless afterwards.
+    """
 
     def insertPhoto(self, photourl, uid, cursor):
         """
         Attempt to insert a photo's url into the photos table; Does nothing if the photourl is either None
             or and empty string. DOES NOT COMMIT CHANGES.
         Parameters:
-            photourl: a non-empty string or None
-            cursor: createEvent method call connection cursor to database.
-        Returns:
-            Tuple: the photoID of the photo in the Photos table, as an SQL result
+            :param photourl: a non-empty string or None
+            :param cursor: createEvent method call connection cursor to database.
+       
+           :return Tuple: the photoID of the photo in the Photos table, as an SQL result
         """
         if photourl is not None and photourl != "" and not photourl.isspace():
             cursor = cursor
