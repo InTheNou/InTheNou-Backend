@@ -5,7 +5,7 @@ app.DAOs package
    :maxdepth: 4
 
    app.DAOs.BuildingDAO
-
+   app.DAOs.UserDAO
 EventDAO
 --------
 
