@@ -1,13 +1,10 @@
 app.DAOs package
 ================
 
-BuildingDAO
------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: app.DAOs.BuildingDAO
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   app.DAOs.BuildingDAO
 
 EventDAO
 --------

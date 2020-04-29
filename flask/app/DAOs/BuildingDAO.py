@@ -7,10 +7,10 @@ import requests
 STANDARD_HEIGHT = 35
 AVG_STORY_HEIGHT = 2
 BUILDING_TYPES = {
-  "1":"Académico",
+  "1":"Acad\u00e9mico",
   "2": "Administrativo",
   "9": "Espacio Abierto",
-  "13": "Investigación",
+  "13": "Investigaci\u00f3n",
   "14": "Agricultura",
   "15": "Facilidades de Animales"
 }
@@ -155,8 +155,8 @@ class BuildingDAO(MasterDAO):
         Executes queries needed to create a new building or update an existing building
         with information from the UPRM Portal database.
 
-        Uses the private methods :ref:`~app.DAOs.BuildingDAO.BuildingDAO._build_building_insert_sql`
-        and :ref:`~app.DAOs.BuildingDAO.BuildingDAO._build_insert_room_sql`
+        Uses the private methods :func:`~app.DAOs.BuildingDAO.BuildingDAO._build_building_insert_sql`
+        and :func:`~app.DAOs.BuildingDAO.BuildingDAO._build_insert_room_sql`
 
         :param building_json: dictionary that contains the needed CTI key-value pairs.
         :type building_data: dict

@@ -58,7 +58,7 @@ class BuildingHandler:
         """
         Handler method to verify that all necessary JSON keys are
         present before creating a new building.
-        Uses :ref:`~app.DAOs.BuildingDAO.BuildingDAO.addFullBuilding`
+        Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.addFullBuilding`
 
         :param json: Contains the necessary keys to create a building from UPRM Portal data
         ["edificioid", "nomoficial", "blddenom", "codigoold", "bldtype", "attributes"]

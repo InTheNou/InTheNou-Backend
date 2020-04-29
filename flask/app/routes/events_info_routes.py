@@ -1831,7 +1831,53 @@ def editTagName(tid):
 @app.route(route_prefix + "/Dashboard/Building/Add", methods=['POST'])
 @admin_role_required
 def addFullBuilding():
-    # TODO: ADD PROPER reST docstring
+    """
+      .. py:decorator:: admin_role_required
+
+      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.addFullBuilding`
+
+      Add a new building to the system or update an existing building.
+
+      .. :quickref: Building; Add building.
+
+      :return: JSON
+
+      **Example request**:
+
+      .. sourcecode:: http
+
+        POST /API/Dashboard/Building/Add HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+      **Body of Request**:
+
+      .. code-block:: json
+
+         {
+            "edificioid": "110",
+            "nomoficial": "LUIS A STEFANI (INGENIERIA) ",
+            "blddenom": "STEFANI",
+            "codigoold": "S",
+            "bldtype": "1",
+            "attributes": [
+              ["2", "1086122.79"],
+              ["15", "18.20956050211146,-67.13997513055801"],
+              ["24", "109753"],
+              ["25", "115605"],
+              ["1", "7"],
+              ["21", "Hormigon"],
+              ["0", "1958"]
+            ]
+          }
+
+      :reqheader Cookie: Must contain session token to authenticate.
+      :resheader Content-Type: application/json
+      :statuscode 201: Building Successfully added/updated.
+      :statuscode 400: Invalid JSON parameters.
+      :statuscode 401: User does not have appropriate role to use route.
+      :statuscode 403: User is not logged in.
+      """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
