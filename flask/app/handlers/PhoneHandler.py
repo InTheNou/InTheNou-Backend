@@ -9,6 +9,18 @@ SERVICEPHONEKEYS = ['PNumbers']
 
 
 def _buildPhoneResponse(phone_tuple):
+    """
+    Private Method to build phone number dictionary to be JSONified.
+
+  
+
+    :param phone_tuple: response tuple from SQL query
+    :returns Dict: Phone information with keys:
+
+    .. code-block:: python
+
+        {'phoneid', 'pnumber', 'ptype'}
+    """
     response = {}
     response['phoneid'] = phone_tuple[0]
     response['pnumber'] = phone_tuple[1]
@@ -18,10 +30,14 @@ def _buildPhoneResponse(phone_tuple):
 
 
 class PhoneHandler:
-
+    """
+    Handler Class to manage getting/creating/modifying phones
+    """
     def unpackPhones(self, json):
         """
-        Given a Json with phone numbers, returns a list of numbers
+        Returns a lsit of phone numbers given a json body with phone numbers and types 
+        :param json: JSON payload with phone numbers 
+        :type json: array
         """
         numbers = []
         for num in json:
@@ -32,8 +48,12 @@ class PhoneHandler:
         """
         Create a phone number and add it to a service given its ID 
         Parameters:
-        sid: The ID of the service to add phone numbers to 
-        json: JSON containing the phone numbers to add 
+        param: sid: The ID of the service to add phone numbers to 
+        type: sid: int
+        :param uid: User ID.
+        :type uid: int
+        param: json: JSON containing the phone numbers to add 
+        type: json: array
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
@@ -56,12 +76,12 @@ class PhoneHandler:
 
     def getPhonesByServiceID(self, sid, no_json=False):
         """
-        Return the Phone entries belonging to the specified Service sid.
+        Create a phone number and add it to a service given its ID 
         Parameters:
-            sid: Service ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing room information. Error JSON otherwise.
+        param: sid: The ID of the service to add phone numbers to 
+        type: sid: int
+        param: no_json: Specify if response is Json or not 
+        type: no_json: bool
         """
         dao = PhoneDAO()
         phones = dao.getPhonesByServiceID(sid=sid)
@@ -78,10 +98,14 @@ class PhoneHandler:
 
     def removePhoneByServiceID(self, sid, json, uid):
         """
-        Remove  a list of phones from a given service ID 
-        Paramters:
-        sid: The ID of the service to remove the Phones from 
-        json: JSON with the tag IDs to remove 
+        Create a phone number and add it to a service given its ID 
+        Parameters:
+        param: sid: The ID of the service to add phone numbers to 
+        type: sid: int
+        :param uid: User ID.
+        :type uid: int
+        param: json: JSON containing the phone numbers to add 
+        type: json: array
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
