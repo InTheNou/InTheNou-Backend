@@ -10,11 +10,14 @@ SERVICEWEBSITEKEYS = ['Websites']
 
 def _buildCoreWebsiteResponse(website_tuple):
     """
-    Private Method to build core event dictionary to be JSONified.
-    Parameters:
-        event_tuple: response tuple from SQL query
-    Returns:
-        Dict: Event information.
+    Private Method to build website dictionary to be JSONified.
+    
+    :param website_tuple: response tuple from SQL query
+    :returns Dict: Website information with keys:
+
+    .. code-block:: python
+
+        {'wid', 'url'}
     """
     response = {}
     response['wid'] = website_tuple[0]
@@ -24,6 +27,16 @@ def _buildCoreWebsiteResponse(website_tuple):
 
 
 def _buildWebsiteResponse(website_tuple):
+    """
+    Private Method to build website dictionary to be JSONified.
+    
+    :param website_tuple: response tuple from SQL query
+    :returns Dict: Website information with keys:
+
+    .. code-block:: python
+
+        {'wid', 'url', 'wdescription'}
+    """
     response = {}
     response['wid'] = website_tuple[0]
     response['url'] = website_tuple[1]
@@ -36,6 +49,17 @@ def _buildWebsiteResponse(website_tuple):
 
 
 def _buildInsertWebsiteResponse(website_tuple, url):
+    """
+    Private Method to build website dictionary to be JSONified.
+    
+    :param website_tuple: response tuple from SQL query
+    :param url: link to website
+    :returns Dict: Website information with keys:
+
+    .. code-block:: python
+
+        {'wid', 'url', 'wdescription'}
+    """
     response = {}
     response['wid'] = website_tuple[0]
     response['url'] = url
@@ -49,11 +73,15 @@ def _buildInsertWebsiteResponse(website_tuple, url):
 
 def _buildWebsiteIDResponse(website_tuple):
     """
-    Private Method to build core event dictionary to be JSONified.
-    Parameters:
-        event_tuple: response tuple from SQL query
-    Returns:
-        Dict: Event information.
+    Private Method to build website dictionary to be JSONified.
+    
+    :param website_tuple: response tuple from SQL query
+    :param url: link to website
+    :returns Dict: Website information with keys:
+
+    .. code-block:: python
+
+        {'wid', }
     """
     response = {}
     response['wid'] = website_tuple[0]
