@@ -1,10 +1,11 @@
 from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.UserDAO import UserDAO
-from flask_login import  current_user
+from flask_login import current_user
 
 CHECKUSERISSUERSKEY = ['id', 'uid']
 CHANGEUSERROLEKEY = ['id', 'uid', 'roleid']
+
 
 def _buildEmailUserResponse(user_tuple):
     """
@@ -18,10 +19,11 @@ def _buildEmailUserResponse(user_tuple):
     response = {}
     response['uid'] = user_tuple[0]
     response['display_name'] = user_tuple[1]
-    response['roleid']= user_tuple[2]
-    response['roleissuer']= user_tuple[3]
-      
+    response['roleid'] = user_tuple[2]
+    response['roleissuer'] = user_tuple[3]
+
     return response
+
 
 def _buildCoreUserResponse(user_tuple):
     """
@@ -32,14 +34,14 @@ def _buildCoreUserResponse(user_tuple):
         Dict: User information 
             uid,email,display name,roleid,the id for role issuer
     """
-  
+
     response = {}
     response['uid'] = user_tuple[0]
     response['email'] = user_tuple[1]
     response['display_name'] = user_tuple[2]
-    response['type']    =user_tuple[3]
-    response['roleid']  =user_tuple[4]
-    
+    response['type'] = user_tuple[3]
+    response['roleid'] = user_tuple[4]
+
     return response
 
 
@@ -68,7 +70,7 @@ def _buildDelegatedUserResponse(user_tuple):
     Returns:
         Dict: Delegated User information
     """
-    
+
     response = {}
     response['issuer_role'] = user_tuple[0]
     response['issuer_email'] = user_tuple[1]
@@ -76,14 +78,20 @@ def _buildDelegatedUserResponse(user_tuple):
     response['user_role'] = user_tuple[3]
     response['user_email'] = user_tuple[4]
     response['user_id'] = user_tuple[5]
-    
+
     return response
 
 
 def _buildUserNumberResponse(user_tuple):
     """
-    Return the amount of users with a given roleid
-    roleid -- Role ID
+    Private Method to build user dictionary to be JSONified.
+
+    :param user_tuple: response tuple from SQL query
+    :returns Dict: user information with keys:
+
+    .. code-block:: python
+
+        {'number'}
     """
     response = {}
 
@@ -93,8 +101,14 @@ def _buildUserNumberResponse(user_tuple):
 
 def _buildUserIDList(user_tuple):
     """
-    Return a list of users with their ID
-    user_id -- User ID
+    Private Method to build user dictionary to be JSONified.
+
+    :param user_tuple: response tuple from SQL query
+    :returns Dict: user information with keys:
+
+    .. code-block:: python
+
+        {'user_id'}
     """
     response = {}
 
@@ -104,13 +118,15 @@ def _buildUserIDList(user_tuple):
 
 def _checkUser(id, user_tuple):
     """
-    Checks if a given id is in a list of user iDs
-    returns bool
-    Parameters:
-    id- User ID to check
-    user_tuple List of user IDs
+    Private Method to list check if a user id is inside a list of user IDs
+
+    :param user_tuple: List of user IDs
+    :param id: The User ID to check
+    :returns bool
+
+    .. 
     """
-    
+
     for row in user_tuple:
         if (int(id) == int(row[0])):
             return True
@@ -123,7 +139,7 @@ class UserHandler:
         """Return the user entry belonging to the specified uid.
         uid -- user ID.
         """
-        
+
         dao = UserDAO()
         if(isinstance(uid, int) and uid > 0):
             user = dao.getUserByID(uid)
@@ -154,13 +170,13 @@ class UserHandler:
             user_list = []
             for row in users:
                 user_list.append(_buildUserIDList(user_tuple=row))
-            
+
             response = {"Users": user_list}
             if no_json:
                 return response['Users']
             return jsonify(response)
 
-    def getUsersDelegatedByID(self,uid):
+    def getUsersDelegatedByID(self, uid):
         """
         Return a list of users that the given user ID has delegated roles to.
         id -- user ID.
@@ -176,8 +192,6 @@ class UserHandler:
                 user_list.append(_buildUserResponse(user_tuple=row))
             response = {"Users": user_list}
             return jsonify(response)
-        
-        
 
     def getUsersAndIssuersSegmented(self, offset, limit):
         """
@@ -207,10 +221,10 @@ class UserHandler:
         """
         dao = UserDAO()
         users = dao.getAllUsersByRoleID(
-             roleid=roleid, offset=offset, limit=limit)
+            roleid=roleid, offset=offset, limit=limit)
         result = []
         for row in users:
-             result.append(_buildCoreUserResponse(row))
+            result.append(_buildCoreUserResponse(row))
         return jsonify(result)
 
     def getUsersSegmented(self, offset, limit):
@@ -232,7 +246,7 @@ class UserHandler:
             response = {"Users": user_list}
             return jsonify(response)
 
-    def changeRole(self,uid,id,newRole):
+    def changeRole(self, uid, id, newRole):
         """
         Update user role id after checking if caller has permissions 
         Parameters : 
@@ -241,30 +255,26 @@ class UserHandler:
         id:uid of caller also called Issuer
 
         Returns: User entry with new values
-        """    
-        
-        
-        
+        """
+
         userID = uid
         newRole = newRole
         issuer_role = current_user.user_role
         dao = UserDAO()
-        userBeingIssued  = self.getUserByID(uid=uid,no_json=True)
-        
+        userBeingIssued = self.getUserByID(uid=uid, no_json=True)
+
         oldRole = userBeingIssued['roleid']
-        
+
         print("old role is "+str(oldRole))
-        
-        
-        
-        if int(oldRole) == 1:    
-            if((newRole <= issuer_role and issuer_role < 4 ) or issuer_role > 3):
+
+        if int(oldRole) == 1:
+            if((newRole <= issuer_role and issuer_role < 4) or issuer_role > 3):
                 user = dao.changeRole(id=id, uid=userID, roleid=newRole)
             else:
                 return jsonify(Error="User with uid: "+str(id)+" and roleid "+str(current_user.user_role)+" cannot change  role ID "+str(newRole)), 405
         else:
-            if self.getUserIssuers(id=id, no_json=True,uid=uid):
-               user = dao.changeRole(id=id, uid=userID, roleid=newRole)
+            if self.getUserIssuers(id=id, no_json=True, uid=uid):
+                user = dao.changeRole(id=id, uid=userID, roleid=newRole)
             else:
                 return jsonify(Error="User with uid: "+str(id)+" and roleid "+str(current_user.user_role)+" cannot change  role ID "+str(newRole)), 405
         if not user:
@@ -273,7 +283,6 @@ class UserHandler:
             response = _buildUserResponse(user_tuple=user)
             return jsonify(response)
 
-  
     def getUserIssuers(self, uid, id, no_json=False):
         """
         Returns a list of users that can be issuers for a given user ID
@@ -288,22 +297,22 @@ class UserHandler:
 
         id = id
         userID = uid
-        
+
         dao = UserDAO()
         users = []
         users = dao.getUserIssuers(userID=userID)
         if not users:
             response = {'Users': None}
             return jsonify(response)
-        
+
         if no_json:
             return _checkUser(id=id, user_tuple=users)
         else:
             user_list = []
             for row in users:
-                 user_list.append(_buildUserIDList(user_tuple=row))
+                user_list.append(_buildUserIDList(user_tuple=row))
             response = user_list
-            
+
             return jsonify(user_list)
 
         return jsonify(Error="Error finding user information"), 400
@@ -322,14 +331,14 @@ class UserHandler:
             response = _buildUserNumberResponse(user_tuple=users)
             return jsonify(response)
 
-    def getUserByEmail(self,email):
+    def getUserByEmail(self, email):
         """
         Return the user entry belonging to the specified email.
         Parameter:
         email: the user's email address
         """
 
-        dao=UserDAO()
+        dao = UserDAO()
         user = dao.getUserByEmail(email=email)
         if not user:
             return jsonify(Error='Users with Email does not exist: email=' + str(email)), 404

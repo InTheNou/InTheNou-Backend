@@ -38,7 +38,7 @@ class ServiceDAO(MasterDAO):
     def deleteService(self, sid, uid):
         """
         Remove a service from the database,given a service ID
-        
+
         :param sid: Service ID
         :type sid: int
         :return Tuple: SQL result of Query as a tuple.
@@ -48,7 +48,8 @@ class ServiceDAO(MasterDAO):
         audit = AuditDAO()
         tablename = "services"
         pkey = "sid"
-        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+        oldValue = audit.getTableValueByIntID(
+            table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
 
         query = sql.SQL("update {table1} set isdeleted = true  "
                         "where  {pkey1} = %s "
@@ -58,7 +59,8 @@ class ServiceDAO(MasterDAO):
         cursor.execute(query, (int(sid), ))
         result = cursor.fetchone()
 
-        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+        newValue = audit.getTableValueByIntID(
+            table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
         audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
                                newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
@@ -69,7 +71,7 @@ class ServiceDAO(MasterDAO):
     def createService(self, uid, rid, sname, sdescription, sschedule, websites, numbers):
         """
         Creates a new service and adds websites and phones to it
-        
+
         :param uid: The user ID for the creator of the service
         :type uid: int
         :param rid: The ID for the room that would provide the service
@@ -110,22 +112,26 @@ class ServiceDAO(MasterDAO):
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(rid), str(sname), str(
                 sdescription), str(sschedule), False))
-           
+
             result = cursor.fetchone()
             sid = result[0]
-            
+
             for site in websites:
-                website=(WebsiteDAO.addWebsite(self,url=site['url'], cursor=cursor,uid = uid))
+                website = (WebsiteDAO.addWebsite(
+                    self, url=site['url'], cursor=cursor, uid=uid))
                 if website is None:
                     print("Website faulty")
-                    return jsonify(Error='Website problem '+site['url'] )
+                    return jsonify(Error='Website problem '+site['url'])
                 else:
-                    WebsiteDAO().addWebsitesToService(sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor)
-            
+                    WebsiteDAO().addWebsitesToService(
+                        sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor)
+
             for num in numbers:
-                phone = PhoneDAO.addPhone(self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor)
-                
-                PhoneDAO().addPhoneToService(sid=sid, pid=phone[0], cursor=cursor)
+                phone = PhoneDAO.addPhone(
+                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor)
+
+                PhoneDAO().addPhoneToService(
+                    sid=sid, pid=phone[0], cursor=cursor)
 
         # Commit changes if no errors occur.
             self.conn.commit()
@@ -138,10 +144,11 @@ class ServiceDAO(MasterDAO):
     def getServiceByID(self, sid):
         """
          Query Database for an Service's information by its sid.
-         
-        :param sid: Service ID
-        :type sid: int
-        :return Tuple: SQL result of Query as a tuple.
+
+        Parameters
+            :param sid: Service ID
+            :type sid: int
+            :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -203,14 +210,14 @@ class ServiceDAO(MasterDAO):
         """
         Query Database for an all services matching a given keyword.
         Parameters:
-        :param searchstring: Keyword to search for services 
-        :type searchstring: string
-        :param offset: Number of rows to ignore from top results.
-        :type offset: int
-        :param limit: Maximum number of rows to return from query results.
-        :type limit: int
-        :return Tuple: SQL result of Query as a tuple.
-        Tuple: SQL result of Query as a tuple.
+            :param searchstring: Keyword to search for services 
+            :type searchstring: string
+            :param offset: Number of rows to ignore from top results.
+            :type offset: int
+            :param limit: Maximum number of rows to return from query results.
+            :type limit: int
+            :return Tuple: SQL result of Query as a tuple.
+
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -256,7 +263,8 @@ class ServiceDAO(MasterDAO):
             audit = AuditDAO()
             tablename = "services"
             pkey = "sid"
-            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            oldValue = audit.getTableValueByIntID(
+                table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
 
             query = sql.SQL("update {table1} set {fields}  "
                             "where  {pkey1} = %s AND isdeleted=false  "
@@ -266,7 +274,8 @@ class ServiceDAO(MasterDAO):
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(sid), ))
             result = cursor.fetchone()
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            newValue = audit.getTableValueByIntID(
+                table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
