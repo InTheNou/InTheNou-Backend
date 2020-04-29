@@ -454,6 +454,7 @@ def editTagName(tid):
 @app.route(route_prefix + "/Dashboard/Building/Add", methods=['POST'])
 @admin_role_required
 def addFullBuilding():
+    # TODO: ADD PROPER reST docstring
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400

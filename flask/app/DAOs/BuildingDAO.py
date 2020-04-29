@@ -20,6 +20,17 @@ CTI_ROOMS_URL = "https://portal.upr.edu/rum/buildings/export.php?op1=1&building=
 
 
 def _build_building_insert_sql(building_data):
+    """
+    Private method that does some light parameter verification
+    on the expected building JSON and creates the insert query
+    to be used to create a new building.
+
+    :param building_data: dictionary that contains the needed CTI key-value pairs.
+    :type building_data: dict
+    :return str: Query to insert Building.
+    :raises ValueError: Invalid number of floors.
+    :raises KeyError: Missing key in data.
+    """
     numfloors = -1
     photoid = "Null"
 
@@ -47,6 +58,16 @@ def _build_building_insert_sql(building_data):
 
 
 def _build_insert_room_sql(building_data):
+    """
+    Does some heavier parameter verification on the building data, calls the UPRM Portal API,
+    and collects the room data for a given building ID.
+
+    :param building_data: dictionary that contains the needed CTI key-value pairs.
+    :type building_data: dict
+    :return list: list of queries to insert all rooms in a given building.
+    :raises KeyError: missing key in building data.
+    :raises ValueError: Given building name does not match the building name found in the Portal data.
+    """
     try:
         bname = building_data["nomoficial"]
         babbrev = building_data["codigoold"]
@@ -130,6 +151,19 @@ def _build_insert_room_sql(building_data):
 class BuildingDAO(MasterDAO):
 
     def addFullBuilding(self, building_json, uid):
+        """
+        Executes queries needed to create a new building or update an existing building
+        with information from the UPRM Portal database.
+
+        Uses the private methods :ref:`~app.DAOs.BuildingDAO.BuildingDAO._build_building_insert_sql`
+        and :ref:`~app.DAOs.BuildingDAO.BuildingDAO._build_insert_room_sql`
+
+        :param building_json: dictionary that contains the needed CTI key-value pairs.
+        :type building_data: dict
+        :param uid: User ID
+        :type uid: int
+        :return: Success response with old bid.
+        """
 
         # Assuming json is valid.
         building_query = _build_building_insert_sql(building_data=building_json)
@@ -137,7 +171,6 @@ class BuildingDAO(MasterDAO):
 
         cursor = self.conn.cursor()
         try:
-            #TODO: FINISH ADDING AUDIT TO THIS AND TEST ROUTE.
             audit = AuditDAO()
             tablename = "buildings"
             pkey = "bname"
