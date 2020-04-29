@@ -2,6 +2,8 @@ from flask import jsonify
 from psycopg2 import IntegrityError
 from app.DAOs.BuildingDAO import BuildingDAO
 
+ADD_BUILDING_KEYS = ["edificioid", "nomoficial", "blddenom", "codigoold", "bldtype", "attributes"]
+
 
 def _buildBuildingResponse(building_tuple):
     response = {}
@@ -51,6 +53,34 @@ def _getDistinctFloorNumbersByBuildingID(bid):
 
 
 class BuildingHandler:
+
+    def addFullBuilding(self, json, uid):
+        """
+        Handler method to verify that all necessary JSON keys are
+        present before creating a new building.
+        Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.addFullBuilding`
+
+        :param json: Contains the necessary keys to create a building from UPRM Portal data
+        ["edificioid", "nomoficial", "blddenom", "codigoold", "bldtype", "attributes"]
+
+        :type json: JSON
+        :param uid: User ID
+        :type uid: int
+        :return: JSON
+        """
+        if not isinstance(uid, int) or uid<0:
+            return jsonify(Error="Invalid uid: "+ str(uid))
+        for key in ADD_BUILDING_KEYS:
+            if key not in json:
+                return jsonify(Error='Missing key in JSON: ' + str(key)), 404
+        try:
+            building_results = BuildingDAO().addFullBuilding(building_json=json, uid=uid)
+        except ValueError as e:
+            return jsonify(Error=str(e)), 400
+        except KeyError as e:
+            return jsonify(Error=str(e)), 400
+        return jsonify(Result=str(building_results)), 201
+
 
     def getAllBuildings(self, no_json=False):
         """
