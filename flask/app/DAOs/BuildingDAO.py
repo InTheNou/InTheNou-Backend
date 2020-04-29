@@ -219,6 +219,7 @@ class BuildingDAO(MasterDAO):
         query = sql.SQL("select {fields} from {table1} "
                         "left outer join {table2} "
                         "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
+                        "order by bname "
                         "offset %s limit %s ").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('bid'),
