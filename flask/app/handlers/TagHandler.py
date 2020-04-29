@@ -19,6 +19,8 @@ def _buildWeightedTagResponse(tag_tuple):
 
 
 def _buildCoreWeightedTagResponse(tag_tuple):
+    """
+    """
     response = {}
     response['tid'] = tag_tuple[1]
     response['tagweight'] = tag_tuple[2]
@@ -28,6 +30,8 @@ def _buildCoreWeightedTagResponse(tag_tuple):
 class TagHandler:
 
     def createTags(self, jsonTags, uid):
+        """
+        """
         tags = []
         if "Tags" in jsonTags:
             json = jsonTags['Tags']
@@ -45,6 +49,8 @@ class TagHandler:
         return jsonify(response)
 
     def editTagName(self, tid, json, uid):
+        """
+        """
         dao = TagDAO()
         response = []
         tagname = ""
@@ -85,6 +91,8 @@ class TagHandler:
         return tags
 
     def buildCoreUserTagResponse(self, tag_tuple):
+        """
+        """
         response = {}
         response['tid'] = tag_tuple[1]
         response['tagweight'] = tag_tuple[2]
@@ -94,10 +102,10 @@ class TagHandler:
         """
         Return the tag entry belonging to the specified tid.
         Parameters:
-            tid: tag ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing tag information. Error JSON otherwise.
+           :param tid: tag ID.
+           :param  no_json: states if the response should be returned as JSON or not.
+        
+            :return JSON: containing tag information. Error JSON otherwise.
         """
         if not isinstance(tid, int) or not tid > 0:
             return jsonify(Error="Invalid tid: " + str(tid)), 400
@@ -115,10 +123,10 @@ class TagHandler:
         """
         Return the tag entries belonging to an event specified by its eid.
         Parameters:
-            eid: Event's ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing Tags belonging to an event. Error JSON otherwise.
+            :param eid: Event's ID.
+            :param no_json: states if the response should be returned as JSON or not.
+       
+            :return JSON: containing Tags belonging to an event. Error JSON otherwise.
         """
         if not isinstance(eid, int) or not eid > 0:
             return jsonify(Error="Invalid eid: " + str(eid)), 400
@@ -136,6 +144,9 @@ class TagHandler:
             return jsonify(response)
 
     def safeGetTagsByEventID(self, eid):
+        """
+        
+        """
         tags = self.getTagsByEventID(eid=eid, no_json=True)["tags"]
         # Following line checks if the above returns a json (no tags found or no_json set to False.
         if not isinstance(tags, list):
@@ -146,10 +157,10 @@ class TagHandler:
         """
         Return the tag entries belonging to a user specified by their uid.
         Parameters:
-            uid: User's ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing Tags belonging to an event. Error JSON otherwise.
+            :param uid: User's ID.
+            :param no_json: states if the response should be returned as JSON or not.
+      
+            :return JSON: containing Tags belonging to an event. Error JSON otherwise.
         """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400
@@ -170,9 +181,9 @@ class TagHandler:
         """
         Return all tag entries in the database.
         Parameters:
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing all tags. Error JSON otherwise.
+            :param no_json: states if the response should be returned as JSON or not.
+        
+            :return JSON: containing all tags. Error JSON otherwise.
         """
         dao = TagDAO()
         tags = dao.getAllTags()
@@ -192,11 +203,11 @@ class TagHandler:
         """
         Set/create the weight of the user's tag to the specified value.
         Parameters:
-            uid: User ID
-            tid: tag ID
-            weight: integer representing new weight to set for the tag.
-        Returns:
-            JSON: containing the updated entry for the user's tag. Error JSON otherwise.
+           :param  uid: User ID
+           :param  tid: tag ID
+            :param  weight: integer representing new weight to set for the tag.
+        
+            :return JSON: containing the updated entry for the user's tag. Error JSON otherwise.
         """
         if not isinstance(uid, int) or not uid > 0:
             return jsonify(Error="Invalid uid: " + str(uid)), 400

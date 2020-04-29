@@ -9,7 +9,9 @@ app.handlers package
    app.handlers.PhoneHandler
    app.handlers.RoomHandler
    app.handlers.ServiceHandler
+
    app.handlers.SharedValidationFunctions
+ 
    app.handlers.TagHandler
    app.handlers.UserHandler
    app.handlers.WebsiteHandler
