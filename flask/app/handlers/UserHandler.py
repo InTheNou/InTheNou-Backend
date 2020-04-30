@@ -10,11 +10,18 @@ CHANGEUSERROLEKEY = ['id', 'uid', 'roleid']
 def _buildEmailUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
+<<<<<<< HEAD
     Parameters:
         :param user_tuple: response tuple from SQL query
     
         :return Dict: User information when given Email
             uid,display name,roleid,the id for role issuer
+=======
+
+    :param user_tuple: response tuple from SQL query
+    :return Dict: User information when given Email,
+        uid, display name, roleid, the id for role issuer
+>>>>>>> f05458d93684ca44b7a7245f830a553cc55dff1d
     """
     response = {}
     response['uid'] = user_tuple[0]
@@ -28,11 +35,18 @@ def _buildEmailUserResponse(user_tuple):
 def _buildCoreUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
+<<<<<<< HEAD
     Parameters:
         :param user_tuple: response tuple from SQL query
     
         :returns Dict: User information 
             uid,email,display name,roleid,the id for role issuer
+=======
+
+    :param user_tuple: response tuple from SQL query
+    :return Dict: User information:
+        uid,email,display name,roleid,the id for role issuer
+>>>>>>> f05458d93684ca44b7a7245f830a553cc55dff1d
     """
 
     response = {}
@@ -48,10 +62,16 @@ def _buildCoreUserResponse(user_tuple):
 def _buildUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
+<<<<<<< HEAD
     Parameters:
         :param user_tuple: response tuple from SQL query
   
         :returns Dict: User information
+=======
+
+    :param user_tuple: response tuple from SQL query
+    :return Dict: User information
+>>>>>>> f05458d93684ca44b7a7245f830a553cc55dff1d
     """
     response = {}
     response['uid'] = user_tuple[0]
@@ -65,10 +85,16 @@ def _buildUserResponse(user_tuple):
 def _buildDelegatedUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
+<<<<<<< HEAD
     Parameters:
         :param user_tuple: response tuple from SQL query
     
         :returns Dict: Delegated User information
+=======
+
+    :param user_tuple: response tuple from SQL query
+    :return Dict: Delegated User information
+>>>>>>> f05458d93684ca44b7a7245f830a553cc55dff1d
     """
 
     response = {}
@@ -122,7 +148,12 @@ def _checkUser(id, user_tuple):
 
     :param id: User ID
     :param user_tuple: List of user IDs
+<<<<<<< HEAD
     :return: bool
+=======
+    :param id: The User ID to check
+    :returns bool
+>>>>>>> f05458d93684ca44b7a7245f830a553cc55dff1d
     """
 
     for row in user_tuple:

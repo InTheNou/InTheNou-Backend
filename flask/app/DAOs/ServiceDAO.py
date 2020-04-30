@@ -9,9 +9,7 @@ from flask import jsonify
 
 class ServiceDAO(MasterDAO):
     """
-    All Methods in this DAO close connections upon proper completion.
-    Do not instantiate this class and assign it, as running a method
-    call will render it useless afterwards.
+    Data access object for transactions involving services.
     """
 
     def serviceInfoArgs(self, service):
@@ -83,9 +81,11 @@ class ServiceDAO(MasterDAO):
         :param sschedule: The service's schedule
         :type sschedule: string 
         :param websites: Websites to be asociated with the service
-        :type Websites: array
-        :param numbers : Phone numbers to be added to the service
-        :type PNumbers: array
+        :type websites: array
+        :param numbers: Phone numbers to be added to the service
+        :type numbers: array
+        :return: results from :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByID` used with
+            the new service's sid.
         """
         cursor = self.conn.cursor()
 
@@ -145,10 +145,9 @@ class ServiceDAO(MasterDAO):
         """
          Query Database for an Service's information by its sid.
 
-        Parameters
-            :param sid: Service ID
-            :type sid: int
-            :return Tuple: SQL result of Query as a tuple.
+        :param sid: Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -170,7 +169,6 @@ class ServiceDAO(MasterDAO):
     def getServicesByRoomID(self, rid):
         """
         Query Database for an all services in a given room ID.
-        Parameters:
 
         :param rid: Room ID.
         :type rid: int
@@ -188,7 +186,6 @@ class ServiceDAO(MasterDAO):
     def getServicesSegmented(self, offset, limit):
         """
         Query Database for an all services, segmented.
-        Parameters:
 
         :param offset: Number of rows to ignore from top results.
         :type offset: int
@@ -209,15 +206,14 @@ class ServiceDAO(MasterDAO):
     def getServicesByKeywords(self, searchstring, offset, limit):
         """
         Query Database for an all services matching a given keyword.
-        Parameters:
-            :param searchstring: Keyword to search for services 
-            :type searchstring: string
-            :param offset: Number of rows to ignore from top results.
-            :type offset: int
-            :param limit: Maximum number of rows to return from query results.
-            :type limit: int
-            :return Tuple: SQL result of Query as a tuple.
 
+        :param searchstring: Keyword to search for services
+        :type searchstring: string
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "

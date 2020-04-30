@@ -7,3 +7,6 @@ Class
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automethod:: app.DAOs.MasterDAO.MasterDAO.__init__
+
