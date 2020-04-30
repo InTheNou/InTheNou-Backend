@@ -2,19 +2,19 @@ UserHandler
 ===========
 Constants
 ---------
-.. autodata:: app.handlers.EventHandler.CHECKUSERISSUERSKEY
-.. autodata:: app.handlers.EventHandler.CHANGEUSERROLEKEY
+.. autodata:: app.handlers.UserHandler.CHECKUSERISSUERSKEY
+.. autodata:: app.handlers.UserHandler.CHANGEUSERROLEKEY
 
 
 Private Methods
 ---------------
-.. automethod:: app.handlers.EventHandler._buildEmailUserResponse
-.. automethod:: app.handlers.EventHandler._buildCoreUserResponse
-.. automethod:: app.handlers.EventHandler._buildUserResponse
-.. automethod:: app.handlers.EventHandler._buildDelegatedUserResponse
-.. automethod:: app.handlers.EventHandler._buildUserNumberResponse
-.. automethod:: app.handlers.EventHandler._buildUserIDList
-.. automethod:: app.handlers.EventHandler._checkUser
+.. automethod:: app.handlers.UserHandler._buildEmailUserResponse
+.. automethod:: app.handlers.UserHandler._buildCoreUserResponse
+.. automethod:: app.handlers.UserHandler._buildUserResponse
+.. automethod:: app.handlers.UserHandler._buildDelegatedUserResponse
+.. automethod:: app.handlers.UserHandler._buildUserNumberResponse
+.. automethod:: app.handlers.UserHandler._buildUserIDList
+.. automethod:: app.handlers.UserHandler._checkUser
 
 
 Public Methods

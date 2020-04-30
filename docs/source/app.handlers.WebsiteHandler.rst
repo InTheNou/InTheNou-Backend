@@ -2,16 +2,16 @@ WebsiteHandler
 ==============
 Constants
 ---------
-.. autodata:: app.handlers.EventHandler.CHECKUSERISSUERSKEY
+.. autodata:: app.handlers.WebsiteHandler.CHECKUSERISSUERSKEY
 
 
 
 Private Methods
 ---------------
-.. automethod:: app.handlers.EventHandler._buildCoreWebsiteResponse
-.. automethod:: app.handlers.EventHandler._buildWebsiteResponse
-.. automethod:: app.handlers.EventHandler._buildInsertWebsiteResponse
-.. automethod:: app.handlers.EventHandler._buildWebsiteIDResponse
+.. automethod:: app.handlers.WebsiteHandler._buildCoreWebsiteResponse
+.. automethod:: app.handlers.WebsiteHandler._buildWebsiteResponse
+.. automethod:: app.handlers.WebsiteHandler._buildInsertWebsiteResponse
+.. automethod:: app.handlers.WebsiteHandler._buildDelegatedUserResponse
 
 
 Public Methods

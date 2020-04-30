@@ -11,9 +11,9 @@ def _buildEmailUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
     Parameters:
-        user_tuple: response tuple from SQL query
-    Returns:
-        Dict: User information when given Email
+        :param user_tuple: response tuple from SQL query
+    
+        :return Dict: User information when given Email
             uid,display name,roleid,the id for role issuer
     """
     response = {}
@@ -29,9 +29,9 @@ def _buildCoreUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
     Parameters:
-        user_tuple: response tuple from SQL query
-    Returns:
-        Dict: User information 
+        :param user_tuple: response tuple from SQL query
+    
+        :returns Dict: User information 
             uid,email,display name,roleid,the id for role issuer
     """
 
@@ -49,9 +49,9 @@ def _buildUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
     Parameters:
-        user_tuple: response tuple from SQL query
-    Returns:
-        Dict: User information
+        :param user_tuple: response tuple from SQL query
+  
+        :returns Dict: User information
     """
     response = {}
     response['uid'] = user_tuple[0]
@@ -66,9 +66,9 @@ def _buildDelegatedUserResponse(user_tuple):
     """
     Private Method to build user dictionary to be JSONified.
     Parameters:
-        user_tuple: response tuple from SQL query
-    Returns:
-        Dict: Delegated User information
+        :param user_tuple: response tuple from SQL query
+    
+        :returns Dict: Delegated User information
     """
 
     response = {}
@@ -249,12 +249,12 @@ class UserHandler:
     def changeRole(self, uid, id, newRole):
         """
         Update user role id after checking if caller has permissions 
-        Parameters : 
-        uid: ID of user to change roles
-        roleid:new role to assign
-        id:uid of caller also called Issuer
+            Parameters: 
+                :uid:ID of user to change roles
+                :roleid:new role to assign
+                :id:uid of caller also called Issuer
 
-        Returns: User entry with new values
+            :return: User entry with new values
         """
 
         userID = uid
