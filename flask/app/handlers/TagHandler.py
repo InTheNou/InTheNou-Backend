@@ -4,6 +4,13 @@ from app.DAOs.TagDAO import TagDAO
 
 
 def _buildTagResponse(tag_tuple):
+    """
+    Build Tag dictionary with keys: ['tid', 'tname']
+
+    :param tag_tuple: Sql result containing tag information.
+    :type tag_tuple: tuple
+    :return dict: dictionary containing tag information for a single tag.
+    """
     response = {}
     response['tid'] = tag_tuple[0]
     response['tname'] = tag_tuple[1]
@@ -11,6 +18,13 @@ def _buildTagResponse(tag_tuple):
 
 
 def _buildWeightedTagResponse(tag_tuple):
+    """
+    Build Tag dictionary with keys: ['tid', 'tname', 'tagweight']
+
+    :param tag_tuple: Sql result containing tag information.
+    :type tag_tuple: tuple
+    :return dict: dictionary containing tag information for a single tag.
+    """
     response = {}
     response['tid'] = tag_tuple[0]
     response['tname'] = tag_tuple[1]
@@ -20,6 +34,11 @@ def _buildWeightedTagResponse(tag_tuple):
 
 def _buildCoreWeightedTagResponse(tag_tuple):
     """
+    Build Tag dictionary with keys: ['tid', 'tagweight']
+
+    :param tag_tuple: Sql result containing tag information.
+    :type tag_tuple: tuple
+    :return dict: dictionary containing tag information for a single tag.
     """
     response = {}
     response['tid'] = tag_tuple[1]
@@ -31,6 +50,15 @@ class TagHandler:
 
     def createTags(self, jsonTags, uid):
         """
+        Create new tags. Uses :func:`~app.DAOs.TagDAO.TagDAO.createTag`
+        and :func:`~app.handlers.TagHandler._buildTagResponse`
+
+        :param jsonTags: json containing key 'Tags', which contains a
+            list of json objects, each with a 'tname' key.
+        :type jsonTags: JSON
+        :param uid: User ID.
+        :type uid: int
+        :return JSON: list of results of creating tags.
         """
         tags = []
         if "Tags" in jsonTags:
@@ -50,6 +78,17 @@ class TagHandler:
 
     def editTagName(self, tid, json, uid):
         """
+        Edit the name of an existing tag.
+        Uses :func:`~app.DAOs.TagDAO.TagDAO.editTagName`
+        and :func:`~app.handlers.TagHandler._buildTagResponse`
+
+        :param tid: Tag ID
+        :type tid: int
+        :param json: Json containing key 'tname'
+        :type json: JSON
+        :param uid: User ID
+        :type uid: int
+        :return JSON: result of editing tag.
         """
         dao = TagDAO()
         response = []
@@ -71,11 +110,12 @@ class TagHandler:
         """
         Validate that a list of jsons containing key 'tid' is valid,
         and returns a list of ints of the tid's
-        Returns:
-            List[int]: List of tid's
-        Raises:
-            ValueError
-            KeyError
+
+        :param json_tags: list of json objects containing Tag information.
+        :type json_tags: list
+        :return List[int]: List of tid's
+        :raises: ValueError
+        :raises: KeyError
         """
         
         tags = []
@@ -92,6 +132,11 @@ class TagHandler:
 
     def buildCoreUserTagResponse(self, tag_tuple):
         """
+        Build dictionary that contains the keys 'tid' and 'tagweight' for a given tuple.
+
+        :param tag_tuple: contains sql results of querying for usertags.
+        :type tag_tuple: tuple
+        :return dict: dictionary with tid and tagweight.
         """
         response = {}
         response['tid'] = tag_tuple[1]
@@ -101,6 +146,8 @@ class TagHandler:
     def getTagByID(self, tid, no_json=False):
         """
         Return the tag entry belonging to the specified tid.
+        Uses :func:`~app.DAOs.TagDAO.TagDAO.getTagByID`
+        and :func:`~app.handlers.TagHandler._buildTagResponse`
 
         :param tid: tag ID.
         :param  no_json: states if the response should be returned as JSON or not.
@@ -121,6 +168,8 @@ class TagHandler:
     def getTagsByEventID(self, eid, no_json=False):
         """
         Return the tag entries belonging to an event specified by its eid.
+        Uses :func:`~app.DAOs.TagDAO.TagDAO.getTagsByEventID`
+        and :func:`~app.handlers.TagHandler._buildTagResponse`
 
         :param eid: Event's ID.
         :param no_json: states if the response should be returned as JSON or not.
@@ -143,7 +192,7 @@ class TagHandler:
 
     def safeGetTagsByEventID(self, eid):
         """
-        Calls :func:`~app.handlers.TagHandler.TagHandler.getTagsByEventID` with :var:`no_json`=True
+        Calls :func:`~app.handlers.TagHandler.TagHandler.getTagsByEventID` with no_json=True
         and stringifies the result if it is an error.
 
         :param eid: Event ID
@@ -159,6 +208,8 @@ class TagHandler:
     def getTagsByUserID(self, uid, no_json=False):
         """
         Return the tag entries belonging to a user specified by their uid.
+        Uses :func:`~app.DAOs.TagDAO.TagDAO.getTagsByUserID`
+        and :func:`~app.handlers.TagHandler._buildWeightedTagResponse`
 
         :param uid: User's ID.
         :param no_json: states if the response should be returned as JSON or not.
@@ -182,6 +233,8 @@ class TagHandler:
     def getAllTags(self, no_json=False):
         """
         Return all tag entries in the database.
+        Uses :func:`~app.DAOs.TagDAO.TagDAO.getAllTags`
+        and :func:`~app.handlers.TagHandler._buildTagResponse`
 
         :param no_json: states if the response should be returned as JSON or not.
             Default=False
@@ -203,7 +256,10 @@ class TagHandler:
     # TODO: THIS METHOD IS NOT CURRENTLY USED.
     def setUserTag(self, uid, tid, weight):
         """
+        THIS METHOD IS NOT CURRENTLY USED.
         Set/create the weight of the user's tag to the specified value.
+        Uses :func:`~app.DAOs.TagDAO.TagDAO.setUserTag`
+        and :func:`~app.handlers.TagHandler._buildWeightedTagResponse`
 
         :param  uid: User ID
         :type uid: int
@@ -226,6 +282,10 @@ class TagHandler:
     def batchSetUserTags(self, json, weight, uid, no_json=False):
         """
         Set the weight for the given tags in a JSON to a specified value
+        Uses:
+            * :func:`~app.DAOs.TagDAO.TagDAO.batchSetUserTags`
+            * :func:`~app.handlers.TagHandler.unpackTags`
+            * :func:`~app.handlers.TagHandler._buildCoreWeightedTagResponse`
 
         :param json: json object containing: 'tags'
         :type json: JSON

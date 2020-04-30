@@ -3,9 +3,9 @@ TagHandler
 
 Private Methods
 ---------------
-.. automethod:: app.handlers.EventHandler._buildTagResponse
-.. automethod:: app.handlers.EventHandler._buildWeightedTagResponse
-.. automethod:: app.handlers.EventHandler._buildCoreWeightedTagResponse
+.. automethod:: app.handlers.TagHandler._buildTagResponse
+.. automethod:: app.handlers.TagHandler._buildWeightedTagResponse
+.. automethod:: app.handlers.TagHandler._buildCoreWeightedTagResponse
 
 Public Methods
 --------------
