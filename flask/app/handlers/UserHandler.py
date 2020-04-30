@@ -118,13 +118,11 @@ def _buildUserIDList(user_tuple):
 
 def _checkUser(id, user_tuple):
     """
-    Private Method to list check if a user id is inside a list of user IDs
+    Validates user is part of a list.
 
+    :param id: User ID
     :param user_tuple: List of user IDs
-    :param id: The User ID to check
-    :returns bool
-
-    .. 
+    :return: bool
     """
 
     for row in user_tuple:
@@ -157,10 +155,25 @@ class UserHandler:
                 return jsonify(response)
 
     def getUsersThatCanModifyEvent(self, eid, no_json=False):
-        """Return a list of users that can modify a given event.
-        eid:Event ID
-        no_json:indicates if this method should respond with a J_son or not 
+        """
+        Return a list of users that can modify a given event.
+        
+        
 
+
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getUsersThatCanModifyEvent` as well as:
+
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildUserIDList(`
+        
+       
+        :parameid:Event ID
+        :type eid: int
+        :param no_json:indicates if this method should respond with a J_son or not 
+        :type no_json:bool
+        
+        
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         dao = UserDAO()
         users = dao.getUsersThatCanModifyEvent(eid=eid)
@@ -179,8 +192,18 @@ class UserHandler:
     def getUsersDelegatedByID(self, uid):
         """
         Return a list of users that the given user ID has delegated roles to.
-        id -- user ID.
-        uid-- id to look for in the system
+        
+
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getUsersDelegatedByID` as well as:
+
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildUserResponse(`
+        
+       
+        :param uid: User ID.
+        :type uid: int
+        
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         dao = UserDAO()
         users = dao.getUsersDelegatedByID(uid)
@@ -195,10 +218,19 @@ class UserHandler:
 
     def getUsersAndIssuersSegmented(self, offset, limit):
         """
-        Return a list of users and who gave them their roles, segmented.
-        offset: value of first rows to ignore
-        limit: number of max rows to get from response 
+      
+        Return a list of users , segmented.
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getUsersAndIssuersSegmented` as well as:
 
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildDelegatedUserResponse`
+        
+       
+        :param offset: value of first rows to ignore
+        :type offset: int
+        :param limit: number of max rows to get from response 
+        :type limit: int
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         dao = UserDAO()
         users = dao.getUsersAndIssuersSegmented(offset=offset, limit=limit)
@@ -213,11 +245,19 @@ class UserHandler:
 
     def getAllUsersByRoleIDSegmented(self, roleid, offset, limit):
         """
-        Return a list of users who have given roleid , segmented.
-        Parameters:
-        roleid: number representing what role type of users to get 
-        offset: value of first rows to ignore
-        limit: number of max rows to get from response 
+       
+        Return a list of users , segmented.
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getAllUsersByRoleID` as well as:
+
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildCoreUserResponse`
+        
+        :param roleid: The ID for the role of the users to return
+        :param offset: value of first rows to ignore
+        :type offset: int
+        :param limit: number of max rows to get from response 
+        :type limit: int
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         dao = UserDAO()
         users = dao.getAllUsersByRoleID(
@@ -230,10 +270,17 @@ class UserHandler:
     def getUsersSegmented(self, offset, limit):
         """
         Return a list of users , segmented.
-        Parameters:
-        offset: value of first rows to ignore
-        limit: number of max rows to get from response 
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getUsersSegmented` as well as:
 
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildCoreUserResponse`
+        
+
+        :param offset: value of first rows to ignore
+        :type offset: int
+        :param limit: number of max rows to get from response 
+        :type limit: int
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         dao = UserDAO()
         users = dao.getUsersSegmented(offset=offset, limit=limit)
@@ -248,13 +295,24 @@ class UserHandler:
 
     def changeRole(self, uid, id, newRole):
         """
-        Update user role id after checking if caller has permissions 
-            Parameters: 
-                :uid:ID of user to change roles
-                :roleid:new role to assign
-                :id:uid of caller also called Issuer
+        Attempt to change a user's role id.
 
-            :return: User entry with new values
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.changeRole` as well as:
+
+        
+         * :func:`~app.handlers.UserHandler.UserHandler.getUserByID`
+         * :func:`~app.handlers.UserHandler.UserHandler.getUserIssuers`
+         * :func:`~app.handlers.UserHandler.UserHandler._buildUserResponse`
+
+        :param uid: User ID.
+        :type uid: int
+        :param id: ID of the User that is making the API call.
+        :type id: int
+        :param newRole: the new role to assign to a user
+        :type newRole: int
+
+        
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
 
         userID = uid
@@ -289,7 +347,23 @@ class UserHandler:
         Parameters :
         uid: ID of user to get issuers from 
         id: ID of caller
-        roleid: new role to assign
+     
+       
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getUserIssuers` as well as:
+
+         * :func:`~app.handlers.UserHandler.UserHandler._checkUser`
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildUserIDList`
+
+        :param uid: User ID.
+        :type uid: int
+        :param id: ID of the User that is making the API call.
+        :type id: int
+        :param no_json: the new role to assign to a user
+        :type no_json: bool
+
+        
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         # for key in CHECKUSERISSUERSKEY:
         #     if key not in json:
@@ -319,9 +393,20 @@ class UserHandler:
 
     def getNumberOfUsersByRole(self, roleid):
         """
-        Returns a number of users with a given role
-        parameters:
-        roleid: Role ID
+       Get the number of users with a given role id.
+
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getNumberOfUsersByRole` as well as:
+
+        
+         * :func:`~app.handlers.UserHandler.UserHandler._buildUserNumberResponse`
+         
+
+        :param roleid: The ID for the role to look Statistifs for.
+        :type roleid: int
+       
+
+        
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
         dao = UserDAO()
         users = dao.getNumberOfUsersByRole(roleid=roleid)
@@ -334,9 +419,13 @@ class UserHandler:
     def getUserByEmail(self, email):
         """
         Return the user entry belonging to the specified email.
-        Parameter:
-        email: the user's email address
+        Uses :func:`~app.DAOs.UserDAO.UserDAO.getUserByEmail` as well as:
+         * :func:`~app.handlers.UserHandler.UserHandler._buildEmailUserResponse`
+        :param email: the user's email address
+        :type email: string
+        :returns JSON Response Object: JSON Response Object containing success or error response.
         """
+        
 
         dao = UserDAO()
         user = dao.getUserByEmail(email=email)
