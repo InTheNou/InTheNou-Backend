@@ -11,9 +11,9 @@ SERVICEPHONEKEYS = ['PNumbers']
 def _buildPhoneResponse(phone_tuple):
     """
     Private Method to build phone number dictionary to be JSONified.
-    Parameters
-        :param: phone_tuple: response tuple from SQL query
-        :returns Dict: Phone information with keys:
+
+    :param: phone_tuple: response tuple from SQL query
+    :returns Dict: Phone information with keys:
 
     .. code-block:: python
 
@@ -35,9 +35,10 @@ class PhoneHandler:
     def unpackPhones(self, json):
         """
         Returns a lsit of phone numbers given a json body with phone numbers and types 
-        Parameters    
-            :param json: JSON payload with phone numbers 
-            :type json: array
+
+        :param json: JSON payload with phone numbers
+        :type json: array
+        :return list: list of numbers
         """
         numbers = []
         for num in json:
@@ -46,19 +47,19 @@ class PhoneHandler:
 
     def insertServicePhone(self, sid, uid, json):
         """
-        Create a phone number and add it to a service given its ID 
-        Uses 
-            :func:`~app.DAOs.PhoneDAO.PhoneDAO.insertPhones` as well as:
+        Create a phone number and add it to a service given its ID.
 
-         * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+        Uses :func:`~app.DAOs.PhoneDAO.PhoneDAO.insertPhones` as well
+        as :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
 
-        Parameters
-            :param sid: The ID of the service to add phone numbers to 
-            :type sid: int
-            :param uid: User ID.
-            :type uid: int
-            :param json: JSON containing the phone numbers to add 
-            :type json: array
+
+        :param sid: The ID of the service to add phone numbers to
+        :type sid: int
+        :param uid: User ID.
+        :type uid: int
+        :param json: JSON containing the phone numbers to add
+        :type json: array
+        :return: result from :func:`~app.DAOs.PhoneDAO.PhoneDAO.insertPhones`
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
@@ -81,18 +82,14 @@ class PhoneHandler:
         """
         Create a phone number and add it to a service given its ID 
 
-        Uses 
-            :func:`~app.DAOs.PhoneDAO.PhoneDAO.getPhonesByServiceID` as well as:
+        Uses :func:`~app.DAOs.PhoneDAO.PhoneDAO.getPhonesByServiceID`
+        as well as :func:`~app.handlers.PhoneHandler.PhoneHandler._buildPhoneResponse`
 
-         * :func:`~app.handlers.PhoneHandler.PhoneHandler._buildPhoneResponse`
-
-
-        Parameters
-
-            :param sid: The ID of the service to add phone numbers to 
-            :type sid: int
-            :param no_json: Specify if response is Json or not 
-            :type no_json: bool
+        :param sid: The ID of the service to add phone numbers to
+        :type sid: int
+        :param no_json: Specify if response is Json or not
+        :type no_json: bool
+        :return JSON: list of phones
         """
         dao = PhoneDAO()
         phones = dao.getPhonesByServiceID(sid=sid)
@@ -109,21 +106,22 @@ class PhoneHandler:
 
     def removePhoneByServiceID(self, sid, json, uid):
         """
-        Create a phone number and add it to a service given its ID 
+        Remove a phone number from a service given its ID
 
-        Uses 
-            :func:`~app.DAOs.PhoneDAO.PhoneDAO.removePhonesByServiceID` as well as:
+        Uses:
 
-         * :func:`~app.handlers.PhoneHandler.PhoneHandler._buildPhoneResponse`
-         * :func:`~app.handlers.PhoneHandler.PhoneHandler._unpackPhones`
+            * :func:`~app.DAOs.PhoneDAO.PhoneDAO.removePhonesByServiceID`
+            * :func:`~app.handlers.PhoneHandler.PhoneHandler._buildPhoneResponse`
+            * :func:`~app.handlers.PhoneHandler.PhoneHandler._unpackPhones`
 
-        Parameters
-            :param sid: The ID of the service to add phone numbers to 
-            :type sid: int
-            :param uid: User ID.
-            :type uid: int
-            :param json: JSON containing the phone numbers to add 
-            :type json: array
+
+        :param sid: The ID of the service to add phone numbers to
+        :type sid: int
+        :param uid: User ID.
+        :type uid: int
+        :param json: JSON containing the phone numbers to add
+        :type json: array
+        :return JSON: phone number information.
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:

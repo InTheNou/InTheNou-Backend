@@ -8,6 +8,10 @@ class RoomDAO(MasterDAO):
     def roomInfoArgs(self, roomKeys):
         """
         Given a list of Room information, return a list of fields and values
+
+        :param roomKeys: room keys.
+        :type roomKeys: list
+        :return list: room keys as 'key = value' strings.
         """
 
         fields = []
@@ -17,10 +21,11 @@ class RoomDAO(MasterDAO):
 
     def getRoomByID(self, rid):
         """
-         Query Database for an Room's information by its rid.
-        Parameters:
-            :param rid: event ID
-            :return Tuple: SQL result of Query as a tuple.
+        Query Database for an Room's information by its rid.
+
+        :param rid: Room ID
+        :type rid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -52,12 +57,13 @@ class RoomDAO(MasterDAO):
 
     def getRoomsByBuildingAndFloor(self, bid, rfloor):
         """
-         Query Database for all the rooms on a given building's floor..
-        Parameters:
-            :param bid: building ID
-            :param rfloor: room floor
-        
-            :return Tuple: SQL result of Query as a tuple.
+        Query Database for all the rooms on a given building's floor..
+
+        :param bid: building ID
+        :type bid: int
+        :param rfloor: room floor
+        :type rfloor: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -95,10 +101,12 @@ class RoomDAO(MasterDAO):
     def changeRoomCoordinates(self, rid, roomKeys, uid):
         """
         Change the Room coordinates given a room ID
-        Parameters
-            :param rid: The Id of the room to update coordinates for
-            :param roomkeys : The Json object containing the Coordinates to update
-            :return Tuple: SQL result of Query as a tuple.   
+
+        :param rid: The Id of the room to update coordinates for
+        :type rid: int
+        :param roomKeys: The Json object containing the Coordinates to update
+        :type roomKeys: list
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         fields_list = self.roomInfoArgs(roomKeys=roomKeys)
@@ -129,13 +137,15 @@ class RoomDAO(MasterDAO):
 
     def getRoomsByKeywordSegmented(self, keywords, offset, limit):
         """
-         Query Database for an Room's information by description keywords.
-        Parameters:
-            :param keywords: string of keywords separated by a pipe "|"
-           :param offset: Number of rows to ignore from top results.
-           :param limit: Maximum number of rows to return from query results.
-        
-            :return Tuple: SQL result of Query as a tuple.
+        Query Database for an Room's information by description keywords.
+
+        :param keywords: string of keywords separated by a pipe "|"
+        :type keywords: str
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -174,13 +184,17 @@ class RoomDAO(MasterDAO):
     # TODO: IMPLEMENT THE PROPER QUERY
     def getRoomsByCodeSearchSegmented(self, babbrev, rcode, offset, limit):
         """
-         Query Database for an Room's information by description keywords.
-        Parameters:
-           :param  keywords: string of keywords separated by a pipe "|"
-           :param offset: Number of rows to ignore from top results.
-            :paramlimit: Maximum number of rows to return from query results.
-        
-           :return Tuple: SQL result of Query as a tuple.
+        Query Database for an Room's information by description keywords.
+
+        :param babbrev: Building uppercase abbreviation
+        :type babbrev: str
+        :param  rcode: room code without the building abbreviation
+        :type rcode: str
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         babbrev = '%' + babbrev + '%'
         rcode = '%' + rcode + "%"

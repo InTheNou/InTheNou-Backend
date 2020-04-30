@@ -7,12 +7,11 @@ class UserDAO(MasterDAO):
 
     def getUserByEmail(self, email):
         """
-         Query Database for a user's information by his/her email.
+        Query Database for a user's information by his/her email.
 
-        Parameters
-            :param email: User Email
-            :type email: string
-            :return Tuple: SQL result of Query as a tuple.
+        :param email: User Email
+        :type email: string
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -32,9 +31,9 @@ class UserDAO(MasterDAO):
     def getUserByID(self, uid):
         """
         Query Database for a User's information by his/her uid.
-        Parameters:
-            :param uid: user ID
-            :return Tuple: SQL result of Query as a tuple.
+
+        :param uid: user ID
+        :return Tuple: SQL result of Query as a tuple.
         """
 
         cursor = self.conn.cursor()
@@ -56,11 +55,10 @@ class UserDAO(MasterDAO):
 
     def getUsersThatCanModifyEvent(self, eid):
         """
-        Query Database for a User's who can modify the givven event, these are the event creator, the event creator's role issuer and any Admin
-        Paramenters:
-            :param eid: event ID
+        Query Database for a User's who can modify the given event, these are the event creator, the event creator's role issuer and any Admin
 
-            :return Tuple: SQL result of Query as tuple.
+        :param eid: event ID
+        :return Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select distinct {users} from {users_roles_info}  where {pkey} = %s) as users_that_can_modify on issuer=u2.uid or  userid=u2.uid  or u2.roleid=4 "
@@ -89,10 +87,9 @@ class UserDAO(MasterDAO):
     def getUsersDelegatedByID(self, uid):
         """
         Query Database for a Users that the given id has delegated roles to.
-        Paramenters:
-           :param  uid: user ID
 
-           :return Tuple: SQL result of Query as tuple.
+        :param  uid: user ID
+        :return Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info}) as delegated "
@@ -133,11 +130,10 @@ class UserDAO(MasterDAO):
     def getUsersAndIssuersSegmented(self, offset, limit):
         """
         Query Database for all users and who gave them their role
-        Parameters:
-            :param offset:Number of records to ignore , ordered by user ID biggest first
-            :param limit:maximum number of records to recieve
 
-            :return Tuple: SQL result of Query as tuple.
+        :param offset: Number of records to ignore , ordered by user ID biggest first
+        :param limit: maximum number of records to recieve
+        :return Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info}) as delegated "
@@ -171,11 +167,10 @@ class UserDAO(MasterDAO):
     def getUsersSegmented(self, offset, limit):
         """
         Query Database for all users and their basic information
-        Parameters:
-            :param offset:Number of records to ignore , ordered by user ID biggest first
-            :param limit:maximum number of records to recieve
 
-            :return Tuple: SQL result of Query as tuple.
+        :param offset: Number of records to ignore , ordered by user ID biggest first
+        :param limit: maximum number of records to recieve
+        :return Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info}) as delegated "
@@ -208,11 +203,11 @@ class UserDAO(MasterDAO):
     def changeRole(self, id, uid, roleid):
         """
         Query database to update roleid value in a row that matches a given uid
-        Parameters :
-            :param id: user id of who is making the change, for log purposes and to check if the user can make the change
-            :param uid: The Id of the user to change roles
-            :param roleid: The new role to give to the user
-            :return Tuple: SQL result of Query as tuple.
+
+        :param id: user id of who is making the change, for log purposes and to check if the user can make the change
+        :param uid: The Id of the user to change roles
+        :param roleid: The new role to give to the user
+        :return Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
         audit = AuditDAO()
@@ -271,11 +266,11 @@ class UserDAO(MasterDAO):
     def getAllUsersByRoleID(self, roleid, offset, limit):
         """
         Returns a segmented list of all users that have a given role ID 
-        Parameters: 
-            :param roleid: The ID for the role of users to return
-            :param offset:Number of records to ignore , ordered by user ID biggest first
-            :param limit:maximum number of records to recieve
-            :return Tuple: SQL result of Query as a tuple.
+
+        :param roleid: The ID for the role of users to return
+        :param offset: Number of records to ignore , ordered by user ID biggest first
+        :param limit: maximum number of records to recieve
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info} where user_role = %s ) as delegated offset %s limit %s ").format(
@@ -312,11 +307,10 @@ class UserDAO(MasterDAO):
     def getNumberOfUsersByRole(self, roleid):
         """
         Query Database for all users and their basic information
-        Parameters:
-            :param offset:Number of records to ignore , ordered by user ID biggest first
-            :param limit:maximum number of records to recieve
 
-            :return Tuple: SQL result of Query as tuple.
+        :param roleid: Role ID
+        :type roleid: int
+        :return Tuple: SQL result of Query as tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {users} from ({users_roles_info} where user_role = %s) as delegated ").format(

@@ -98,16 +98,15 @@ class BuildingHandler:
             return jsonify(Error=str(e)), 400
         return jsonify(Result=str(building_results)), 201
 
-
     def getAllBuildings(self, no_json=False):
         """
         Return all Building entries in the database.
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.getAllBuildings` as well as
         :func:`~app.handlers.BuildingHandler._buildBuildingResponse`
-       
-        Parameters:
-           :param  no_json: states if the response should be returned as JSON or not.
-           :return JSON: containing all tags. Error JSON otherwise.
+
+        :param  no_json: states if the response should be returned as JSON or not. Default=False
+        :type no_json: bool
+        :return JSON: containing all tags. Error JSON otherwise.
         """
         dao = BuildingDAO()
         buildings = dao.getAllBuildings()
@@ -123,19 +122,17 @@ class BuildingHandler:
                 return response
             return jsonify(response)
 
-    def getAllBuildingsSegmented(self, offset, limit):
+    def getAllBuildingsSegmented(self, offset, limit=20):
         """
         Return all Building entries in the database, segmented.
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.getAllBuildingsSegmented` as well as
         :func:`~app.handlers.BuildingHandler._buildBuildingResponse`
-       
-        Parameters:
-           :param  no_json: states if the response should be returned as JSON or not.
-           :param offset: Number of results to skip from top of list.
-            :type offset: int
-            :param limit: Number of results to return. Default = 20.
-            :type limit: int
-           :return JSON: containing all tags. Error JSON otherwise.
+
+        :param offset: Number of results to skip from top of list.
+        :type offset: int
+        :param limit: Number of results to return. Default = 20.
+        :type limit: int
+        :return JSON: containing all tags. Error JSON otherwise.
         """
         dao = BuildingDAO()
         buildings = dao.getAllBuildingsSegmented(offset=offset, limit=limit)
@@ -150,11 +147,12 @@ class BuildingHandler:
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.getBuildingByID` as well as
         :func:`~app.handlers.BuildingHandler._buildBuildingResponse`
        
-        Parameters:
-            :param bid: building ID.
-            :param no_json: states if the response should be returned as JSON or not.
-       
-            :return JSON: containing room information. Error JSON otherwise.
+
+        :param bid: building ID.
+        :type bid: int
+        :param no_json: states if the response should be returned as JSON or not. Default=False
+        :type no_json: bool
+        :return JSON: containing room information. Error JSON otherwise.
         """
         dao = BuildingDAO()
         building = dao.getBuildingByID(bid=bid)
@@ -172,11 +170,11 @@ class BuildingHandler:
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.getBuildingByID` as well as
         :func:`~app.handlers.BuildingHandler._buildCoreBuildingResponse`
        
-        Parameters:
-            :param bid: building ID.
-            :param no_json: states if the response should be returned as JSON or not.
-        
-            :return JSON: containing room information. Error JSON otherwise.
+        :param bid: building ID.
+        :type bid: int
+        :param no_json: states if the response should be returned as JSON or not. Default=False
+        :type no_json: bool
+        :return JSON: containing room information. Error JSON otherwise.
         """
         dao = BuildingDAO()
         building = dao.getBuildingByID(bid=bid)
@@ -192,11 +190,10 @@ class BuildingHandler:
         """
         Return the building entry belonging to the specified bid.
         Uses :func:`~app.handlers.BuildingHandler.getBuildingByID` 
-       
-        Parameters:
-            :param bid: building ID.
-          
-            :return List containing room information. Error JSON otherwise.
+
+        :param bid: building ID.
+        :type bid: int
+        :return List: containing room information. Error JSON otherwise.
         """
         building = self.getBuildingByID(bid=bid, no_json=True)
         # Following line checks if the above returns a json (no room found or no_json set to False.
@@ -204,15 +201,17 @@ class BuildingHandler:
             building = str(building)
         return building
 
-
-
     def getBuildingsByKeyword(self, offset, limit, keyword):
          """
         Returns a list of buildings taht match a given searchstring
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.searchBuildingsByKeyword`
-        
-        Parameters:
-        :param keyword: The keyword to search for 
+
+        :param keyword: The keyword to search for.
+        :type keyword: str
+        :param offset: Number of results to skip from top of list.
+        :type offset: int
+        :param limit: Number of results to return. Default = 20.
+        :type limit: int
         :return JSON: A list of buildings that match the given keyword
         """
        

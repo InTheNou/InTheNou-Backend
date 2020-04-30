@@ -16,14 +16,11 @@ UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
 SEARCHSTRING_VALUE = 'searchstring'
 
 
-
-
-
 def _buildServiceResponse(service_tuple):
     """
     Private Method to build service dictionary to be JSONified.
 
-     Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
 
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
@@ -47,7 +44,7 @@ def _buildCoreServiceResponse(service_tuple):
     """
     Private Method to build core service dictionary to be JSONified.
 
-     Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
 
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
@@ -71,10 +68,10 @@ def _buildServiceByRoomResponse(service_tuple):
     """
     Private Method to build service dictionary from a given room ID to be JSONified.
 
-     Uses :
+    Uses :
      
-     * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
-     * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebsitesByServiceID`
+         * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
+         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebsitesByServiceID`
      
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
@@ -103,25 +100,25 @@ class ServiceHandler:
     def createService(self, json,uid):
         """Attempt to create a service.
 
-         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
+        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
 
-         * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+            * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+            * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
          
-         :param uid: User ID.
-         :type uid: int
-         :param json: JSON object with the following keys:
+        :param uid: User ID.
+        :type uid: int
+        :param json: JSON object with the following keys:
 
-                * rid (room ID)
-                * sname
-                * sdescription
-                * sschedule
-                * Websites
-                * PNumbers
-            
+            * rid (room ID)
+            * sname
+            * sdescription
+            * sschedule
+            * Websites
+            * PNumbers
 
         :type json: JSON
-        :returns JSON Response Object: JSON Response Object containing success or error response.
+        :returns JSON Response Object: JSON Response Object containing success
+            or error response.
         """
         
          # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
@@ -169,21 +166,22 @@ class ServiceHandler:
         """Attempt to delete a service.
 
         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.deleteService`
+
         :param uid: User ID.
         :type uid: int
         :param sid: Service ID.
         :type uid: int
         
-                * rid (room ID)
-                * sname
-                * sdescription
-                * sschedule
-                * Websites
-                * PNumbers
-            
+            * rid (room ID)
+            * sname
+            * sdescription
+            * sschedule
+            * Websites
+            * PNumbers
 
         :type json: JSON
-        :returns JSON Response Object: JSON Response Object containing success or error response.
+        :returns JSON Response Object: JSON Response Object containing success
+            or error response.
         """
         dao = ServiceDAO()
         service = dao.deleteService(sid, uid=uid)
@@ -282,20 +280,19 @@ class ServiceHandler:
 
          Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
 
-         * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+             * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+             * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
          
          :param uid: User ID.
          :type uid: int
          :param json: JSON object with the following keys:
 
-                * rid (room ID)
-                * sname
-                * sdescription
-                * sschedule
-                * Websites
-                * PNumbers
-            
+            * rid (room ID)
+            * sname
+            * sdescription
+            * sschedule
+            * Websites
+            * PNumbers
 
          :type json: JSON
          :returns JSON Response Object: JSON Response Object containing success or error response.
@@ -318,10 +315,8 @@ class ServiceHandler:
     def getServicesByKeywords(self, searchstring, offset, limit=20):
         """Get all services by keyword, segmented
 
-         Uses :func:`~app.DAOs.EventDAO.ServiceDAO.getServicesByKeywords` as well as:
-
-          
-             * :func:`~app.handlers.EventHandler._buildServiceResponse`
+         Uses :func:`~app.DAOs.EventDAO.ServiceDAO.getServicesByKeywords` as well as
+         :func:`~app.handlers.EventHandler._buildServiceResponse`
         
         :param searchstring: Keyword to search for services.
         :type offset: string
@@ -329,7 +324,8 @@ class ServiceHandler:
         :type offset: int
         :param limit: Number of results to return. Default = 20.
         :type limit: int
-        :returns JSON Response Object: JSON Response Object containing success or error response.
+        :returns JSON Response Object: JSON Response Object containing success
+            or error response.
         """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
