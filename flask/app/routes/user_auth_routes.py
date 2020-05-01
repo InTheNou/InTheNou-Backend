@@ -67,7 +67,7 @@ def signup():
                 info['uid']=int(current_user.id)
                 print("Registering tags : "+str(info["tags"]))
                 
-                tags =   TagHandler().batchSetUserTags(json=info, weight=100, no_json=True)
+                tags =   TagHandler().batchSetUserTags(json=info, weight=100, no_json=True,uid=current_user.id)
                 tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
             return (tags)
     else:
