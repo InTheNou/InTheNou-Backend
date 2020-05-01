@@ -383,8 +383,6 @@ def createEvent():
 
             {"eid": 17}
 
-
-
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 201: Event Created Successfully
@@ -471,10 +469,36 @@ def followEvent(eid):
 
         .. sourcecode:: http
 
-            POST /API/App/Events/eid=1/Follow HTTP/1.1
+            POST /API/App/Events/eid=2/Follow HTTP/1.1
             Host: inthenou.uprm.edu
             Accept: application/json
 
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "event": {
+                    "ecreation": "2020-05-01 02:27:01.730759",
+                    "eend": "2020-09-05 17:41:00",
+                    "eid": 2,
+                    "estart": "2020-09-05 15:41:00",
+                    "estatus": "active",
+                    "estatusdate": "None"
+                },
+                "tags": [
+                    {"tagweight": 5,"tid": 42},
+                    {"tagweight": 80,"tid": 54},
+                    {"tagweight": 5,"tid": 64},
+                    {"tagweight": 5,"tid": 73},
+                    {"tagweight": 5,"tid": 47},
+                    {"tagweight": 5,"tid": 53}
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -493,12 +517,10 @@ def followEvent(eid):
 def dismissEvent(eid):
     """
     .. py:decorator:: user_role_required
-
-    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
+    .. :quickref: Event-User Interaction; Dismiss an event.
 
     Dismiss an event.
-
-    .. :quickref: Event-User Interaction; Dismiss an event.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
 
     :param eid: Event ID
     :type eid: int
@@ -506,12 +528,38 @@ def dismissEvent(eid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        POST /API/App/Events/eid=1/Dismiss HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            POST /API/App/Events/eid=2/Dismiss HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "event": {
+                    "ecreation": "2020-05-01 02:27:01.730759",
+                    "eend": "2020-09-05 17:41:00",
+                    "eid": 2,
+                    "estart": "2020-09-05 15:41:00",
+                    "estatus": "active",
+                    "estatusdate": "None"
+                },
+                "tags": [
+                    {"tagweight": 0,"tid": 42},
+                    {"tagweight": 60,"tid": 54},
+                    {"tagweight": 0,"tid": 64},
+                    {"tagweight": 0,"tid": 73},
+                    {"tagweight": 0,"tid": 47},
+                    {"tagweight": 0,"tid": 53}
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -530,12 +578,10 @@ def dismissEvent(eid):
 def unfollowEvent(eid):
     """
     .. py:decorator:: user_role_required
-
-    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
+    .. :quickref: Event-User Interaction; Unfollow an event.
 
     Unfollow an event.
-
-    .. :quickref: Event-User Interaction; Unfollow an event.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
 
     :param eid: Event ID
     :type eid: int
@@ -543,12 +589,38 @@ def unfollowEvent(eid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        POST /API/App/Events/eid=1/Unfollow HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            POST /API/App/Events/eid=2/Unfollow HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "event": {
+                    "ecreation": "2020-05-01 02:27:01.730759",
+                    "eend": "2020-09-05 17:41:00",
+                    "eid": 2,
+                    "estart": "2020-09-05 15:41:00",
+                    "estatus": "active",
+                    "estatusdate": "None"
+                },
+                "tags": [
+                    {"tagweight": 0,"tid": 42},
+                    {"tagweight": 60,"tid": 54},
+                    {"tagweight": 0,"tid": 64},
+                    {"tagweight": 0,"tid": 73},
+                    {"tagweight": 0,"tid": 47},
+                    {"tagweight": 0,"tid": 53}
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -567,12 +639,10 @@ def unfollowEvent(eid):
 def setEventStatus(eid, estatus):
     """
     .. py:decorator:: event_creator_role_required
-
-    Uses :func:`~app.handlers.EventHandler.EventHandler.setEventStatus`
-
-    Set an existing event's status as either "active" or "deleted"
-
     .. :quickref: Event; Set event status.
+
+    Set an existing event's status as either "active" or "deleted".
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setEventStatus`
 
     :param eid: Event ID
     :type eid: int
@@ -582,12 +652,21 @@ def setEventStatus(eid, estatus):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        POST /API/App/Events/eid=1/estatus=deleted HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            POST /API/App/Events/eid=1/estatus=deleted HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {"eid":1}
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -614,36 +693,43 @@ def setEventStatus(eid, estatus):
 @user_role_required
 def setRecommendation(eid, recommendstatus):
     """
-       .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event-User Interaction; Set Recommendation.
 
-       Uses :func:`~app.handlers.EventHandler.EventHandler.setRecommendation`
+    Set the recommendation status of an event for the user.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setRecommendation`
 
-       Set the recommendation status of an event for the user.
+    :param eid: Event ID
+    :type eid: int
+    :param recommendstatus: Recommendation Status.
+    :type recommendstatus: str
+    :return: JSON
 
-       .. :quickref: Event-User Interaction; Set Recommendation.
+    **Example request**:
 
-       :param eid: Event ID
-       :type eid: int
-       :param recommendstatus: Recommendation Status.
-       :type recommendstatus: str
-       :return: JSON
+        .. sourcecode:: http
 
-       **Example request**:
+            POST /API/App/Events/eid=1/recommendstatus=R HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-       .. sourcecode:: http
+    **Example response**:
 
-           POST /API/App/Events/eid=1/recommendstatus=R HTTP/1.1
-           Host: inthenou.uprm.edu
-           Accept: application/json
+        .. sourcecode:: http
 
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: text/javascript
 
-       :reqheader Cookie: Must contain session token to authenticate.
-       :resheader Content-Type: application/json
-       :statuscode 201: Posted recommendation successfully.
-       :statuscode 400: Invalid recommendstatus.
-       :statuscode 403: User is not logged in.
-       :statuscode 404: Event does not exist.
-       """
+            {"eid":3,"uid":1}
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Posted recommendation successfully.
+    :statuscode 400: Invalid recommendstatus.
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Event does not exist.
+    """
     if request.method == 'POST':
         return EventHandler().setRecommendation(eid=eid, uid=int(current_user.id), recommendstatus=recommendstatus)
     else:
@@ -654,34 +740,115 @@ def setRecommendation(eid, recommendstatus):
 @user_role_required
 def getEventsCreatedByUser(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get Events created by current user.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedByUser`
+    Get a list of events created by the logged in user.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedByUser`
 
-      Get a list of events created by the logged in user.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get Events created by current user.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/Created/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/Created/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 03:51:46.116066",
+                        "ecreator": 1,
+                        "edescription": "A test event to see the insert route working.",
+                        "eend": "2020-10-26 16:40:00",
+                        "eid": 12,
+                        "estart": "2020-04-30 23:51:46",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Test Event",
+                        "photourl": null,
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "122",
+                            "rcustodian": "isidoro.courvetier@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "LABORATORIO DE COMPUTADORA",
+                            "rfloor": 1,
+                            "rid": 54,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    },
+                    {
+                        "ecreation": "2020-05-01 03:51:46.311287",
+                        "ecreator": 1,
+                        "edescription": "A test event to see the insert route working.",
+                        "eend": "2020-10-26 16:40:00",
+                        "eid": 13,
+                        "estart": "2020-04-30 23:51:46",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Test Event",
+                        "photourl": null,
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "POWER ELECTRONIC",
+                            "rfloor": 1,
+                            "rid": 55,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getEventsCreatedByUser(uid=int(current_user.id), offset=offset, limit=limit)
     else:
