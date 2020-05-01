@@ -304,7 +304,7 @@ class EventDAO(MasterDAO):
                         "left outer join {table2} "
                         "on {table1}.{table1Identifier} = {table2}.{table2Identifier} "
                         "natural join {table3} "
-                        "where {pkey1} > CURRENT_TIMESTAMP "
+                        "where {pkey1} > CURRENT_TIMESTAMP and estatus='active' "
                         "and {pkey2}=%s and {pkey3} = %s "
                         "order by {table1Identifier2} "
                         "offset %s "
