@@ -142,29 +142,27 @@ def getEventByID(eid):
 @user_role_required
 def getEventByIDWithInteractions(eid):
     """
-          .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get Event By bid with user's interaction
 
-          Uses :func:`~app.handlers.EventHandler.EventHandler.getEventByIDWithInteraction`
+    Get Event By ID, and include the user's interactions with it (if any).
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getEventByIDWithInteraction`
 
-          Get Event By ID, and include the user's interactions with it (if any).
+    :param eid: Event ID
+    :type eid: int
+    :return: JSON
 
-          .. :quickref: Event; Get Event By bid with user's interaction
+    **Example request**:
 
-          :param eid: Event ID
-          :type eid: int
-          :return: JSON
-
-          **Example request**:
-
-          .. sourcecode:: http
+        .. sourcecode:: http
 
             GET /API/App/Events/eid=1/Interaction HTTP/1.1
             Host: inthenou.uprm.edu
             Accept: application/json
 
-          **Example response**:
+    **Example response**:
 
-          .. sourcecode:: http
+        .. sourcecode:: http
 
             HTTP/1.1 200 OK
             Vary: Accept
@@ -227,12 +225,12 @@ def getEventByIDWithInteractions(eid):
                ]
             }
 
-          :reqheader Cookie: Must contain session token to authenticate.
-          :resheader Content-Type: application/json
-          :statuscode 200: no error
-          :statuscode 403: User is not logged in.
-          :statuscode 404: Event does not exist
-          """
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Event does not exist
+    """
     if request.method == 'GET':
         return EventHandler().getEventByIDWithInteraction(eid=eid, uid=int(current_user.id))
     else:
@@ -243,79 +241,77 @@ def getEventByIDWithInteractions(eid):
 @user_role_required
 def getEventsCreatedAfterTimestamp(timestamp):
     """
-              .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get events created after timestamp
 
-              Uses :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedAfterTimestamp`
+    Get Events created after the submitted timestamp.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedAfterTimestamp`
 
-              Get Events created after the submitted timestamp.
+    :param timestamp: ISO formatted timestamp
+    :type timestamp: str
+    :return: JSON
 
-              .. :quickref: Event; Get events created after timestamp
+    **Example request**:
 
-              :param timestamp: ISO formatted timestamp
-              :type timestamp: str
-              :return: JSON
+        .. sourcecode:: http
 
-              **Example request**:
+            GET /API/App/Events/CAT/timestamp=2020-01-30%2000:00:00 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-              .. sourcecode:: http
+    **Example response**:
 
-                GET /API/App/Events/CAT/timestamp=2020-01-30%2000:00:00 HTTP/1.1
-                Host: inthenou.uprm.edu
-                Accept: application/json
+        .. sourcecode:: http
 
-              **Example response**:
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-              .. sourcecode:: http
+            {
+                "events": [
+                    {
+                        "eid": 4,
+                        "tags": [
+                            {"tid": 1,"tname": "ADMI"},
+                            {"tid": 2,"tname": "ADOF"},
+                            {"tid": 3,"tname": "AGRO"},
+                            {"tid": 4,"tname": "ALEM"},
+                            {"tid": 5,"tname": "ANTR"},
+                            {"tid": 6,"tname": "ARTE"}
+                        ]
+                    },
+                    {
+                        "eid": 6,
+                        "tags": [
+                            {"tid": 1,"tname": "ADMI"},
+                            {"tid": 2,"tname": "ADOF"},
+                            {"tid": 3,"tname": "AGRO"},
+                            {"tid": 4,"tname": "ALEM"},
+                            {"tid": 5,"tname": "ANTR"},
+                            {"tid": 6,"tname": "ARTE"},
+                            {"tid": 7,"tname": "ASTR"}
+                        ]
+                    },
+                    {
+                        "eid": 7,
+                        "tags": [
+                            {"tid": 1,"tname": "ADMI"},
+                            {"tid": 2,"tname": "ADOF"},
+                            {"tid": 3,"tname": "AGRO"},
+                            {"tid": 4,"tname": "ALEM"},
+                            {"tid": 5,"tname": "ANTR"},
+                            {"tid": 6,"tname": "ARTE"}
+                        ]
+                    }
+                ]
+            }
 
-                HTTP/1.1 200 OK
-                Vary: Accept
-                Content-Type: text/javascript
-
-                {
-                    "events": [
-                        {
-                            "eid": 4,
-                            "tags": [
-                                {"tid": 1,"tname": "ADMI"},
-                                {"tid": 2,"tname": "ADOF"},
-                                {"tid": 3,"tname": "AGRO"},
-                                {"tid": 4,"tname": "ALEM"},
-                                {"tid": 5,"tname": "ANTR"},
-                                {"tid": 6,"tname": "ARTE"}
-                            ]
-                        },
-                        {
-                            "eid": 6,
-                            "tags": [
-                                {"tid": 1,"tname": "ADMI"},
-                                {"tid": 2,"tname": "ADOF"},
-                                {"tid": 3,"tname": "AGRO"},
-                                {"tid": 4,"tname": "ALEM"},
-                                {"tid": 5,"tname": "ANTR"},
-                                {"tid": 6,"tname": "ARTE"},
-                                {"tid": 7,"tname": "ASTR"}
-                            ]
-                        },
-                        {
-                            "eid": 7,
-                            "tags": [
-                                {"tid": 1,"tname": "ADMI"},
-                                {"tid": 2,"tname": "ADOF"},
-                                {"tid": 3,"tname": "AGRO"},
-                                {"tid": 4,"tname": "ALEM"},
-                                {"tid": 5,"tname": "ANTR"},
-                                {"tid": 6,"tname": "ARTE"}
-                            ]
-                        }
-                    ]
-                }
-
-              :reqheader Cookie: Must contain session token to authenticate.
-              :resheader Content-Type: application/json
-              :statuscode 200: no error
-              :statuscode 400: Invalid Timestamp
-              :statuscode 403: User is not logged in.
-              """
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Invalid Timestamp
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getEventsCreatedAfterTimestamp(timestamp=timestamp, uid=int(current_user.id))
     else:
@@ -327,67 +323,65 @@ def getEventsCreatedAfterTimestamp(timestamp):
 def createEvent():
     """
     .. py:decorator:: event_creator_role_required
-
-    Uses :func:`~app.handlers.EventHandler.EventHandler.createEvent`
+    .. :quickref: Event; Create Event
 
     Create an event
-
-    .. :quickref: Event; Create Event
+    Uses :func:`~app.handlers.EventHandler.EventHandler.createEvent`
 
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        POST /API/App/Events/Create HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            POST /API/App/Events/Create HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-    **Body of Request**:
+    **Request Body**:
 
-    .. code-block:: json
+        .. sourcecode:: json
 
-        {
-            "roomid": 5,
-            "etitle": "Test Event",
-            "edescription": "A test event to see the insert route working.",
-            "estart":"2020-10-26 15:40:00",
-            "eend": "2020-10-26 16:40:00",
-            "photourl": "https://link.to.fake.photo.com/fake-foto.jpg",
-            "tags": [
-                {"tid": 1},
-                {"tid": 2},
-                {"tid": 3},
-                {"tid": 4},
-                {"tid": 5},
-                {"tid": 6}
-            ],
-            "websites": [
-                {
-                    "url": "https://firstwebsite.com",
-                    "wdescription": "my  favorite website"
-                },
-                {
-                    "url": "https://secondsite.net",
-                    "wdescription": "my  worst website"
-                },
-                {
-                    "url": "https://thirdsite.edu",
-                    "wdescription": null
-                }
-            ]
-        }
+            {
+                "roomid": 5,
+                "etitle": "Test Event",
+                "edescription": "A test event to see the insert route working.",
+                "estart":"2020-10-26 15:40:00",
+                "eend": "2020-10-26 16:40:00",
+                "photourl": "https://link.to.fake.photo.com/fake-foto.jpg",
+                "tags": [
+                    {"tid": 1},
+                    {"tid": 2},
+                    {"tid": 3},
+                    {"tid": 4},
+                    {"tid": 5},
+                    {"tid": 6}
+                ],
+                "websites": [
+                    {
+                        "url": "https://firstwebsite.com",
+                        "wdescription": "my  favorite website"
+                    },
+                    {
+                        "url": "https://secondsite.net",
+                        "wdescription": "my  worst website"
+                    },
+                    {
+                        "url": "https://thirdsite.edu",
+                        "wdescription": null
+                    }
+                ]
+            }
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 201 CREATED
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {"eid": 17}
+            {"eid": 17}
 
 
 
