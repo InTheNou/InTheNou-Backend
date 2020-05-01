@@ -239,11 +239,12 @@ class UserDAO(MasterDAO):
 
     def getUserIssuers(self, userID):
         """
-        Query Database for a User's information returns a list of uids that can be or are issuers of a given uid
-        Parameters:
-            :param uid: user ID
+        Query Database for a User's information. Returns a list of
+        uids that can be (or are) issuers of a given uid.
 
-            :return Tuple: SQL result of Query as a tuple.
+        :param userID: User ID
+        :type userID: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select uid from users u2 "

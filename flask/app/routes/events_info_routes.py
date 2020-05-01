@@ -33,99 +33,110 @@ def internal_server_error(error):
 @user_role_required
 def getEventByID(eid):
     """
-       .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get Event By bid
 
-       Uses :func:`~app.handlers.EventHandler.EventHandler.getEventByID`
+    Get Event By ID
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getEventByID`
 
-       Get Event By ID
+    :param eid: Event ID
+    :type eid: int
+    :return: JSON
 
-       .. :quickref: Event; Get Event By bid
+    **Example request**:
 
-       :param eid: Event ID
-       :type eid: int
-       :return: JSON
+        .. sourcecode:: http
 
-       **Example request**:
+            GET /API/App/Events/eid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-       .. sourcecode:: http
+    **Example response**:
 
-         GET /API/App/Events/eid=1 HTTP/1.1
-         Host: inthenou.uprm.edu
-         Accept: application/json
+        .. sourcecode:: http
 
-       **Example response**:
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-       .. sourcecode:: http
-
-         HTTP/1.1 200 OK
-         Vary: Accept
-         Content-Type: text/javascript
-
-         {
-            "ecreation": "2020-04-25 21:42:57.094493",
-            "ecreator": {
-                "display_name": "Diego Amador",
-                "email": "diego.amador@upr.edu",
-                "roleid": 3,
-                "type": "Professor",
-                "uid": 2
-            },
-            "edescription": "Meeting to discuss plans for integration phase.",
-            "eend": "2020-08-05 17:41:00",
-            "eid": 1,
-            "estart": "2020-08-05 15:41:00",
-            "estatus": "active",
-            "estatusdate": "2020-04-25 21:44:00.365692",
-            "etitle": "Alpha Code Team Meeting",
-            "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
-            "room": {
-                "building": {
-                    "babbrev": "S",
-                    "bcommonname": "STEFANI",
-                    "bid": 1,
-                    "bname": "LUIS A STEFANI (INGENIERIA)",
-                    "btype": "Academico",
-                    "distinctfloors": [1,2,3,4,5,6,7],
-                    "numfloors": 7,
-                    "photourl": null
+            {
+                "ecreation": "2020-05-01 02:27:01.729007",
+                "ecreator": {
+                    "display_name": "Diego Amador",
+                    "email": "diego.amador@upr.edu",
+                    "roleid": 3,
+                    "type": "Professor",
+                    "uid": 2
                 },
-                "photourl": null,
-                "raltitude": 50.04,
-                "rcode": "123A1",
-                "rcustodian": "naydag.santiago@upr.edu",
-                "rdept": "INGENIERIA ELECTRICA",
-                "rdescription": "CAPSTONE",
-                "rfloor": 1,
-                "rid": 56,
-                "rlatitude": 50.04,
-                "rlongitude": 50.04,
-                "roccupancy": 0
-            },
-            "tags": [
-                {"tid": 6,"tname": "ARTE"},
-                {"tid": 42,"tname": "FILO"},
-                {"tid": 54,"tname": "ICOM"},
-                {"tid": 64,"tname": "INSO"}
-            ],
-            "websites": [
-                {
-                    "url": "http://ece.uprm.edu/~fvega/",
-                    "wdescription": "Our clients webpage",
-                    "wid": 2
-                }
-            ]
-         }
+                "edescription": "Meeting to discuss plans for integration phase.",
+                "eend": "2020-08-05 17:41:00",
+                "eid": 1,
+                "estart": "2020-08-05 15:41:00",
+                "estatus": "active",
+                "estatusdate": "None",
+                "etitle": "Alpha Code Team Meeting",
+                "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
+                "room": {
+                    "building": {
+                        "babbrev": "S",
+                        "bcommonname": "STEFANI",
+                        "bid": 1,
+                        "bname": "LUIS A STEFANI (INGENIERIA)",
+                        "btype": "Academico",
+                        "distinctfloors": [1,2,3,4,5,6,7],
+                        "numfloors": 7,
+                        "photourl": null
+                    },
+                    "photourl": null,
+                    "raltitude": 50.04,
+                    "rcode": "123A1",
+                    "rcustodian": "naydag.santiago@upr.edu",
+                    "rdept": "INGENIERIA ELECTRICA",
+                    "rdescription": "CAPSTONE",
+                    "rfloor": 1,
+                    "rid": 56,
+                    "rlatitude": 50.04,
+                    "rlongitude": 50.04,
+                    "roccupancy": 0
+                },
+                "tags": [
+                    {
+                        "tid": 6,
+                        "tname": "ARTE"
+                    },
+                    {
+                        "tid": 42,
+                        "tname": "FILO"
+                    },
+                    {
+                        "tid": 54,
+                        "tname": "ICOM"
+                    },
+                    {
+                        "tid": 64,
+                        "tname": "INSO"
+                    }
+                ],
+                "websites": [
+                    {
+                        "url": "http://ece.uprm.edu/~fvega/",
+                        "wdescription": "Our clients webpage",
+                        "wid": 2
+                    }
+                ]
+            }
 
-       :reqheader Cookie: Must contain session token to authenticate.
-       :resheader Content-Type: application/json
-       :statuscode 200: no error
-       :statuscode 403: User is not logged in.
-       :statuscode 404: Event does not exist
-       """
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Event does not exist
+    """
     if request.method == 'GET':
         return EventHandler().getEventByID(eid=eid)
     else:
         return jsonify(Error="Method not allowed."), 405
+
 
 @app.route(route_prefix + "/App/Events/eid=<int:eid>/Interaction", methods=['GET'])
 @user_role_required
@@ -399,33 +410,49 @@ def createEvent():
 @user_role_required
 def getNewDeletedEvents(timestamp):
     """
-              .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get events deleted after timestamp
 
-              Uses :func:`~app.handlers.EventHandler.EventHandler.getNewDeletedEvents`
+    Get events that have been deleted after the given timestamp.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getNewDeletedEvents`
 
-              Get Events deleted after the submitted timestamp.
+    :param timestamp: ISO formatted timestamp
+    :type timestamp: str
+    :return: JSON
 
-              .. :quickref: Event; Get events deleted after timestamp
+    **Example request**:
 
-              :param timestamp: ISO formatted timestamp
-              :type timestamp: str
-              :return: JSON
+        .. sourcecode:: http
 
-              **Example request**:
+            GET /API/App/Events/Deleted/New/timestamp=2020-01-30%2000:00:00 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-              .. sourcecode:: http
+    **Example response**:
 
-                GET /API/App/Events/Deleted/New/timestamp=2020-01-30%2000:00:00 HTTP/1.1
-                Host: inthenou.uprm.edu
-                Accept: application/json
+        .. sourcecode:: http
 
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-              :reqheader Cookie: Must contain session token to authenticate.
-              :resheader Content-Type: application/json
-              :statuscode 200: no error
-              :statuscode 400: Invalid Timestamp
-              :statuscode 403: User is not logged in.
-              """
+            {
+                "events": [{
+                    "ecreation": "2020-05-01 02:27:01.731852",
+                    "eend": "2020-10-05 17:41:00",
+                    "eid": 3,
+                    "estart": "2020-10-05 15:41:00",
+                    "estatus": "deleted",
+                    "estatusdate": "2020-05-01 02:27:52.770806"
+                }]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Invalid Timestamp
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getNewDeletedEvents(timestamp=timestamp)
     else:
@@ -437,12 +464,10 @@ def getNewDeletedEvents(timestamp):
 def followEvent(eid):
     """
     .. py:decorator:: user_role_required
-
-    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
+    .. :quickref: Event-User Interaction; Follow an event.
 
     Follow an event.
-
-    .. :quickref: Event-User Interaction; Follow an event.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.setInteraction`
 
     :param eid: Event ID
     :type eid: int
@@ -450,11 +475,11 @@ def followEvent(eid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        POST /API/App/Events/eid=1/Follow HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            POST /API/App/Events/eid=1/Follow HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
 
     :reqheader Cookie: Must contain session token to authenticate.

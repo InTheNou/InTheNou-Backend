@@ -12,9 +12,6 @@ Private Methods
 .. automethod:: app.handlers.ServiceHandler._buildCoreServiceResponse
 .. automethod:: app.handlers.ServiceHandler._buildServiceResponse
 .. automethod:: app.handlers.ServiceHandler._buildServiceByRoomResponse
-.. automethod:: app.handlers.ServiceHandler._buildWebsiteResponse
-.. automethod:: app.handlers.ServiceHandler._buildCoreWebsiteResponse
-
 
 Public Methods
 --------------
