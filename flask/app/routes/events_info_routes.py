@@ -859,34 +859,81 @@ def getEventsCreatedByUser(offset, limit):
 @user_role_required
 def getDismissedEvents(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get Events dismissed by current user.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getDismissedEvents`
+    Get a list of events dismissed by the logged in user.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getDismissedEvents`
 
-      Get a list of events dismissed by the logged in user.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get Events dismissed by current user.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/Dismissed/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/Dismissed/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getDismissedEvents(uid=int(current_user.id), offset=offset, limit=limit)
     else:
@@ -897,34 +944,81 @@ def getDismissedEvents(offset, limit):
 @user_role_required
 def getUpcomingFollowedEventsSegmented(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get upcoming events current user is following.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingFollowedEventsSegmented`
+    Get a list of upcoming events that have been followed by the logged in user.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingFollowedEventsSegmented`
 
-      Get a list of upcoming events that have been followed by the logged in user.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get upcoming events current user is following.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/Following/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/Following/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getUpcomingFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
@@ -935,34 +1029,81 @@ def getUpcomingFollowedEventsSegmented(offset, limit):
 @user_role_required
 def getUpcomingGeneralEventsSegmented(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get upcoming events.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingGeneralEventsSegmented`
+    Get a list of upcoming events.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingGeneralEventsSegmented`
 
-      Get a list of upcoming events.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get upcoming events.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/General/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/General/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getUpcomingGeneralEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
@@ -973,36 +1114,83 @@ def getUpcomingGeneralEventsSegmented(offset, limit):
 @user_role_required
 def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get upcoming events by keywords.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingGeneralEventsByKeywordsSegmented`
+    Get a list of upcoming events that are matched with the searchstring.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingGeneralEventsByKeywordsSegmented`
 
-      Get a list of upcoming events that are matched with the searchstring.
+    :param searchstring: space-separated string of keywords to use for search of events.
+    :type searchstring: str
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get upcoming events by keywords.
+    **Example request**:
 
-      :param searchstring: space-separated string of keywords to use for search of events.
-      :type searchstring: str
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/General/search=test%20event/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/General/search=test%20event/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getUpcomingGeneralEventsByKeywordsSegmented(uid=int(current_user.id),
                                                                           searchstring=searchstring,
@@ -1015,34 +1203,81 @@ def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
 @user_role_required
 def getPastFollowedEventsSegmented(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get past followed events.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getPastFollowedEventsSegmented`
+    Get a list of events that have ended and the current user has followed (user's history).
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getPastFollowedEventsSegmented`
 
-      Get a list of events that have ended and the current user has followed (user's history).
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get past followed events.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/History/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/History/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getPastFollowedEventsSegmented(uid=int(current_user.id), offset=offset, limit=limit)
     else:
@@ -1053,34 +1288,81 @@ def getPastFollowedEventsSegmented(offset, limit):
 @user_role_required
 def getUpcomingRecommendedEventsSegmented(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get upcoming recommended events.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingRecommendedEventsSegmented`
+    Get a list of upcoming events that have been recommended to the current user.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingRecommendedEventsSegmented`
 
-      Get a list of upcoming events that have been recommended to the current user.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get upcoming recommended events.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/Recommended/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/Recommended/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getUpcomingRecommendedEventsSegmented(uid=int(current_user.id),
                                                                     offset=offset, limit=limit)
@@ -1092,36 +1374,83 @@ def getUpcomingRecommendedEventsSegmented(offset, limit):
 @user_role_required
 def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Event; Get upcoming recommended events by keywords.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingRecommendedEventsByKeywordSegmented`
+    Get a list of upcoming events that have been recommended to the user and are matched with the searchstring.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getUpcomingRecommendedEventsByKeywordSegmented`
 
-      Get a list of upcoming events that have been recommended to the user and are matched with the searchstring.
+    :param searchstring: space-separated string of keywords to use for search of events.
+    :type searchstring: str
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get upcoming recommended events by keywords.
+    **Example request**:
 
-      :param searchstring: space-separated string of keywords to use for search of events.
-      :type searchstring: str
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Events/Recommended/search=test%20event/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Events/Recommended/search=test%20event/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getUpcomingRecommendedEventsByKeywordSegmented(uid=int(current_user.id),
                                                                              searchstring=searchstring,
@@ -1134,35 +1463,82 @@ def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
 @mod_role_required
 def getAllEventsSegmented(offset, limit):
     """
-      .. py:decorator:: mod_role_required
+    .. py:decorator:: mod_role_required
+    .. :quickref: Event; Get all events segmented.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getAllEventsSegmented`
+    Get a list of all events.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getAllEventsSegmented`
 
-      Get a list of all events.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get all events segmented.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/Dashboard/Events/offset=0/limit=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/Dashboard/Events/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.730759",
+                        "ecreator": 3,
+                        "edescription": "Meeting to discuss more plans for integration phase.",
+                        "eend": "2020-09-05 17:41:00",
+                        "eid": 2,
+                        "estart": "2020-09-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "None",
+                        "etitle": "Alpha Code Team Meeting 2",
+                        "photourl": null,
+                        "recommendstatus": "N",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getAllEventsSegmented(offset=offset, limit=limit)
     else:
