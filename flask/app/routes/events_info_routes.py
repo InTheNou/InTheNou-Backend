@@ -57,7 +57,8 @@ def getEventByID(eid):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "ecreation": "2020-05-01 02:27:01.729007",
@@ -166,7 +167,8 @@ def getEventByIDWithInteractions(eid):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                "ecreation": "2020-04-25 21:42:57.094493",
@@ -265,7 +267,8 @@ def getEventsCreatedAfterTimestamp(timestamp):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -379,7 +382,8 @@ def createEvent():
 
             HTTP/1.1 201 CREATED
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {"eid": 17}
 
@@ -426,7 +430,8 @@ def getNewDeletedEvents(timestamp):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [{
@@ -479,7 +484,8 @@ def followEvent(eid):
 
             HTTP/1.1 201 CREATED
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "event": {
@@ -540,7 +546,8 @@ def dismissEvent(eid):
 
             HTTP/1.1 201 CREATED
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "event": {
@@ -601,7 +608,8 @@ def unfollowEvent(eid):
 
             HTTP/1.1 201 CREATED
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "event": {
@@ -664,7 +672,8 @@ def setEventStatus(eid, estatus):
 
             HTTP/1.1 201 CREATED
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {"eid":1}
 
@@ -719,7 +728,8 @@ def setRecommendation(eid, recommendstatus):
 
             HTTP/1.1 201 CREATED
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {"eid":3,"uid":1}
 
@@ -766,7 +776,8 @@ def getEventsCreatedByUser(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -885,7 +896,8 @@ def getDismissedEvents(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -970,7 +982,8 @@ def getUpcomingFollowedEventsSegmented(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1055,7 +1068,8 @@ def getUpcomingGeneralEventsSegmented(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1142,7 +1156,8 @@ def getUpcomingGeneralEventsByKeywordsSegmented(searchstring, offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1229,7 +1244,8 @@ def getPastFollowedEventsSegmented(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1314,7 +1330,8 @@ def getUpcomingRecommendedEventsSegmented(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1402,7 +1419,8 @@ def getUpcomingRecommendedEventsByKeywordSegmented(searchstring, offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1489,7 +1507,8 @@ def getAllEventsSegmented(offset, limit):
 
             HTTP/1.1 200 OK
             Vary: Accept
-            Content-Type: text/javascript
+            Content-Type: application/json
+
 
             {
                 "events": [
@@ -1549,38 +1568,85 @@ def getAllEventsSegmented(offset, limit):
 @mod_role_required
 def getEventsCreatedByOtherUser(ecreator, offset, limit):
     """
-      .. py:decorator:: mod_role_required
+    .. py:decorator:: mod_role_required
+    .. :quickref: Event; Get events created by other user.
 
-      Uses :func:`~app.handlers.UserHandler.UserHandler.getUserIssuers` &
-      :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedByUser`
+    Get a list of events created by another user.
+    Uses :func:`~app.handlers.UserHandler.UserHandler.getUserIssuers` &
+    :func:`~app.handlers.EventHandler.EventHandler.getEventsCreatedByUser`
 
-      Get a list of events created by another user.
+    :param ecreator: User ID of whom the events are being searched.
+    :type ecreator: int
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get events created by other user.
+    **Example request**:
 
-      :param ecreator: User ID of whom the events are being searched.
-      :type ecreator: int
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/Dashboard/Events/ecreator=2/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/Dashboard/Events/ecreator=2/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.729007",
+                        "ecreator": 2,
+                        "edescription": "Meeting to discuss plans for integration phase.",
+                        "eend": "2020-08-05 17:41:00",
+                        "eid": 1,
+                        "estart": "2020-08-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "2020-05-01 03:51:48.110718",
+                        "etitle": "Alpha Code Team Meeting",
+                        "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         # Json used because current implementation of getUserIssuers() requires it.
         
@@ -1597,35 +1663,82 @@ def getEventsCreatedByOtherUser(ecreator, offset, limit):
 @mod_role_required
 def getAllDeletedEventsSegmented(offset, limit):
     """
-      .. py:decorator:: mod_role_required
+    .. py:decorator:: mod_role_required
+    .. :quickref: Event; Get all deleted events segmented.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getAllDeletedEventsSegmented`
+    Get a list of all deleted events.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getAllDeletedEventsSegmented`
 
-      Get a list of all deleted events.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get all deleted events segmented.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/Dashboard/Events/Deleted/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/Dashboard/Events/Deleted/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.729007",
+                        "ecreator": 2,
+                        "edescription": "Meeting to discuss plans for integration phase.",
+                        "eend": "2020-08-05 17:41:00",
+                        "eid": 1,
+                        "estart": "2020-08-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "2020-05-01 03:51:48.110718",
+                        "etitle": "Alpha Code Team Meeting",
+                        "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getAllDeletedEventsSegmented(offset=offset, limit=limit)
     else:
@@ -1636,35 +1749,81 @@ def getAllDeletedEventsSegmented(offset, limit):
 @mod_role_required
 def getAllPastEventsSegmented(offset, limit):
     """
-      .. py:decorator:: mod_role_required
+    .. py:decorator:: mod_role_required
+    .. :quickref: Event; Get all past events segmented.
 
-      Uses :func:`~app.handlers.EventHandler.EventHandler.getAllPastEventsSegmented`
+    Get a list of all events whose end time is less than or equal to the current timestamp.
+    Uses :func:`~app.handlers.EventHandler.EventHandler.getAllPastEventsSegmented`
 
-      Get a list of all events whose end time is less than or equal to the current timestamp.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Event; Get all past events segmented.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/Dashboard/Events/Past/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/Dashboard/Events/Past/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "events": [
+                    {
+                        "ecreation": "2020-05-01 02:27:01.729007",
+                        "ecreator": 2,
+                        "edescription": "Meeting to discuss plans for integration phase.",
+                        "eend": "2020-08-05 17:41:00",
+                        "eid": 1,
+                        "estart": "2020-08-05 15:41:00",
+                        "estatus": "active",
+                        "estatusdate": "2020-05-01 03:51:48.110718",
+                        "etitle": "Alpha Code Team Meeting",
+                        "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "123A1",
+                            "rcustodian": "naydag.santiago@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "CAPSTONE",
+                            "rfloor": 1,
+                            "rid": 56,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        }
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return EventHandler().getAllPastEventsSegmented(offset=offset, limit=limit)
     else:
@@ -1675,32 +1834,63 @@ def getAllPastEventsSegmented(offset, limit):
 @user_role_required
 def getRoomByID(rid):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Room; Get room by ID.
 
-      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomByID`
+    Get a room entry by ID.
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomByID`
 
-      Get a room entry by ID.
+    :param rid: Room ID.
+    :type rid: int
+    :return: JSON
 
-      .. :quickref: Room; Get room by ID.
+    **Example request**:
 
-      :param rid: Room ID.
-      :type rid: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Rooms/rid=42 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Rooms/rid=42 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 403: User is not logged in.
-      :statuscode 400: Bad offset/limit values.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "building": {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Academico",
+                    "distinctfloors": [1,2,3,4,5,6,7],
+                    "numfloors": 7,
+                    "photourl": null
+                },
+                "photourl": null,
+                "raltitude": 50.04,
+                "rcode": "114D",
+                "rcustodian": "fabio.andrade@ece.uprm.edu ",
+                "rdept": "INGENIERIA ELECTRICA",
+                "rdescription": "LABORATORIO INVESTIGACION DR. FABIO ANDRADE ",
+                "rfloor": 1,
+                "rid": 42,
+                "rlatitude": 50.04,
+                "rlongitude": 50.04,
+                "roccupancy": 0,
+                "services": []
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 400: Bad offset/limit values.
+    """
     if request.method == 'GET':
         return RoomHandler().getRoomByID(rid=rid)
     else:
@@ -1711,38 +1901,86 @@ def getRoomByID(rid):
 @user_role_required
 def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Room; Get room by room code.
 
-      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByCodeSearchSegmented`
+    Get a list of rooms that match a search by room code, which consists of the
+    building abbreviation and room number.
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByCodeSearchSegmented`
 
-      Get a list of rooms that match a search by room code, which consists of the building abbreviation and room number.
+    :param babbrev: Building abbreviation.
+    :type babbrev: str
+    :param rcode: Building room number/code.
+    :type rcode: str
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Room; Get room by room code.
+    **Example request**:
 
-      :param babbrev: Building abbreviation.
-      :type babbrev: str
-      :param rcode: Building room number/code.
-      :type rcode: str
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Rooms/babbrev=S/rcode=123/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Rooms/babbrev=S/rcode=123/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 403: User is not logged in.
-      :statuscode 400: Bad offset/limit values.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "rooms": [
+                    {
+                        "building": {
+                            "babbrev": "S",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)"
+                        },
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "123A1",
+                        "rcustodian": "naydag.santiago@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "CAPSTONE",
+                        "rfloor": 1,
+                        "rid": 56,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    },
+                    {
+                        "building": {
+                            "babbrev": "S",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)"
+                        },
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "123A",
+                        "rcustodian": "naydag.santiago@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "POWER ELECTRONIC",
+                        "rfloor": 1,
+                        "rid": 55,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 400: Bad offset/limit values.
+    """
     if request.method == 'GET':
         return RoomHandler().getRoomsByCodeSearchSegmented(babbrev=babbrev, rcode=rcode, offset=offset, limit=limit)
     else:
@@ -1753,36 +1991,65 @@ def getRoomsByCodeSearchSegmented(babbrev, rcode, offset, limit):
 @user_role_required
 def getRoomsByKeywordSegmented(searchstring, offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Room; Get room by keywords.
 
-      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByKeywordSegmented`
+    Get a list of rooms that match a search by keywords.
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByKeywordSegmented`
 
-      Get a list of rooms that match a search by keywords.
+    :param searchstring: space-separated keywords to search the room descriptions.
+    :type searchstring: str
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Room; Get room by keywords.
+    **Example request**:
 
-      :param searchstring: space-separated keywords to search the room descriptions.
-      :type searchstring: str
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Rooms/searchstring=capstone/offset=0/limit=2 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Rooms/searchstring=laboratorio%20capstone/offset=0/limit=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 403: User is not logged in.
-      :statuscode 400: Bad offset/limit values.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "rooms": [
+                    {
+                        "building": {
+                            "babbrev": "S",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)"
+                        },
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "123A1",
+                        "rcustodian": "naydag.santiago@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "CAPSTONE",
+                        "rfloor": 1,
+                        "rid": 56,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 400: Bad offset/limit values.
+    """
     if request.method == 'GET':
         return RoomHandler().getRoomsByKeywordSegmented(searchstring=searchstring, offset=offset, limit=limit)
     else:
@@ -1793,35 +2060,95 @@ def getRoomsByKeywordSegmented(searchstring, offset, limit):
 @user_role_required
 def getRoomsByBuildingAndFloor(bid, rfloor):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Room; Get room by building and floor.
 
-      Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByBuildingAndFloor`
+    Get a list of all rooms that belong to a given building's given floor.
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.getRoomsByBuildingAndFloor`
 
-      Get a list of all rooms that belong to a given building's given floor.
+    :param bid: Building ID.
+    :type bid: int
+    :param rfloor: Floor of building to search.
+    :type rfloor: int
+    :return: JSON
 
-      .. :quickref: Room; Get room by building and floor.
+    **Example request**:
 
-      :param bid: Building ID.
-      :type bid: int
-      :param rfloor: Floor of building to search.
-      :type rfloor: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Rooms/bid=1/rfloor=3 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Shortened example response**:
 
-        GET /API/App/Rooms/bid=1/rfloor=2 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad bid/rfloor values.
-      :statuscode 403: User is not logged in.
-      :statuscode 404: No rooms found for given building ID and floor number.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "building": {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Academico",
+                    "distinctfloors": [1,2,3,4,5,6,7],
+                    "numfloors": 7,
+                    "photourl": null
+                },
+                "rooms": [
+                    {
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "300",
+                        "rcustodian": "victor.ramirez2@upr.edu",
+                        "rdept": "COLEGIO DE INGENIERIA",
+                        "rdescription": "OFICINA DEL CUSTODIO DE LAS LLAVES",
+                        "rfloor": 3,
+                        "rid": 170,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    },
+                    {
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "301",
+                        "rcustodian": "jose.colom1@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "ALMACEN",
+                        "rfloor": 3,
+                        "rid": 171,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    },
+                    {
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "302",
+                        "rcustodian": "agustin.rullan@upr.edu",
+                        "rdept": "COLEGIO DE INGENIERIA",
+                        "rdescription": "COBACHA",
+                        "rfloor": 3,
+                        "rid": 172,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad bid/rfloor values.
+    :statuscode 403: User is not logged in.
+    :statuscode 404: No rooms found for given building ID and floor number.
+    """
     if request.method == 'GET':
         return RoomHandler().getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
     else:
@@ -1833,12 +2160,10 @@ def getRoomsByBuildingAndFloor(bid, rfloor):
 def getBuildingByID(bid):
     """
     .. py:decorator:: user_role_required
-
-    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getBuildingByID`
+    .. :quickref: Building; Get Building By bid
 
     Get Building By ID
-
-    .. :quickref: Building; Get Building By bid
+    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getBuildingByID`
 
     :param bid: Building ID
     :type bid: int
@@ -1846,33 +2171,33 @@ def getBuildingByID(bid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-      GET /API/App/Buildings/bid=1 HTTP/1.1
-      Host: inthenou.uprm.edu
-      Accept: application/json
+              GET /API/App/Buildings/bid=1 HTTP/1.1
+              Host: inthenou.uprm.edu
+              Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-      HTTP/1.1 200 OK
-      Vary: Accept
-      Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
 
-      {
-        "babbrev": "S",
-        "bcommonname": "STEFANI",
-        "bid": 1,
-        "bname": "LUIS A STEFANI (INGENIERIA)",
-        "btype": "Academico",
-        "distinctfloors": [1,2,3,4,5,6,7]
-        "numfloors": 7,
-        "photourl": null
-      }
+            {
+                "babbrev": "S",
+                "bcommonname": "STEFANI",
+                "bid": 1,
+                "bname": "LUIS A STEFANI (INGENIERIA)",
+                "btype": "Academico",
+                "distinctfloors": [1,2,3,4,5,6,7]
+                "numfloors": 7,
+                "photourl": null
+            }
 
     :reqheader Accept: the response content type depends on
-                      :mailheader:`Accept` header
+        :mailheader:`Accept` header
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 200: no error
@@ -1890,29 +2215,50 @@ def getBuildingByID(bid):
 @user_role_required
 def getAllBuildings():
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Building; Get all buildings.
 
-      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getAllBuildings`
+    Get a list of all buildings in the system.
+    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getAllBuildings`
 
-      Get a list of all buildings in the system.
+    :return: JSON
 
-      .. :quickref: Building; Get all buildings.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/Dev/Buildings HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/Dev/Buildings HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "buildings": [
+                    {
+                        "babbrev": "S",
+                        "bcommonname": "STEFANI",
+                        "bid": 1,
+                        "bname": "LUIS A STEFANI (INGENIERIA)",
+                        "btype": "Academico",
+                        "distinctfloors": [1,2,3,4,5,6,7],
+                        "numfloors": 7,
+                        "photourl": null
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return BuildingHandler().getAllBuildings()
     else:
@@ -1923,34 +2269,53 @@ def getAllBuildings():
 @user_role_required
 def getAllBuildingsSegmented(offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Building; Get all buildings segmented.
 
-      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getAllBuildingsSegmented`
+    Get a list of some buildings in the system.
+    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getAllBuildingsSegmented`
 
-      Get a list of some buildings in the system.
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Building; Get all buildings segmented.
+    **Example request**:
 
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Buildings/offset=0/limit=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Buildings/offset=0/limit=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            [
+                {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Academico",
+                    "distinctfloors": [1,2,3,4,5,6,7],
+                    "numfloors": 7,
+                    "photourl": null
+                }
+            ]
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return BuildingHandler().getAllBuildingsSegmented(offset=offset, limit=limit)
     else:
@@ -1962,36 +2327,55 @@ def getAllBuildingsSegmented(offset, limit):
 @user_role_required
 def getBuildingsByKeywords(searchstring, offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Building; Get all buildings by keywords.
 
-      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getBuildingsByKeyword`
+    Get a list of buildings in the system that match the searchstring.
+    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.getBuildingsByKeyword`
 
-      Get a list of buildings in the system that match the searchstring.
+    :param searchstring: space-separated keywords to search the buildings.
+    :type searchstring: str
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Building; Get all buildings by keywords.
+    **Example request**:
 
-      :param searchstring: space-separated keywords to search the buildings.
-      :type searchstring: str
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Buildings/Search/searchstring=luis/offset=0/limit=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Buildings/Search/searchstring=luis/offset=0/limit=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            [
+                {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Academico",
+                    "distinctfloors": [1,2,3,4,5,6,7],
+                    "numfloors": 7,
+                    "photourl": null
+                }
+            ]
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return BuildingHandler().getBuildingsByKeyword(keyword=searchstring,
                                                        offset=offset, limit=limit)
@@ -2003,68 +2387,135 @@ def getBuildingsByKeywords(searchstring, offset, limit):
 @user_role_required
 def getServicesByKeywords(searchstring, offset, limit):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Service; Get services by keywords.
 
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServicesByKeywords`
+    Get a list of services in the system that match the searchstring.
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServicesByKeywords`
 
-      Get a list of services in the system that match the searchstring.
+    :param searchstring: space-separated keywords to search the services.
+    :type searchstring: str
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      .. :quickref: Service; Get services by keywords.
+    **Example request**:
 
-      :param searchstring: space-separated keywords to search the services.
-      :type searchstring: str
-      :param offset: Number of results to skip from top of list.
-      :type offset: int
-      :param limit: Number of results after offset to return.
-      :type limit: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Services/searchstring=fernando/offset=0/limit=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Services/searchstring=oficina/offset=0/limit=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad offset/limit values.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "services": [
+                    {
+                        "isdeleted": false,
+                        "room": {
+                            "building": {
+                                "babbrev": "S",
+                                "bcommonname": "STEFANI",
+                                "bid": 1,
+                                "bname": "LUIS A STEFANI (INGENIERIA)",
+                                "btype": "Academico",
+                                "distinctfloors": [1,2,3,4,5,6,7],
+                                "numfloors": 7,
+                                "photourl": null
+                            },
+                            "photourl": null,
+                            "raltitude": 50.04,
+                            "rcode": "229A",
+                            "rcustodian": "jfernando.vega@upr.edu",
+                            "rdept": "INGENIERIA ELECTRICA",
+                            "rdescription": "OFICINA PROFESOR DR. FERNANDO VEGA ",
+                            "rfloor": 2,
+                            "rid": 151,
+                            "rlatitude": 50.04,
+                            "rlongitude": 50.04,
+                            "roccupancy": 0
+                        },
+                        "sdescription": "Office Hours to discuss class topics, and consult with Capstone Team.",
+                        "sid": 3,
+                        "sname": "Office Hours: Fernando Vega",
+                        "sschedule": "L: 3:30pm - 4:30pm, W: 1:30pm - 3:30pm"
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad offset/limit values.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return ServiceHandler().getServicesByKeywords(searchstring=searchstring, offset=offset, limit=limit)
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-
 @app.route(route_prefix + "/App/Tags", methods=['GET'])
 def getAllTags():
     """
-      Uses :func:`~app.handlers.TagHandler.TagHandler.getAllTags`
+    Uses :func:`~app.handlers.TagHandler.TagHandler.getAllTags`
+    .. :quickref: Tag; Get all tags.
 
-      Get all tags in the system. This route requires the user to either be logged in with a session, or to posses a server-issued token.
+    Get all tags in the system. This route requires the user to
+    either be logged in with a session, or to posses a
+    server-issued token.
 
-      .. :quickref: Tag; Get all tags.
+    :return: JSON
 
-      :return: JSON
+    **Example request**:
 
-      **Example request**:
+        .. sourcecode:: http
 
-      .. sourcecode:: http
+            GET /API/App/Tags HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-        GET /API/App/Tags HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+    **Shortened example response**:
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :reqheader Token: If request does not contain session, it must contain a token header.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 401: User is not logged in and does not posses a valid Token
-      """
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "tags": [
+                    {
+                        "tid": 1,
+                        "tname": "ADMI"
+                    },
+                    {
+                        "tid": 2,
+                        "tname": "ADOF"
+                    },
+                    {
+                        "tid": 3,
+                        "tname": "AGRO"
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :reqheader Token: If request does not contain session,
+        it must contain a token header.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 401: User is not logged in and does not posses a valid Token
+    """
     if request.method == 'GET':
         try:
             #Check for session 
@@ -2095,33 +2546,68 @@ def getAllTags():
 @user_role_required
 def getTagsByEventID(eid):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Tag; Get an event's tags.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.getTagsByEventID`
+    Get a list of all the tags associated with a given event.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.getTagsByEventID`
 
-      Get a list of all the tags associated with a given event.
+    :param eid: Event ID
+    :type eid: int
+    :return: JSON
 
-      .. :quickref: Tag; Get an event's tags.
+    **Example request**:
 
-      :param eid: Event ID
-      :type eid: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Tags/eid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Tags/eid=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 400: Bad eid value.
-      :statuscode 403: User is not logged in.
-      :statuscode 404: Event does not exist in system.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "tags": [
+                    {
+                        "tid": 42,
+                        "tname": "FILO"
+                    },
+                    {
+                        "tid": 47,
+                        "tname": "GEOL"
+                    },
+                    {
+                        "tid": 53,
+                        "tname": "HUMA"
+                    },
+                    {
+                        "tid": 54,
+                        "tname": "ICOM"
+                    },
+                    {
+                        "tid": 64,
+                        "tname": "INSO"
+                    },
+                    {
+                        "tid": 73,
+                        "tname": "METE"
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 400: Bad eid value.
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Event does not exist in system.
+    """
     if request.method == 'GET':
         return TagHandler().getTagsByEventID(eid=eid)
     else:
@@ -2132,32 +2618,43 @@ def getTagsByEventID(eid):
 @user_role_required
 def getTagByID(tid):
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Tag; Get tag by ID.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.getTagByID`
+    Get a tag by its ID.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.getTagByID`
 
-      Get a tag by its ID.
+    :param tid: Tag ID
+    :type tid: int
+    :return: JSON
 
-      .. :quickref: Tag; Get tag by ID.
+    **Example request**:
 
-      :param tid: Tag ID
-      :type tid: int
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Tags/tid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Tags/tid=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 403: User is not logged in.
-      :statuscode 404: Tag does not exist in system/string passed as tid value.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "tid": 1,
+                "tname": "ADMI"
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Tag does not exist in system/string passed as tid value.
+    """
     if request.method == 'GET':
         return TagHandler().getTagByID(tid=tid)
     else:
@@ -2168,29 +2665,60 @@ def getTagByID(tid):
 @user_role_required
 def getTagsByUserIDSession():
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Tag; Get user's tags/weights.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.getTagsByUserID`
+    Get the current user's tags and tag weights.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.getTagsByUserID`
 
-      Get the current user's tags and tag weights.
+    :return: JSON
 
-      .. :quickref: Tag; Get user's tags/weights.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            GET /API/App/Tags/UserTags HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Example response**:
 
-        GET /API/App/Tags/UserTags HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "tags": [
+                    {
+                        "tagweight": 100,
+                        "tid": 1,
+                        "tname": "ADMI"
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 2,
+                        "tname": "ADOF"
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 3,
+                        "tname": "AGRO"
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 4,
+                        "tname": "ALEM"
+                    }
+                ]
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return TagHandler().getTagsByUserID(uid=int(current_user.id))
     else:
@@ -2201,44 +2729,75 @@ def getTagsByUserIDSession():
 @user_role_required
 def setUserTagsToZero():
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Tag; Remove user tags.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.batchSetUserTags`
+    Set the current user's specified tags to a weight of 0.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.batchSetUserTags`
 
-      Set the current user's specified tags to a weight of 0.
+    :return: JSON
 
-      .. :quickref: Tag; Remove user tags.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            POST /API/App/Tags/User/Remove HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Body of Request**:
 
-        POST /API/App/Tags/User/Remove HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. code-block:: json
 
-      **Body of Request**:
+            {
+                "tags": [
+                    {"tid": 1},
+                    {"tid": 2},
+                    {"tid": 3},
+                    {"tid": 4},
+                    {"tid": 5}
+                    ]
+            }
 
-      .. code-block:: json
+    **Example response**:
 
-        {
-            "tags": [
-                {"tid": 1},
-                {"tid": 2},
-                {"tid": 3},
-                {"tid": 4},
-                {"tid": 5}
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "tags": [
+                    {
+                        "tagweight": 0,
+                        "tid": 1
+                    },
+                    {
+                        "tagweight": 0,
+                        "tid": 2
+                    },
+                    {
+                        "tagweight": 0,
+                        "tid": 3
+                    },
+                    {
+                        "tagweight": 0,
+                        "tid": 4
+                    },
+                    {
+                        "tagweight": 0,
+                        "tid": 5
+                    }
                 ]
-        }
+            }
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 201: Tags successfully set to 0.
-      :statuscode 400: Invalid JSON parameters.
-      :statuscode 403: User is not logged in.
-      """
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Tags successfully set to 0.
+    :statuscode 400: Invalid JSON parameters.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -2252,44 +2811,75 @@ def setUserTagsToZero():
 @user_role_required
 def setUserTagsToDefault():
     """
-      .. py:decorator:: user_role_required
+    .. py:decorator:: user_role_required
+    .. :quickref: Tag; Add user tags.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.batchSetUserTags`
+    Set the current user's specified tags to a weight of 100.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.batchSetUserTags`
 
-      Set the current user's specified tags to a weight of 100.
+    :return: JSON
 
-      .. :quickref: Tag; Add user tags.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            POST /API/App/Tags/User/Add HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Body of Request**:
 
-        POST /API/App/Tags/User/Add HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. code-block:: json
 
-      **Body of Request**:
+            {
+                "tags": [
+                    {"tid": 1},
+                    {"tid": 2},
+                    {"tid": 3},
+                    {"tid": 4},
+                    {"tid": 5}
+                    ]
+            }
 
-      .. code-block:: json
+    **Example response**:
 
-        {
-            "tags": [
-                {"tid": 1},
-                {"tid": 2},
-                {"tid": 3},
-                {"tid": 4},
-                {"tid": 5}
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "tags": [
+                    {
+                        "tagweight": 100,
+                        "tid": 1
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 2
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 3
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 4
+                    },
+                    {
+                        "tagweight": 100,
+                        "tid": 5
+                    }
                 ]
-        }
+            }
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 201: Tags successfully set to 100.
-      :statuscode 400: Invalid JSON parameters.
-      :statuscode 403: User is not logged in.
-      """
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Tags successfully set to 100.
+    :statuscode 400: Invalid JSON parameters.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -2298,46 +2888,64 @@ def setUserTagsToDefault():
     else:
         return jsonify(Error="Method not allowed."), 405
 
+
 @app.route(route_prefix + "/Dashboard/Tags/Create", methods=['POST'])
 @admin_role_required
 def createTag():
     """
-      .. py:decorator:: admin_role_required
+    .. py:decorator:: admin_role_required
+    .. :quickref: Tag; Create tags.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.createTags`
+    Create new tags.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.createTags`
 
-      Create new tags.
+    :return: JSON
 
-      .. :quickref: Tag; Create tags.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            POST /API/Dashboard/Tags/Create HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Body of Request**:
 
-        POST /API/Dashboard/Tags/Create HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. code-block:: json
 
-      **Body of Request**:
+            {
+                "Tags": [
+                    {"tname": "tag1"},
+                    {"tname": "tag2"}
+                    ]
+            }
 
-      .. code-block:: json
+    **Example response**:
 
-        {
-            "Tags": [
-                {"tname": "tag1"},
-                {"tname": "tag2"}
-                ]
-        }
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 201: Tags successfully set to 100.
-      :statuscode 400: Invalid JSON parameters.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+            [
+                {
+                    "tid": 88,
+                    "tname": "tag1"
+                },
+                {
+                    "tid": 89,
+                    "tname": "tag2"
+                }
+            ]
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Tags successfully created.
+    :statuscode 400: Invalid JSON parameters.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -2350,37 +2958,50 @@ def createTag():
 @admin_role_required
 def editTagName(tid):
     """
-      .. py:decorator:: admin_role_required
+    .. py:decorator:: admin_role_required
+    .. :quickref: Tag; Edit tag name.
 
-      Uses :func:`~app.handlers.TagHandler.TagHandler.editTagName`
+    Edit an existing tag's name.
+    Uses :func:`~app.handlers.TagHandler.TagHandler.editTagName`
 
-      Edit an existing tag's name.
+    :return: JSON
 
-      .. :quickref: Tag; Edit tag name.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            POST /API/Dashboard/Tags/tid=2/Edit HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Body of Request**:
 
-        POST /API/Dashboard/Tags/tid=2/Edit HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. code-block:: json
 
-      **Body of Request**:
+            {"tname": "newName"}
 
-      .. code-block:: json
+    **Example response**:
 
-        {"tname": "newName"}
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 201: Tags successfully set to 100.
-      :statuscode 400: Invalid JSON parameters.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+            [
+                {
+                    "tid": 2,
+                    "tname": "newName"
+                }
+            ]
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Tags successfully set to 100.
+    :statuscode 400: Invalid JSON parameters.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
@@ -2394,52 +3015,62 @@ def editTagName(tid):
 @admin_role_required
 def addFullBuilding():
     """
-      .. py:decorator:: admin_role_required
+    .. py:decorator:: admin_role_required
+    .. :quickref: Building; Add building.
 
-      Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.addFullBuilding`
+    Add a new building to the system or update an existing building.
+    Uses :func:`~app.handlers.BuildingHandler.BuildingHandler.addFullBuilding`
 
-      Add a new building to the system or update an existing building.
+    :return: JSON
 
-      .. :quickref: Building; Add building.
+    **Example request**:
 
-      :return: JSON
+        .. sourcecode:: http
 
-      **Example request**:
+            POST /API/Dashboard/Building/Add HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      .. sourcecode:: http
+    **Body of Request**:
 
-        POST /API/Dashboard/Building/Add HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. code-block:: json
 
-      **Body of Request**:
+            {
+                "edificioid": "110",
+                "nomoficial": "LUIS A STEFANI (INGENIERIA) ",
+                "blddenom": "STEFANI",
+                "codigoold": "S",
+                "bldtype": "1",
+                "attributes": [
+                  ["2", "1086122.79"],
+                  ["15", "18.20956050211146,-67.13997513055801"],
+                  ["24", "109753"],
+                  ["25", "115605"],
+                  ["1", "7"],
+                  ["21", "Hormigon"],
+                  ["0", "1958"]
+                ]
+            }
 
-      .. code-block:: json
+    **Example response**:
 
-         {
-            "edificioid": "110",
-            "nomoficial": "LUIS A STEFANI (INGENIERIA) ",
-            "blddenom": "STEFANI",
-            "codigoold": "S",
-            "bldtype": "1",
-            "attributes": [
-              ["2", "1086122.79"],
-              ["15", "18.20956050211146,-67.13997513055801"],
-              ["24", "109753"],
-              ["25", "115605"],
-              ["1", "7"],
-              ["21", "Hormigon"],
-              ["0", "1958"]
-            ]
-          }
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 201: Building Successfully added/updated.
-      :statuscode 400: Invalid JSON parameters.
-      :statuscode 401: User does not have appropriate role to use route.
-      :statuscode 403: User is not logged in.
-      """
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+            {
+                "Result": "Building Added successfuly LUIS A STEFANI (INGENIERIA). Old bid = None"
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: Building Successfully added/updated.
+    :statuscode 400: Invalid JSON parameters.
+    :statuscode 401: User does not have appropriate role to use route.
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'POST':
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
