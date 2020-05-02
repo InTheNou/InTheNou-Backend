@@ -7,7 +7,7 @@ import requests
 STANDARD_HEIGHT = 35
 AVG_STORY_HEIGHT = 2
 BUILDING_TYPES = {
-  "1":"Acad\u00e9mico",
+  "1": "Acad\u00e9mico",
   "2": "Administrativo",
   "9": "Espacio Abierto",
   "13": "Investigaci\u00f3n",

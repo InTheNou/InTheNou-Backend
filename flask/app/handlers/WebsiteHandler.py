@@ -75,7 +75,6 @@ def _buildWebsiteIDResponse(website_tuple):
     Private Method to build website dictionary to be JSONified.
 
     :param website_tuple: response tuple from SQL query
-    :param url: link to website
     :returns Dict: Website information with keys:
 
     .. code-block:: python
@@ -91,18 +90,15 @@ class WebsiteHandler:
     def createWebsite(self, url, uid):
         """
         Attempt to create a website.
+        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.createWebsite` as well as
+        :func:`~app.handlers.WebsiteHandler._buildWebsiteIDResponse`
 
-        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.createWebsite` as well as:
-
-
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler._buildWebsiteIDResponse`
-        Parameters
-            :param uid: User ID.
-            :type uid: int
-            :param url: A link to a website
-            :tpe url: string
-
-            :returns JSON Response Object: JSON Response Object containing success or error response.
+        :param uid: User ID.
+        :type uid: int
+        :param url: A link to a website
+        :type url: string
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         dao = WebsiteDAO()
         websiteID = dao.createWebsite(url=url, uid=uid)
@@ -110,18 +106,14 @@ class WebsiteHandler:
 
     def getWebsiteByID(self, wid):
         """
-        Return a website given it's ID
+        Return a website given it's ID.
+        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.getWebsiteByID` as well as
+        :func:`~app.handlers.WebsiteHandler._buildWebsiteIDResponse`
 
-        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.getWebsiteByID` as well as:
-
-
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler._buildWebsiteIDResponse`
-        Parameters
-            :param wid: Website ID.
-            :type wid: int
-
-
-            :returns JSON Response Object: JSON Response Object containing success or error response.
+        :param wid: Website ID.
+        :type wid: int
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         dao = WebsiteDAO()
         site = dao.getWebsiteByID(wid=wid)
@@ -129,20 +121,16 @@ class WebsiteHandler:
 
     def unpackWebsites(self, json):
         """
-        Returns a website dictionary given a website list
+        Returns a website dictionary given a website list.
 
+        :param json: Website list with the following keys:
 
-        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.createWebsite` as well as:
+            * url
+            * wdescription
 
-
-        Parameters
-            :param json: Website list with the following keys:
-                * url
-                * wdescription
-            :type json:JSON
-
-
-            :returns JSON Response Object: JSON Response Object containing success or error response.
+        :type json: JSON
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         websites = []
         for site in json:
@@ -154,17 +142,15 @@ class WebsiteHandler:
     def getWebistesByEventID(self, eid, no_json=False):
         """
         Return a list of websites given a event ID
+        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.getWebsitesByEventID` as well as
+        :func:`~app.handlers.WebsiteHandler._buildWebsiteResponse`
 
-        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.getWebsitesByEventID` as well as:
-
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler._buildWebsiteResponse`
-
-        Parameters
-            :param eid: Event ID.
-            :type eid: int
-            :param :no_json: Idicates if response is JSON or not
-            :type no_json: bool
-            :returns JSON Response Object: JSON Response Object containing success or error response.
+        :param eid: Event ID.
+        :type eid: int
+        :param no_json: Indicates if response is returned as JSON or list.
+        :type no_json: bool
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         dao = WebsiteDAO()
         sites = dao.getWebsitesByEventID(eid=eid)
@@ -182,17 +168,15 @@ class WebsiteHandler:
     def getWebistesByServiceID(self, sid, no_json=False):
         """
         Returns a website list given an Service ID
+        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.getWebsitesByServiceID` as well as
+        :func:`~app.handlers.WebsiteHandler._buildWebsiteResponse`
 
-        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.getWebsitesByServiceID` as well as:
-
-
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler._buildWebsiteResponse`
-        Parameters
-            :param sid: Service ID.
-            :type sid: int
-            :param :no_json: Idicates if response is JSON or not
-            :type no_json: bool
-            :returns JSON Response Object: JSON Response Object containing success or error response.
+        :param sid: Service ID.
+        :type sid: int
+        :param no_json: Indicates if response is returned as JSON or list.
+        :type no_json: bool
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         dao = WebsiteDAO()
         sites = dao.getWebsitesByServiceID(sid=sid)
@@ -209,21 +193,23 @@ class WebsiteHandler:
 
     def insertServiceWebsite(self, sid, json, uid):
         """
-        Insert a list of websites (urls and desriptions) to a given service
-
+        Insert a list of websites (urls and desriptions) to a given service.
         Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.insertWebsiteToService` as well as:
 
-        * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
-        * :func:`~app.handlers.WebsiteHandler.WebsiteHandler._buildWebsiteResponse`
-        Parameters
-            :param eid: Event ID.
-            :type eid: int
-            :param json: list of websites wit the keys:
+            * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+            * :func:`~app.handlers.WebsiteHandler._buildWebsiteResponse`
 
-                * Websites
+        :param eid: Event ID.
+        :type eid: int
+        :param json: list of websites wit the keys:
+
+            * Websites
 
         :type json: array
-        :returns JSON Response Object: JSON Response Object containing success or error response.
+        :param uid: User ID
+        :type uid: int
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         for key in SERVICEWEBSITEKEYS:
             if key not in json:
@@ -248,22 +234,22 @@ class WebsiteHandler:
 
     def removeServiceWebsite(self, sid, json, uid):
         """
-        Remove a list of websites (urls and desriptions) to a given service
-
+        Remove a list of websites (urls and desriptions) to a given service.
         Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.removeWebsitesGivenServiceID` as well as:
 
-        * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
-        * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebsiteByID`
-        * :func:`~app.handlers.WebsiteHandler.WebsiteHandler._buildCoreWebsiteResponse`
-        Parameters
-            :param sid: Service ID.
-            :type sid: int
-            :param json: list of websites wit the keys:
+            * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+            * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebsiteByID`
+            * :func:`~app.handlers.WebsiteHandler._buildCoreWebsiteResponse`
 
-                * Websites []
+        :param sid: Service ID.
+        :type sid: int
+        :param json: list of websites wit the keys:
+
+            * Websites []
 
         :type json: array
-        :returns JSON Response Object: JSON Response Object containing success or error response.
+        :returns JSON Response Object: JSON Response Object containing
+            success or error response.
         """
         for key in SERVICEWEBSITEKEYS:
             if key not in json:
@@ -300,12 +286,10 @@ class WebsiteHandler:
         """
         Validate that a list of json websites consisting of keys "url" and
         "wdescription" are valid strings.
-        Raises:
-            ValueError
-            KeyError
-        Parameters:
-            :param list_of_websites: List of websites and descriptions
-            :type list_of_websites: list
+
+        :param list_of_websites: List of websites and descriptions
+        :type list_of_websites: list
+        :raises: ValueError, KeyError
         """
         if list_of_websites:
             checked_urls = []

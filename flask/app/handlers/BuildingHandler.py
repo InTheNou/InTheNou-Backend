@@ -78,8 +78,7 @@ class BuildingHandler:
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.addFullBuilding`
 
         :param json: Contains the necessary keys to create a building from UPRM Portal data
-        ["edificioid", "nomoficial", "blddenom", "codigoold", "bldtype", "attributes"]
-
+            ["edificioid", "nomoficial", "blddenom", "codigoold", "bldtype", "attributes"]
         :type json: JSON
         :param uid: User ID
         :type uid: int

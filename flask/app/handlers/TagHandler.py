@@ -283,6 +283,7 @@ class TagHandler:
         """
         Set the weight for the given tags in a JSON to a specified value
         Uses:
+
             * :func:`~app.DAOs.TagDAO.TagDAO.batchSetUserTags`
             * :func:`~app.handlers.TagHandler.unpackTags`
             * :func:`~app.handlers.TagHandler._buildCoreWeightedTagResponse`
