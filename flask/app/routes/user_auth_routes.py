@@ -15,11 +15,13 @@ from sqlalchemy.orm.exc import NoResultFound
 from dotenv import load_dotenv
 load_dotenv()
 
-
+SIGNUPKEYS = ['id', 'display_name', 'access_token', 'email', 'tags']
 # route used to logout user, must be logged in to access
 @app.route("/API/App/logout")
 @user_role_required
 def app_logout():
+    """
+    """
     query = OAuth.query.filter_by(token=str(session['token']))
     try:
         oauth = query.one()
@@ -34,18 +36,31 @@ def app_logout():
 @app.route("/API/App/signup", methods=['POST'])
 def signup():
     if request.method == 'POST':
+        
+        if not request.json:
+            return jsonify(Error="No JSON provided."), 400
         info = request.json
-        user_usub = info["id"]
+        local={}
+        for key in info:
+            if key in SIGNUPKEYS:
+                local[key]=info[key]
+        
+        for key in SIGNUPKEYS:
+            if key not in local:
+                return jsonify(Error="Missing input parameter: "+str(key))
+            
+        user_usub = local["id"]
         query = User.query.filter_by(provider=user_usub)
+        
         try:
             user = query.one()
             return jsonify(Error="User with that email exists "+str(user)),403
         except NoResultFound:
         # Create account for new user
             print("User being created")
-            user = User(email=info["email"],
+            user = User(email=local["email"],
                     provider=user_usub,
-                    display_name=info["display_name"],
+                    display_name=local["display_name"],
                     user_type="Student",
                     user_role=int(1),
                     role_issuer=int(1),
@@ -55,17 +70,17 @@ def signup():
                 db.session.commit()
             
             query = OAuth.query.filter_by(
-                    token= info['access_token'], id=user.id, user=user)
+                    token= local['access_token'], id=user.id, user=user)
             
             try:
                 oauth = query.one()
             except NoResultFound:
-                oauth = OAuth(token=info['access_token'], id=user.id, user=user, created_at="5223213.12",provider="google")
+                oauth = OAuth(token=local['access_token'], id=user.id, user=user, created_at="5223213.12",provider="google")
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
                 info['uid']=int(current_user.id)
-                print("Registering tags : "+str(info["tags"]))
+                print("Registering tags : "+str(local["tags"]))
                 
                 tags =   TagHandler().batchSetUserTags(uid= user.id,json=info, weight=100, no_json=True)
                 tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
@@ -75,6 +90,7 @@ def signup():
 
 @app.route("/API/App/login", methods=['POST'])
 def app_login():
+    
     info = request.json
     user_usub = info["id"]
     query = User.query.filter_by(provider=user_usub)
@@ -111,34 +127,6 @@ def app_login():
 
     return (response)
 
-
-# # home route, redirects to template for home, there it checks if user is logged in or not, has to be changed
-# @app.route("/API/App/home")
-# def app_home():
-#     return redirect(url_for("google.login"))
-#     return render_template("home.html")
-
-
-############## Google oAuth Test routes ##############
-# @app.route("/")
-# def index():
-#     if not google.authorized:
-#         return redirect(url_for("google.login"))
-#     token =session.get('google_oauth_token')
-#     print (token.get('id_token'))
-#     resp = google.get("/oauth2/v2/userinfo")
-#     assert resp.ok, resp.text
-#     return resp.content
-
-
-# @app.route ("/login")
-# def login():
-#         return "Hello World, from a container"
-
-
-# @app.route ("/logged")
-# def logged():
-#         return "You have been taken here, after the googe log in !!!"
 
 
 ################## DASHBOARD ROUTES ######################
