@@ -225,7 +225,7 @@ class WebsiteHandler:
         if not sites:
             return jsonify(Error='Missing websites for submission: '), 400
 
-        website = dao.insertWebsiteToService(sites, sid)
+        website = dao.insertWebsiteToService(sites=sites, sid= sid,uid=uid)
 
         if website:
             return (website)
