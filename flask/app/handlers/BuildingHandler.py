@@ -201,7 +201,7 @@ class BuildingHandler:
         return building
 
     def getBuildingsByKeyword(self, offset, limit, keyword):
-         """
+        """
         Returns a list of buildings taht match a given searchstring
         Uses :func:`~app.DAOs.BuildingDAO.BuildingDAO.searchBuildingsByKeyword`
 
@@ -214,17 +214,17 @@ class BuildingHandler:
         :return JSON: A list of buildings that match the given keyword
         """
        
-         dao = BuildingDAO()
-         keyword = keyword
-         result = []
-         alphanumeric_filter = filter(str.isalnum, keyword)
-         keyword = "".join(alphanumeric_filter)
-         print(keyword)
-         response = dao.searchBuildingsByKeyword(
-            keyword=keyword, offset=offset, limit=limit)
+        dao = BuildingDAO()
+        keyword = keyword
+        result = []
+        alphanumeric_filter = filter(str.isalnum, keyword)
+        keyword = "".join(alphanumeric_filter)
+        print(keyword)
+        response = dao.searchBuildingsByKeyword(
+           keyword=keyword, offset=offset, limit=limit)
 
-         for building in response:
-            result.append(_buildBuildingResponse(
-                building_tuple=building))
+        for building in response:
+           result.append(_buildBuildingResponse(
+               building_tuple=building))
 
-         return jsonify(result)
+        return jsonify(result)

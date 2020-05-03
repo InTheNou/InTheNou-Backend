@@ -20,7 +20,6 @@ class EventDAO(MasterDAO):
     call will render it useless afterwards.
     """
 
-
     def getEventByID(self, eid):
         """
         Query Database for an Event's information by its eid.

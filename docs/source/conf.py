@@ -73,3 +73,8 @@ html_static_path = ['_static']
 html_css_files = ['nowidth.css']
 
 # autodoc_mock_imports = []
+
+latex_elements = {
+    'printindex': '\\footnotesize\\raggedright\\printindex',
+'preamble': r'\let\oldmultirow\multirow\def\multirow#1#2{\oldmultirow{#1}{=}}',
+}
