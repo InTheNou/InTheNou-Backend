@@ -16,9 +16,9 @@ class ServiceDAO(MasterDAO):
         """
         Query Database for an Service's information by its sid.
 
-        :param sid: Service ID
-        :type sid: int
-        :return Tuple: SQL result of Query as a tuple.
+        :param service: contains service fields
+        :type service: dict
+        :return list: list of strings with 'key = value' structure.
         """
 
         fields = []
@@ -35,10 +35,14 @@ class ServiceDAO(MasterDAO):
 
     def deleteService(self, sid, uid):
         """
-        Remove a service from the database,given a service ID
+        Remove a service from the database,given a service ID.
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByIntID` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
 
         :param sid: Service ID
         :type sid: int
+        :param uid: User ID
+        :type uid: int
         :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
@@ -68,7 +72,9 @@ class ServiceDAO(MasterDAO):
 
     def createService(self, uid, rid, sname, sdescription, sschedule, websites, numbers):
         """
-        Creates a new service and adds websites and phones to it
+        Creates a new service and adds websites and phones to it.
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByIntID` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
 
         :param uid: The user ID for the creator of the service
         :type uid: int
@@ -116,6 +122,10 @@ class ServiceDAO(MasterDAO):
             result = cursor.fetchone()
             sid = result[0]
 
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+
             for site in websites:
                 website = (WebsiteDAO.addWebsite(
                     self, url=site['url'], cursor=cursor, uid=uid))
@@ -124,14 +134,14 @@ class ServiceDAO(MasterDAO):
                     return jsonify(Error='Website problem '+site['url'])
                 else:
                     WebsiteDAO().addWebsitesToService(
-                        sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor)
+                        sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor, uid=uid)
 
             for num in numbers:
                 phone = PhoneDAO.addPhone(
-                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor)
+                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor, uid=uid)
 
                 PhoneDAO().addPhoneToService(
-                    sid=sid, pid=phone[0], cursor=cursor)
+                    sid=sid, pid=phone[0], cursor=cursor, uid=uid)
 
         # Commit changes if no errors occur.
             self.conn.commit()

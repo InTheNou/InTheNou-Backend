@@ -107,9 +107,11 @@ class WebsiteDAO(MasterDAO):
             result.append(row)
         return result
 
-    def createWebsite(self, url,uid):
+#TODO: VERIFY WHY THIS METHOD DOES NOT COMMIT.
+    def createWebsite(self, url, uid):
         """
-        Create a new entry for service websites
+        Create a new entry for service websites.
+        CURRENTLY DOES NOT COMMIT ANYTHING.
 
         :param url: The website link
         :type url: string
@@ -120,6 +122,13 @@ class WebsiteDAO(MasterDAO):
         try:
             if url is not None and url != "":
                 cursor = self.conn.cursor()
+
+                audit = AuditDAO()
+                tablename = "websites"
+                pkey = "url"
+                oldValue = audit.getTableValueByIntID(
+                    table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+
                 query = sql.SQL("insert into {table1} "
                             "({insert_fields}) "
                             "values (%s) "
@@ -133,6 +142,9 @@ class WebsiteDAO(MasterDAO):
                 ]))
                 cursor.execute(query, (url, url))
                 result = cursor.fetchone()
+                newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+                audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                       newValue=newValue, uid=uid, cursor=cursor)
                 return result    
             else:
                 result = [None, None]
@@ -140,9 +152,11 @@ class WebsiteDAO(MasterDAO):
            result = [None, None]
            return result 
 
-    def addWebsite(self, url, cursor,uid):
+    def addWebsite(self, url, cursor, uid):
         """
         Create a new entry for a website
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByIntID` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
 
         :param url: The website link
         :type url: string
@@ -155,26 +169,36 @@ class WebsiteDAO(MasterDAO):
         temp =url
         url = Find(url)
         cursor = cursor    
-        if (url is not None )and (url != "") and len(url)> 0:
-                query = sql.SQL("insert into {table1} "
-                            "({insert_fields}) "
-                            "values (%s) "
-                            "on CONFLICT (url) do update "
-                            "set url=%s "
-                            "returning wid, url").format(
-                    table1=sql.Identifier('websites'),
-                    insert_fields=sql.SQL(',').join([
-                        sql.Identifier('url')
-                                                    ]))
-                cursor.execute(query, (temp,temp ))
-                result = cursor.fetchone()
-                return result
+        if (url is not None) and (url != "") and len(url) > 0:
+            audit = AuditDAO()
+            tablename = "websites"
+            pkey = "url"
+            oldValue = audit.getTableValueByIntID(
+                table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+
+            query = sql.SQL("insert into {table1} "
+                        "({insert_fields}) "
+                        "values (%s) "
+                        "on CONFLICT (url) do update "
+                        "set url=%s "
+                        "returning wid, url").format(
+                table1=sql.Identifier('websites'),
+                insert_fields=sql.SQL(',').join([sql.Identifier('url')]))
+            cursor.execute(query, (temp, temp))
+            result = cursor.fetchone()
+
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+            return result
         else:
             raise ValueError("URL not valid: "+str(temp))
               
-    def addWebsitesToService(self, sid, wid, wdescription, cursor):
+    def addWebsitesToService(self, sid, wid, wdescription, cursor, uid):
         """
-        Create a new entry for a website services table
+        Create a new entry for a website services table.
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByPkeyPair` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
 
         :param sid: The Service ID
         :type sid: int
@@ -183,19 +207,26 @@ class WebsiteDAO(MasterDAO):
         :param wdescription: Description for  the website 
         :type wdescription: string
         :param cursor: Method call connection cursor to database.
-        :type sname: connection cursor
+        :type cursor: connection cursor
+        :param uid: User ID
+        :type uid: int
         :return Tuple: SQL result of Query as a tuple.
         """ 
         
         cursor =cursor
+        audit = AuditDAO()
+        tablename = 'servicewebsites'
+        pkeys = ["sid", "wid"]
+        oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                 pkeyval1=sid, pkeyval2=wid, cursor=cursor)
         
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s,%s,%s) "
                         "on CONFLICT (wid,sid) do update set isdeleted = %s "
                         "returning wid, sid, isdeleted, wdescription").format(
-        table1=sql.Identifier('servicewebsites'),
-        insert_fields=sql.SQL(',').join([
+            table1=sql.Identifier('servicewebsites'),
+            insert_fields=sql.SQL(',').join([
                 sql.Identifier('sid'),
                 sql.Identifier('wid'),
                 sql.Identifier('wdescription'),
@@ -205,13 +236,19 @@ class WebsiteDAO(MasterDAO):
         try:
             cursor.execute(query, (int(sid), str(wid), str(wdescription), False, False))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=sid, pkeyval2=wid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             return result
         except:
             return None
 
     def addWebsitesToEvent(self, eid, wid, wdescription, cursor, uid):
         """
-        Create a new entry for a website events table
+        Create a new entry for a website events table.
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByPkeyPair` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
 
         :param eid: The Event ID
         :type eid: int
@@ -247,43 +284,44 @@ class WebsiteDAO(MasterDAO):
                                newValue=newValue, uid=uid, cursor=cursor)
         return
 
-    def insertWebsiteToService(self, sites,sid):
+    def insertWebsiteToService(self, sites, sid, uid):
         """
-        Create a new entry for a website services table
+        Create a new entry for a website services table.
+        Uses :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.addWebsite` &
+        :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.addWebsitesToService`
 
         :param sid: The Service ID
         :type sid: int
-        :param sites: List of wids and wdescriptions\
+        :param sites: List of wids and wdescriptions
         :type sites: array
-        :param cursor: Method call connection cursor to database.
-        :type cursor: connection cursor
+        :param uid: User ID
+        :type uid: int
         :return Tuple: SQL result of Query as a tuple.
         """ 
-        websites =[]
+        websites = []
         cursor = self.conn.cursor()
         
         for site in sites:
-            website =self.addWebsite(cursor=cursor,url=site['url'])
+            website = self.addWebsite(cursor=cursor, url=site['url'], uid=uid)
             if website:
-                websites.append({"url":website[1],"wid":website[0],"wdescription":site['wdescription']})
+                websites.append({"url": website[1], "wid": website[0], "wdescription": site['wdescription']})
             else:
-                return jsonify(Error= "Error creating website "+str(site['url']))
-        
-        
-        
+                return jsonify(Error="Error creating website "+str(site['url']))
+
         for site in websites:
-            result= self.addWebsitesToService(cursor=cursor,sid=sid,wid=site['wid'],wdescription=site['wdescription'])
+            result = self.addWebsitesToService(cursor=cursor, sid=sid, wid=site['wid'],
+                                               wdescription=site['wdescription'], uid=uid)
             if result is None:
-                return jsonify(Error= "Error assigning website to sid: "+str(sid)),400
-            
+                return jsonify(Error="Error assigning website to sid: "+str(sid)), 400
        
         self.conn.commit()
-
-        return {"Websites":websites}
+        return {"Websites": websites}
         
-    def removeWebsitesGivenServiceID(self, wid, sid,uid):
+    def removeWebsitesGivenServiceID(self, wid, sid, uid):
         """
         Remove an entry from a website services table
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByPkeyPair` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
 
         :param sid: The Service ID
         :type sid: int
