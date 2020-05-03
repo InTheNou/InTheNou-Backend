@@ -174,7 +174,7 @@ class WebsiteDAO(MasterDAO):
             tablename = "websites"
             pkey = "url"
             oldValue = audit.getTableValueByIntID(
-                table=tablename, pkeyname=pkey, pkeyval=url[0], cursor=cursor)
+                table=tablename, pkeyname=pkey, pkeyval=temp, cursor=cursor)
 
             query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
@@ -187,7 +187,7 @@ class WebsiteDAO(MasterDAO):
             cursor.execute(query, (temp, temp))
             result = cursor.fetchone()
 
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=url[0], cursor=cursor)
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=temp, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
             return result
