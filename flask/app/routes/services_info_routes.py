@@ -17,28 +17,43 @@ from app.oauth import admin_role_required, mod_role_required,user_role_required
 @user_role_required
 def getServiceByID(sid):
     """
-      .. py:decorator:: user_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServiceByID`
+    .. py:decorator:: user_role_required
+    .. :quickref: Service; Get service by ID.
 
-      Get Service By ID
-      
-      .. :quickref: Service; Get Service By ID.
+    Get Service By ID
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServiceByID`
 
-      :return: JSON
+    :param sid: Service ID
+    :type sid: int
+    :return: JSON
 
-      **Example request**:
+    **Example request**:
 
-      .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/Services/sid=<int:sid> HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/Services/sid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {
+               
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Service does not exist
+    """
     if request.method == 'GET':
         return ServiceHandler().getServiceByID(sid=sid)
     else:
@@ -49,28 +64,45 @@ def getServiceByID(sid):
 @mod_role_required
 def getServicesSegmented(limit, offset):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServiceSegmented`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Get Services segmented
 
-      Get Service By ID
-      
-      .. :quickref: Service; Get Services segmented.
+    Get Services segmented
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServicesSegmented`
 
-      :return: JSON
+    :param offset: Number of results to skip from top of list.
+    :type offset: int
+    :param limit: Number of results after offset to return.
+    :type limit: int
+    :return: JSON
 
-      **Example request**:
 
-      .. sourcecode:: http
+    **Example request**:
 
-        GET /API/Dashboard/Services/offset=<int:offset>/limit=<int:limit> HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+            GET /API/App/Services/offset=0/limit=5 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {
+               
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'GET':
         return ServiceHandler().getServicesSegmented(limit=limit, offset=offset)
     else:
@@ -81,24 +113,40 @@ def getServicesSegmented(limit, offset):
 @mod_role_required
 def getServicesByRoomID(rid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServiceByRoomID`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Get Services by given room ID.
+    
+    Get Service By Room ID
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.getServiceByRoomID`
 
-      Get Service By Room ID
-      
-      .. :quickref: Service; Get Services by given room ID.
+    :return: JSON
 
-      :return: JSON
-
-      **Example request**:
+    **Example request**:
 
       .. sourcecode:: http
 
-        GET /API/Dashboard/Rooms/rid=<int:rid>/Services HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+          GET /API/Dashboard/Rooms/rid=<int:rid>/Services HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
+    
+    **Request Body**:
 
+      .. sourcecode:: json
+
+            {
+                
+            }
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {}
       :reqheader Cookie: Must contain session token to authenticate.
       :resheader Content-Type: application/json
       :statuscode 200: no error
@@ -113,28 +161,45 @@ def getServicesByRoomID(rid):
 @mod_role_required
 def createService():
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.createService`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Create a service
+    
+    Create a Service
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.createService`
 
-      Create Service
-      
-      .. :quickref: Service; Create a service
+    :return: JSON
 
-      :return: JSON
-
-      **Example request**:
+    **Example request**:
 
       .. sourcecode:: http
 
-        GET /API/Dashboard/Services/create HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+          GET /API/Dashboard/Services/create HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
+    
+    **Request Body**:
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+      .. sourcecode:: json
+
+            {
+                
+            }
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {}
+            
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    """
     if request.method == 'POST':
         return ServiceHandler().createService(json=request.json,uid=int(current_user.id))
     else:
@@ -146,28 +211,45 @@ def createService():
 @mod_role_required
 def removeServiceWebsite(sid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.removeServiceWebsite`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Remove Service Website
+    
+    Remove service website
+    Uses :func:`~app.handlers.WebsiteHandler.WebsiteHandler.removeServiceWebsite`
 
-      Remove service websites 
-      
-      .. :quickref: Service; Remove service website
+    :return: JSON
 
-      :return: JSON
-
-      **Example request**:
+    **Example request**:
 
       .. sourcecode:: http
 
-        GET /API/Dashboard/Services/sid=<int:sid>/website/remove HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+          GET /API/Dashboard/Services/sid=1/website/remove HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
+    
+    **Request Body**:
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+      .. sourcecode:: json
+
+            {
+                
+            }
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {}
+            
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    """
     if request.method == 'POST':
         return WebsiteHandler().removeServiceWebsite(sid=sid, json=request.json, uid=int(current_user.id))
     else:
@@ -178,28 +260,45 @@ def removeServiceWebsite(sid):
 @mod_role_required
 def addServiceWebsite(sid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.addServiceWebsite`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Add Service Website
+    
+    Insert service website
+    Uses :func:`~app.handlers.WebsiteHandler.WebsiteHandler.insertServiceWebsite`
 
-      Add Service Website
-      
-      .. :quickref: Service; Add service Website                                                     
+    :return: JSON
 
-      :return: JSON
-
-      **Example request**:
+    **Example request**:
 
       .. sourcecode:: http
 
-        GET /API/Dashboard/Services/sid=<int:sid>/website/add HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+          GET /API/Dashboard/Services/sid=1/website/add" HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
+    
+    **Request Body**:
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+      .. sourcecode:: json
+
+            {
+                
+            }
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
+
+
+            {}
+            
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    """
     if request.method == 'POST':
         return WebsiteHandler().insertServiceWebsite(sid=sid, json=request.json, uid=int(current_user.id))
     else:
@@ -211,28 +310,45 @@ def addServiceWebsite(sid):
 @mod_role_required
 def addServicePhone(sid):
     """
-      .. py:decorator:: mod_role_required
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Add phone to service.
       
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.insertServicePhone`
+    Insert Service Phone
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.insertServicePhone`
 
-      Insert Service Phone
-      
-      .. :quickref: Service; Add phone to service.
+    :return: JSON
 
-      :return: JSON
+    **Example request**:
 
-      **Example request**:
+    .. sourcecode:: http
 
-      .. sourcecode:: http
+      GET /API/Dashboard/Services/sid=1/phone/add HTTP/1.1
+      Host: inthenou.uprm.edu
+      Accept: application/json
 
-        GET /API/Dashboard/Services/sid=<int:sid>/phone/add HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+    **Request Body**:
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+    .. sourcecode:: json
+
+          {
+                
+          }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+
+        {}
+        
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    """
     if request.method == 'POST':
         return PhoneHandler().insertServicePhone(sid=sid, uid=int(current_user.id), json=request.json)
     else:
@@ -243,28 +359,40 @@ def addServicePhone(sid):
 @mod_role_required
 def removeServicePhone(sid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.removePhoneByServiceID`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Remove phone from service.
+    
+    Remove phone from service  
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.removePhoneByServiceID`
 
-      Remove phone from service
-      
-      .. :quickref: Service; Remove phone from service.
+    :return: JSON
 
-      :return: JSON
+    **Example request**:
 
-      **Example request**:
+    .. sourcecode:: http
+
+      GET /API/Dashboard/Services/sid=1/phone/remove HTTP/1.1
+      Host: inthenou.uprm.edu
+      Accept: application/json
+
+    **Example response**:
 
       .. sourcecode:: http
 
-        GET /API/Dashboard/Services/sid=<int:sid>/phone/remove HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+          HTTP/1.1 200 OK
+          Vary: Accept
+          Content-Type: application/json
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+
+          {
+             
+          }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    """
     if request.method == 'POST':
         return PhoneHandler().removePhoneByServiceID(sid=sid, json=request.json, uid=int(current_user.id))
     else:
@@ -276,28 +404,42 @@ def removeServicePhone(sid):
 @mod_role_required
 def updateService(sid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.updateServiceInformation`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Update Service Informtion.
+    
+    Update Service Informtion  
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.updateServiceInformation`
 
-      Update Service Informtion
-      
-      .. :quickref: Service; Update Service Informtion.
+    :return: JSON
 
-      :return: JSON
+    **Example request**:
 
-      **Example request**:
+    .. sourcecode:: http
 
-      .. sourcecode:: http
+      GET /API/Dashboard/Services/sid=1/update HTTP/1.1
+      Host: inthenou.uprm.edu
+      Accept: application/json
+    
+    **Example response**:
 
-        GET /API/Dashboard/Services/sid=<int:sid>/update HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+    .. sourcecode:: http
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+
+        {
+               
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Service does not exist
+    """
+    
     if request.method == 'POST':
         return ServiceHandler().updateServiceInformation(sid=sid, json=request.json, uid=int(current_user.id))
     else:
@@ -309,28 +451,42 @@ def updateService(sid):
 @mod_role_required
 def deleteService(sid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.deleteService`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Delete Service with given ID.
+    
+    Delete Service 
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.deleteService`
+    
+    :return: JSON
 
-     Delete Service 
-      
-      .. :quickref: Service; Delete Service with given ID.
+    **Example request**:
 
-      :return: JSON
+    .. sourcecode:: http
 
-      **Example request**:
+      GET /API/Dashboard/Services/sid=1/delete HTTP/1.1
+      Host: inthenou.uprm.edu
+      Accept: application/json
+    
+    **Example response**:
 
-      .. sourcecode:: http
+    .. sourcecode:: http
 
-        GET /API/Dashboard/Services/sid=<int:sid>/delete HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+
+        {
+               
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Service does not exist
+    """
+   
     if request.method == 'POST':
         return ServiceHandler().deleteService(sid=sid, uid=int(current_user.id))
     else:
@@ -342,28 +498,41 @@ def deleteService(sid):
 @mod_role_required
 def changeRoomCoordinates(rid):
     """
-      .. py:decorator:: mod_role_required
-      
-      Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.changeRoomCoordinates`
+    .. py:decorator:: mod_role_required
+    .. :quickref: Room; Change room coordinates.
+    
+    Change Room coordinates   
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.changeRoomCoordinates`
 
-      Change Room coordinates 
-      
-      .. :quickref: Room; Change room coordinates.
+    :return: JSON
 
-      :return: JSON
+    **Example request**:
 
-      **Example request**:
+    .. sourcecode:: http
 
-      .. sourcecode:: http
+      GET /API/Dashboard/Rooms/rid=1/changeCoordinates HTTP/1.1
+      Host: inthenou.uprm.edu
+      Accept: application/json
 
-        GET /API/Dashboard/Rooms/rid=<int:rid>/changeCoordinates HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+    **Example response**:
 
-      :reqheader Cookie: Must contain session token to authenticate.
-      :resheader Content-Type: application/json
-      :statuscode 200: no error
-      """
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+
+        {
+               
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Service does not exist
+    """
     if request.method == 'POST':
         return RoomHandler().changeRoomCoordinates(rid=rid, json=request.json, uid=int(current_user.id))
     else:
