@@ -247,7 +247,7 @@ class WebsiteDAO(MasterDAO):
                                newValue=newValue, uid=uid, cursor=cursor)
         return
 
-    def insertWebsiteToService(self, sites,sid):
+    def insertWebsiteToService(self, sites,sid,uid):
         """
         Create a new entry for a website services table
 
@@ -263,7 +263,7 @@ class WebsiteDAO(MasterDAO):
         cursor = self.conn.cursor()
         
         for site in sites:
-            website =self.addWebsite(cursor=cursor,url=site['url'])
+            website =self.addWebsite(cursor=cursor,url=site['url'],uid=uid)
             if website:
                 websites.append({"url":website[1],"wid":website[0],"wdescription":site['wdescription']})
             else:
