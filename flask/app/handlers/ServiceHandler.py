@@ -299,8 +299,9 @@ class ServiceHandler:
         """
         service = {}
         for key in json:
+            #TODO:Insert Try catch statement
             if key in UPDATESERVICEKEYS:
-                service[key] = (json[key])
+                service[key] = (json[key])        
         dao = ServiceDAO()
 
         id = dao.updateServiceInformation(service=service, sid=sid, uid=uid)
