@@ -7,11 +7,11 @@ Welcome to InTheNou Backend's documentation!
 ============================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
-   app
    app.routes.api
+   app
 
 
 Indices and tables

@@ -20,15 +20,15 @@ def _buildServiceResponse(service_tuple):
     """
     Private Method to build service dictionary to be JSONified.
 
-    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.safeGetRoomByID`
 
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        {'sid',  'room', 'sname', 'sdescription',
-        'sschedule', 'isdeleted'}
+            {'sid',  'room', 'sname', 'sdescription',
+            'sschedule', 'isdeleted'}
     """
     response = {}
     response['sid'] = service_tuple[0]
@@ -44,15 +44,15 @@ def _buildCoreServiceResponse(service_tuple):
     """
     Private Method to build core service dictionary to be JSONified.
 
-    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.safeGetServiceByRoomID`
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.safeGetRoomByID`
 
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        {'sid',  'rid', 'sname', 'sdescription',
-        'sschedule'}
+            {'sid',  'rid', 'sname', 'sdescription',
+            'sschedule'}
     """
     response = {}
     response['sid'] = service_tuple[0]
@@ -71,15 +71,15 @@ def _buildServiceByRoomResponse(service_tuple):
     Uses :
      
          * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
-         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebsitesByServiceID`
+         * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebistesByServiceID`
      
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        {'sid', 'sname', 'sdescription',
-        'sschedule', 'PNumbers','Websites'}
+            {'sid', 'sname', 'sdescription',
+            'sschedule', 'PNumbers','Websites'}
     """
     response = {}
     response['sid'] = service_tuple[0]
@@ -118,8 +118,8 @@ class ServiceHandler:
             * PNumbers
 
         :type json: JSON
-        :returns JSON Response Object: JSON Response Object containing success
-            or error response.
+        :returns JSON Response Object: JSON Response Object containing result of insertion
+            or :func:`~app.handlers.ServiceHandler.ServiceHandler.getServiceByID`
         """
         
          # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
@@ -130,7 +130,6 @@ class ServiceHandler:
         websites = WebsiteHandler().unpackWebsites(json=json['Websites'])
         if len(websites) > 10:
             return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
-        
         
         phones = PhoneHandler().unpackPhones(json=json['PNumbers'])
         if len(websites) > 10:
@@ -166,7 +165,8 @@ class ServiceHandler:
     def deleteService(self, sid, uid):
         """Attempt to delete a service.
 
-        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.deleteService`
+        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.deleteService` and
+        :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`
 
         :param uid: User ID.
         :type uid: int
@@ -193,8 +193,12 @@ class ServiceHandler:
     def getServiceByID(self, sid, no_json=False):
         """Return the Service entry belonging to the specified sid.
 
-        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByID` as well as
-        :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`
+        Uses:
+
+            * :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByID`
+            * :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`
+            * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
+            * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebistesByServiceID`
 
         :param sid: Service ID
         :type sid: int
@@ -221,7 +225,7 @@ class ServiceHandler:
     def getServicesByRoomID(self, rid, no_json=False):
         """Return the Service entry belonging to the specified rid.
         
-        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByRoomID` as well as
+        Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServicesByRoomID` as well as
         :func:`~app.handlers.ServiceHandler._buildServiceByRoomResponse`
 
         :param rid: Room ID
@@ -248,10 +252,10 @@ class ServiceHandler:
     def getServicesSegmented(self, offset, limit):
         """Get all services, segmented
 
-         Uses :func:`~app.DAOs.EventDAO.ServiceDAO.getAllServicesSegmented` as well as:
+         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServicesSegmented` as well as:
 
              * :func:`~app.handlers.SharedValidationFunctions.validate_offset_limit`
-             * :func:`~app.handlers.EventHandler._buildCoreServiceResponse`
+             * :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`
 
         :param offset: Number of results to skip from top of list.
         :type offset: int
@@ -279,10 +283,8 @@ class ServiceHandler:
     def updateServiceInformation(self, sid, json, uid):
         """Attempt to update a service.
 
-         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
-
-             * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
-             * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.unpackWebsites`
+         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.updateServiceInformation` as well as
+         :func:`~app.handlers.ServiceHandler._buildServiceResponse`
          
          :param uid: User ID.
          :type uid: int
@@ -317,8 +319,8 @@ class ServiceHandler:
     def getServicesByKeywords(self, searchstring, offset, limit=20):
         """Get all services by keyword, segmented
 
-         Uses :func:`~app.DAOs.EventDAO.ServiceDAO.getServicesByKeywords` as well as
-         :func:`~app.handlers.EventHandler._buildServiceResponse`
+         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServicesByKeywords` as well as
+         :func:`~app.handlers.ServiceHandler._buildServiceResponse`
         
         :param searchstring: Keyword to search for services.
         :type offset: string
