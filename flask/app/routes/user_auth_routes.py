@@ -16,11 +16,45 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SIGNUPKEYS = ['id', 'display_name', 'access_token', 'email', 'tags']
+
 # route used to logout user, must be logged in to access
 @app.route("/API/App/logout")
 @user_role_required
 def app_logout():
     """
+    .. py:decorator:: user_role_required
+    .. :quickref: OAuth; Logout
+    
+    Logout
+    Uses :func:`~app.models.OAuth.filter_by`
+
+    
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /API/App/logout HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: text/javascript
+
+        {
+            "Error": "You have loged out "
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
     """
     query = OAuth.query.filter_by(token=str(session['token']))
     try:
@@ -35,6 +69,59 @@ def app_logout():
 
 @app.route("/API/App/signup", methods=['POST'])
 def signup():
+    """
+    .. :quickref: OAuth; Singup
+    
+    Signup
+    Uses :func:`~app.TagHandler.TagHandler.batchSetUserTags` as well as
+        :func:`~app.UserHandler.UserHandler.getUserByID`
+
+    
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /API/App/signup HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+    
+    **Body of Request**:
+
+        .. code-block:: json
+
+            {
+
+                "access_token":"test_Token",
+                "id":"113768707919850641968",
+                "email":"jonathan.santiago27@upr.edu",
+                "display_name":"Jonathan X Santiago Gonzalez",
+                "tags":[	{"tid":1,"tname":"ADMI","tagweight":0},
+            			    {"tid":2,"tname":"ADOF","tagweight":0},
+            			    {"tid":3,"tname":"AGRO","tagweight":0},
+            			    {"tid":4,"tname":"ALEM","tagweight":0},
+            			    {"tid":5,"tname":"ANTR","tagweight":0}]	
+
+            }
+                
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 FORBIDDEN
+        Vary: Accept
+        Content-Type: text/javascript
+
+        {
+            "Error": "User with that email exists <User 11>"
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: User Created
+    :statuscode 403: User with that email exists
+    """
     if request.method == 'POST':
         
         if not request.json:
@@ -84,13 +171,56 @@ def signup():
                 
                 tags =   TagHandler().batchSetUserTags(uid= user.id,json=info, weight=100, no_json=True)
                 tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
-            return (tags)
+            return (tags), 201
     else:
         return jsonify(Error="Method not allowed."), 405
 
 @app.route("/API/App/login", methods=['POST'])
 def app_login():
+    """
+    .. :quickref: OAuth; Login
     
+    Login
+    
+    
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /API/App/login HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+    
+    **Body of Request**:
+
+        .. code-block:: json
+
+            {
+                "access_token":"test_Token",
+                "id":"113768707919850641968",
+                "email":"jonathan.santiago27@upr.edu",
+                "display_name":"Jonathan X Santiago Gonzalez"
+            }
+            
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: text/javascript
+
+        {
+            "uid": "11"
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 201: User Created
+    :statuscode 403: User with that email exists
+    """
     info = request.json
     user_usub = info["id"]
     query = User.query.filter_by(provider=user_usub)
@@ -131,49 +261,49 @@ def app_login():
 
 ################## DASHBOARD ROUTES ######################
 
-@oauth_before_login.connect
-def before_google_login(blueprint, url):
-    try:
-        Usersession = request.headers['session']
-        print("session Cached")
-    except:
-        print("redirecting to google")
+# @oauth_before_login.connect
+# def before_google_login(blueprint, url):
+#     try:
+#         Usersession = request.headers['session']
+#         print("session Cached")
+#     except:
+#         print("redirecting to google")
 
 
-@app.route("/API/login", methods=['GET'])
-@login_required
-def dashboard_login():
-    try:
-        (current_user.id)
-        return UserHandler().getUserByID(int(current_user.id))
-    except:
-        session['AppLogin'] = False
-        # query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
-        # user = query.one()
-        # print('Session Defined as ' + str(session['AppLogin']))
-        # login_user(user)
-        # #flash ("No user found ")
+# @app.route("/API/login", methods=['GET'])
+# @login_required
+# def dashboard_login():
+#     try:
+#         (current_user.id)
+#         return UserHandler().getUserByID(int(current_user.id))
+#     except:
+#         session['AppLogin'] = False
+#         # query = User.query.filter_by(email="kensy.bernadeau@upr.edu")
+#         # user = query.one()
+#         # print('Session Defined as ' + str(session['AppLogin']))
+#         # login_user(user)
+#         # #flash ("No user found ")
         
-        return redirect(url_for(("google.login")))
+#         return redirect(url_for(("google.login")))
         
 
 
-@app.route("/API/logout")
-@login_required
-def dashboard_logout():
-    query = OAuth.query.filter_by(token=str(session['token']))
-    try:
-        oauth = query.one()
-        db.session.delete(oauth)
-        db.session.commit()
-    except NoResultFound:
-        print("NO RESULT FOUND ")
-    logout_user()
-    flash("You have logged out")
-    return render_template("dashhome.html")
+# @app.route("/API/logout")
+# @login_required
+# def dashboard_logout():
+#     query = OAuth.query.filter_by(token=str(session['token']))
+#     try:
+#         oauth = query.one()
+#         db.session.delete(oauth)
+#         db.session.commit()
+#     except NoResultFound:
+#         print("NO RESULT FOUND ")
+#     logout_user()
+#     flash("You have logged out")
+#     return render_template("dashhome.html")
 
 
-@app.route("/API/home")
-@login_required
-def dashboard_home():
-    return render_template("dashhome.html")
+# @app.route("/API/home")
+# #@login_required
+# def dashboard_home():
+#     return render_template("html/index.html")
