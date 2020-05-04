@@ -280,7 +280,7 @@ class WebsiteHandler:
                 websiteInfo.append(_buildCoreWebsiteResponse(
                     website_tuple=dao.getWebsiteByID(row)))
 
-        return jsonify(websiteInfo)
+        return jsonify({"Websites":(websiteInfo)})
 
     def validateWebsites(self, list_of_websites):
         """
