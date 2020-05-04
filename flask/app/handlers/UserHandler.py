@@ -251,7 +251,7 @@ class UserHandler:
         result = []
         for row in users:
             result.append(_buildCoreUserResponse(row))
-        return jsonify(result)
+        return jsonify({"Users":result})
 
     def getUsersSegmented(self, offset, limit):
         """
