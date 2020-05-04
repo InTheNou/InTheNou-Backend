@@ -43,10 +43,49 @@ def getServiceByID(sid):
             Vary: Accept
             Content-Type: application/json
 
-
             {
-               
+            "PNumbers": null,
+            "Websites": null,
+            "isdeleted": false,
+            "room": {
+                "building": {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Académico",
+                    "distinctfloors": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                ],
+                    "numfloors": 7,
+                    "photourl": null
+                },
+                "photourl": null,
+                "raltitude": 50.04,
+                "rcode": "123A1",
+                "rcustodian": "naydag.santiago@upr.edu",
+                "rdept": "INGENIERIA ELECTRICA",
+                "rdescription": "CAPSTONE",
+                "rfloor": 1,
+                "rid": 56,
+                "rlatitude": 50.04,
+                "rlongitude": 50.04,
+                "roccupancy": 0
+            },
+            "sdescription": "Capstone TA Office Hours; Available to answer questions.",
+            "sid": 1,
+            "sname": "Office Hours: Victor Lugo",
+            "sschedule": "L, W: 9:30am - 10:30am"
             }
+            
+               
+            
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -76,12 +115,11 @@ def getServicesSegmented(limit, offset):
     :type limit: int
     :return: JSON
 
-
     **Example request**:
 
         .. sourcecode:: http
 
-            GET /API/App/Services/offset=0/limit=5 HTTP/1.1
+            GET /API/App/Services/offset=0/limit=3 HTTP/1.1
             Host: inthenou.uprm.edu
             Accept: application/json
 
@@ -95,7 +133,122 @@ def getServicesSegmented(limit, offset):
 
 
             {
-               
+                "Services": [
+                {
+                    "rid": {
+                        "building": {
+                            "babbrev": "S",
+                            "bcommonname": "STEFANI",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)",
+                            "btype": "Académico",
+                            "distinctfloors": 
+                            [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                                6,
+                                7
+                            ],
+                            "numfloors": 7,
+                            "photourl": null
+                        },
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "123A1",
+                        "rcustodian": "naydag.santiago@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "CAPSTONE",
+                        "rfloor": 1,
+                        "rid": 56,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    },
+                    "sdescription": "Capstone TA Office Hours; Available to answer questions.",
+                    "sid": 1,
+                    "sname": "Office Hours: Victor Lugo",
+                    "sschedule": "L, W: 9:30am - 10:30am"
+                },
+                {
+                    "rid": {
+                        "building": {
+                            "babbrev": "S",
+                            "bcommonname": "STEFANI",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)",
+                            "btype": "Académico",
+                            "distinctfloors": 
+                            [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                                6,
+                                7
+                            ],
+                            "numfloors": 7,
+                            "photourl": null
+                        },
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "123A1",
+                        "rcustodian": "naydag.santiago@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "CAPSTONE",
+                        "rfloor": 1,
+                        "rid": 56,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    },
+                    "sdescription": "Capstone TA Office Hours; Available to answer questions.",
+                    "sid": 2,
+                    "sname": "Office Hours: David Riquelme",
+                    "sschedule": "M, V: 2:30pm - 3:30pm"
+                },
+                {
+                    "rid": {
+                        "building": {
+                            "babbrev": "S",
+                            "bcommonname": "STEFANI",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)",
+                            "btype": "Académico",
+                            "distinctfloors": 
+                            [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                                6,
+                                7
+                            ],
+                            "numfloors": 7,
+                            "photourl": null
+                        },
+                        "photourl": null,
+                        "raltitude": 50.04,
+                        "rcode": "229A",
+                        "rcustodian": "jfernando.vega@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "OFICINA PROFESOR DR. FERNANDO VEGA ",
+                        "rfloor": 2,
+                        "rid": 151,
+                        "rlatitude": 50.04,
+                        "rlongitude": 50.04,
+                        "roccupancy": 0
+                    },
+                    "sdescription": "Office Hours to discuss class topics, and consult with Capstone Team.",
+                    "sid": 3,
+                    "sname": "Office Hours: Fernando Vega",
+                    "sschedule": "L: 3:30pm - 4:30pm, W: 1:30pm - 3:30pm"
+                    }
+                            ]
             }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -134,7 +287,165 @@ def getServicesByRoomID(rid):
       .. sourcecode:: json
 
             {
-                
+                "Services": 
+                [
+                    {
+                        "PNumbers": 
+                        [
+                            {
+                                "phoneid": 6,
+                                "pnumber": "973-225-7484",
+                                "ptype": "M"
+                            },
+                            {
+                                "phoneid": 7,
+                                "pnumber": "803-233-6617",
+                                "ptype": "M"
+                            },
+                            {
+                                "phoneid": 4,
+                                "pnumber": "{{phone_numberService}}",
+                                "ptype": "{"
+                            },
+                            {
+                                "phoneid": 5,
+                                "pnumber": "{{phone_numberService2}}",
+                                "ptype": "{"
+                            }
+                        ],
+                        "Websites": 
+                        [
+                            {
+                                "url": "http://dandre.net",
+                                "wdescription": "{{wdescriptionService}}",
+                                "wid": 3
+                            },
+                            {
+                                "url": "http://lorempixel.com/640/480/city",
+                                "wdescription": "{{wdescriptionService2}}",
+                                "wid": 4
+                            }
+                        ],
+                        "sdescription": "bleeding-edge target synergies",
+                        "sid": 5,
+                        "sname": "navigating",
+                        "sschedule": "Sat Nov 07 2020 09:20:48 GMT-0400 (AST)"
+                    },
+                    {
+                        "PNumbers": 
+                        [
+                            {
+                                "phoneid": 10,
+                                "pnumber": "988-156-1109",
+                                "ptype": "M"
+                            },
+                            {
+                                "phoneid": 11,
+                                "pnumber": "967-166-6979",
+                                "ptype": "M"
+                            },
+                            {
+                                "phoneid": 4,
+                                "pnumber": "{{phone_numberService}}",
+                                "ptype": "{"
+                            },
+                            {
+                                "phoneid": 5,
+                                "pnumber": "{{phone_numberService2}}",
+                                "ptype": "{"
+                            }
+                        ],
+                        "Websites": 
+                        [
+                            {
+                                "url": "https://maudie.info",
+                                "wdescription": "{{wdescriptionService}}",
+                                "wid": 5
+                            },
+                            {
+                                "url": "http://lorempixel.com/640/480/city",
+                                "wdescription": "{{wdescriptionService2}}",
+                                "wid": 4
+                            },
+                            {
+                                "url": "http://noemy.org",
+                                "wdescription": "",
+                                "wid": 7
+                            },
+                            {
+                                "url": "https://wanda.biz",
+                                "wdescription": "Non maxime est nesciunt suscipit qui ea omnis qui.",
+                                "wid": 8
+                            }
+                        ],
+                        "sdescription": "bleeding-edge generate partnerships",
+                        "sid": 6,
+                        "sname": "connecting",
+                        "sschedule": "Fri Jul 31 2020 16:09:45 GMT-0400 (AST)"
+                    },
+                    {
+                        "PNumbers": 
+                        [
+                            {
+                                "phoneid": 14,
+                                "pnumber": "831-000-5089",
+                                "ptype": "M"
+                            },
+                            {
+                                "phoneid": 15,
+                                "pnumber": "267-476-7589",
+                                "ptype": "M"
+                            },
+                            {
+                                "phoneid": 4,
+                                "pnumber": "{{phone_numberService}}",
+                                "ptype": "{"
+                            },
+                            {
+                                "phoneid": 5,
+                                "pnumber": "{{phone_numberService2}}",
+                                "ptype": "{"
+                            }
+                        ],
+                        "Websites": 
+                        [
+                            {
+                                "url": "https://jarred.com",
+                                "wdescription": "{{wdescriptionService}}",
+                                "wid": 9
+                            },
+                            {
+                                "url": "http://lorempixel.com/640/480/city",
+                                "wdescription": "{{wdescriptionService2}}",
+                                "wid": 4
+                            },
+                            {
+                                "url": "https://destiney.name",
+                                "wdescription": "",
+                                "wid": 11
+                            },
+                            {
+                                "url": "https://hildegard.biz",
+                                "wdescription": "Voluptatum esse laboriosam velit repudiandae sed voluptates ratione laboriosam molestiae.",
+                                "wid": 12
+                            },
+                            {
+                                "url": "https://lester.org",
+                                "wdescription": "",
+                                "wid": 13
+                            },
+                            {
+                                "url": "https://myrtle.com",
+                                "wdescription": "Impedit sit sint aut molestias iusto.",
+                                "wid": 14
+                            }
+                        ],
+                        "sdescription": "New service description",
+                        "sid": 7,
+                        "sname": "new Service Name",
+                        "sschedule": "New service schedule"
+                    }
+                ]
             }
 
     **Example response**:
@@ -182,7 +493,22 @@ def createService():
       .. sourcecode:: json
 
             {
-                
+
+            "uid":"{{uidService}}",
+            "rid":"{{ridService}}",
+            "sname":"{{$randomIngverb}}",
+            "sdescription":"{{$randomBs}}",
+            "sschedule":"{{$randomDateFuture}}",
+            "PNumbers":[		
+            			{"pnumber":"{{phone_numberService}}","ptype":"{{ptypeService}}"	},	
+            			{"pnumber":"{{phone_numberService2}}","ptype":"{{ptypeService2}}"}
+            		   ],
+            "Websites":[		
+            			{"url":"{{websiteService}}","wdescription":"{{wdescriptionService}}"},	
+            			{"url":"{{websiteService2}}","wdescription":"{{wdescriptionService2}}"}	
+
+            			]				
+
             }
 
     **Example response**:
@@ -192,16 +518,78 @@ def createService():
             HTTP/1.1 201 CREATED
             Vary: Accept
             Content-Type: application/json
-
-
-            {}
+            
+            {
+                "PNumbers": 
+                [
+                    {
+                        "phoneid": 4,
+                        "pnumber": "{{phone_numberService}}",
+                        "ptype": "m"
+                    },
+                    {
+                        "phoneid": 5,
+                        "pnumber": "{{phone_numberService2}}",
+                        "ptype": "m"
+                    }
+                ],
+                "Websites": 
+                [
+                    {
+                        "url": "https://jarred.com",
+                        "wdescription": "{{wdescriptionService}}",
+                        "wid": 9
+                    },
+                    {
+                        "url": "http://lorempixel.com/640/480/city",
+                        "wdescription": "{{wdescriptionService2}}",
+                        "wid": 4
+                    }
+                ],
+                "isdeleted": false,
+                "room": {
+                    "building": {
+                        "babbrev": "S",
+                        "bcommonname": "STEFANI",
+                        "bid": 1,
+                        "bname": "LUIS A STEFANI (INGENIERIA)",
+                        "btype": "Académico",
+                        "distinctfloors": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7
+                        ],
+                        "numfloors": 7,
+                        "photourl": null
+                    },
+                    "photourl": null,
+                    "raltitude": 50.04,
+                    "rcode": "100",
+                    "rcustodian": "pedro.rivera25@upr.edu",
+                    "rdept": "INGENIERIA ELECTRICA",
+                    "rdescription": "COBACHA CONSERJE",
+                    "rfloor": 1,
+                    "rid": 1,
+                    "rlatitude": 50.04,
+                    "rlongitude": 50.04,
+                    "roccupancy": 0
+                },
+                "sdescription": "rich transform infrastructures",
+                "sid": 7,
+                "sname": "bypassing",
+                "sschedule": "Tue Sep 29 2020 19:38:03 GMT-0400 (AST)"
+            }
             
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
-    :statuscode 200: no error
+    :statuscode 201: CREATED
     """
     if request.method == 'POST':
-        return ServiceHandler().createService(json=request.json,uid=int(current_user.id))
+        return ServiceHandler().createService(json=request.json,uid=int(current_user.id)), 201
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -231,8 +619,14 @@ def removeServiceWebsite(sid):
 
       .. sourcecode:: json
 
-            {
-                
+            {	
+                "Websites":	
+
+                [	
+            	    {"wid":"{{wid}}"}, 
+            	    {"wid":"{{wid2}}"} 		
+                ]	
+
             }
 
     **Example response**:
@@ -244,7 +638,19 @@ def removeServiceWebsite(sid):
             Content-Type: application/json
 
 
-            {}
+            {
+                "Websites": 
+                [
+                    {
+                        "url": "https://jose.org",
+                        "wid": 32
+                    },
+                    {
+                        "url": "http://sally.biz",
+                        "wid": 31
+                    }
+                ]
+            }
             
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -281,26 +687,48 @@ def addServiceWebsite(sid):
       .. sourcecode:: json
 
             {
+	
+                "Websites":
+                [	
                 
+                    {"url":"{{website}}","wdescription":"{{wdescription}}"},	
+                    {"url":"{{website2}}","wdescription":"{{wdescription2}}"}
+
+                ]				
+
             }
 
     **Example response**:
 
         .. sourcecode:: http
 
-            HTTP/1.1 200 OK
+            HTTP/1.1 201 CREATED
             Vary: Accept
             Content-Type: application/json
 
 
-            {}
+            {
+                "Websites": 
+                [
+                    {
+                        "url": "http://sally.biz",
+                        "wdescription": "",
+                        "wid": 31
+                    },
+                    {
+                        "url": "https://jose.org",
+                        "wdescription": "Aut minima incidunt cupiditate aut excepturi est est dolorem.",
+                        "wid": 32
+                    }
+                ]
+            }
             
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 200: no error
     """
     if request.method == 'POST':
-        return WebsiteHandler().insertServiceWebsite(sid=sid, json=request.json, uid=int(current_user.id))
+        return WebsiteHandler().insertServiceWebsite(sid=sid, json=request.json, uid=int(current_user.id)),201
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -330,27 +758,46 @@ def addServicePhone(sid):
 
     .. sourcecode:: json
 
-          {
-                
-          }
+            {
+            	"PNumbers":	
+            	[	
+             
+            	{"pnumber":"{{phone_number}}","ptype":"{{ptype}}"},	
+            	{"pnumber":"{{phone_number2}}","ptype":"{{ptype2}}"}		
+
+            	]	
+
+            }
 
     **Example response**:
 
     .. sourcecode:: http
 
-        HTTP/1.1 200 OK
+        HTTP/1.1 201 CREATED
         Vary: Accept
         Content-Type: application/json
 
 
-        {}
+        {
+            "PNumbers":
+            [
+                {
+                    "pnumber": "831-000-5089",
+                    "ptype": "m"
+                },
+                {
+                    "pnumber": "267-476-7589",
+                    "ptype": "m"
+                }
+            ]
+        }
         
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 200: no error
     """
     if request.method == 'POST':
-        return PhoneHandler().insertServicePhone(sid=sid, uid=int(current_user.id), json=request.json)
+        return PhoneHandler().insertServicePhone(sid=sid, uid=int(current_user.id), json=request.json) , 201
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -374,7 +821,19 @@ def removeServicePhone(sid):
       GET /API/Dashboard/Services/sid=1/phone/remove HTTP/1.1
       Host: inthenou.uprm.edu
       Accept: application/json
+     
+    **Request Body**:
 
+    .. sourcecode:: json
+
+            {
+            	"PNumbers":	
+                [	
+            	{"phoneid":"{{pid}}"}, 
+            	{"phoneid":"{{pid2}}"} 		
+                ]	
+
+            }
     **Example response**:
 
       .. sourcecode:: http
@@ -384,9 +843,19 @@ def removeServicePhone(sid):
           Content-Type: application/json
 
 
-          {
-             
-          }
+            {
+                "PNumbers": 
+                [
+                    {
+                        "pnumber": "667-882-6107",
+                        "ptype": "m"
+                    },
+                    {
+                        "pnumber": "338-042-3699",
+                        "ptype": "m"
+                    }
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -420,6 +889,17 @@ def updateService(sid):
       Host: inthenou.uprm.edu
       Accept: application/json
     
+    **Request Body**:
+
+    .. sourcecode:: json
+
+            {
+                "sname":"new Service Name", 
+                "sdescription":"New service description", 
+                "sschedule":"New service schedule", 
+                "rid":{{rid}}	
+            }
+    
     **Example response**:
 
     .. sourcecode:: http
@@ -429,9 +909,45 @@ def updateService(sid):
         Content-Type: application/json
 
 
-        {
-               
-        }
+            {
+                "isdeleted": false,
+                "room": {
+                    "building": {
+                        "babbrev": "S",
+                        "bcommonname": "STEFANI",
+                        "bid": 1,
+                        "bname": "LUIS A STEFANI (INGENIERIA)",
+                        "btype": "Académico",
+                        "distinctfloors": 
+                        [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7
+                        ],
+                        "numfloors": 7,
+                        "photourl": null
+                    },
+                    "photourl": null,
+                    "raltitude": -139.071,
+                    "rcode": "100",
+                    "rcustodian": "pedro.rivera25@upr.edu",
+                    "rdept": "INGENIERIA ELECTRICA",
+                    "rdescription": "COBACHA CONSERJE",
+                    "rfloor": 1,
+                    "rid": 1,
+                    "rlatitude": -13.0214,
+                    "rlongitude": -175.0716,
+                    "roccupancy": 0
+                },
+                "sdescription": "New service description",
+                "sid": 7,
+                "sname": "new Service Name",
+                "sschedule": "New service schedule"
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -477,7 +993,42 @@ def deleteService(sid):
 
 
         {
-               
+            "rid": {
+                "building": {
+                    "babbrev": "S",
+                    "bcommonname": "STEFANI",
+                    "bid": 1,
+                    "bname": "LUIS A STEFANI (INGENIERIA)",
+                    "btype": "Académico",
+                    "distinctfloors": 
+                    [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "numfloors": 7,
+                    "photourl": null
+                },
+                "photourl": null,
+                "raltitude": 50.04,
+                "rcode": "123A1",
+                "rcustodian": "naydag.santiago@upr.edu",
+                "rdept": "INGENIERIA ELECTRICA",
+                "rdescription": "CAPSTONE",
+                "rfloor": 1,
+                "rid": 56,
+                "rlatitude": 50.04,
+                "rlongitude": 50.04,
+                "roccupancy": 0
+            },
+            "sdescription": "Capstone TA Office Hours; Available to answer questions.",
+            "sid": 1,
+            "sname": "Office Hours: Victor Lugo",
+            "sschedule": "L, W: 9:30am - 10:30am"
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -513,7 +1064,18 @@ def changeRoomCoordinates(rid):
       GET /API/Dashboard/Rooms/rid=1/changeCoordinates HTTP/1.1
       Host: inthenou.uprm.edu
       Accept: application/json
+    
+    **Request Body**:
 
+    .. sourcecode:: json
+
+            {
+            	"rlatitude":"{{$randomLatitude}}",
+            	"rlongitude":"{{$randomLongitude}}",
+            	"raltitude":"{{$randomLongitude}}"
+
+            }
+            
     **Example response**:
 
     .. sourcecode:: http
@@ -524,7 +1086,12 @@ def changeRoomCoordinates(rid):
 
 
         {
-               
+            "raltitude": 1.1006,
+            "rcode": "100",
+            "rfloor": 1,
+            "rid": 1,
+            "rlatitude": 56.7699,
+            "rlongitude": 9.1135
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
