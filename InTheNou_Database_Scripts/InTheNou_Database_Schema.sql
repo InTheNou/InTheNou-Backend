@@ -42,7 +42,6 @@ Create table Users
 Create table oAuth
 (
    access_token text NOT NULL CHECK (access_token <> ''),
-   created_at text CHECK (created_at <> ''),
    provider text NOT NULL CHECK (provider <> ''),
    uid int references Users(uid) NOT NULL,
    primary key (access_token, uid)

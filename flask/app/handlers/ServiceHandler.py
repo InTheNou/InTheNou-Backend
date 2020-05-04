@@ -98,7 +98,8 @@ class ServiceHandler:
     Handler Class to manage getting/creating/modifying services
     """
     def createService(self, json,uid):
-        """Attempt to create a service.
+        """
+        Attempt to create a service.
 
         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.createService` as well as:
 

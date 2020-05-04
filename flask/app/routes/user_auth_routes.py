@@ -162,7 +162,7 @@ def signup():
             try:
                 oauth = query.one()
             except NoResultFound:
-                oauth = OAuth(token=local['access_token'], id=user.id, user=user, created_at="5223213.12",provider="google")
+                oauth = OAuth(token=local['access_token'], id=user.id, user=user, provider="google")
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
@@ -236,7 +236,7 @@ def app_login():
     try:
         oauth = query.one()
     except NoResultFound:
-        oauth = OAuth(token=info['access_token'], id=user.id, user=user, created_at="5223213.12",provider="google")
+        oauth = OAuth(token=info['access_token'], id=user.id, user=user,provider="google")
         db.session.add_all([oauth])
         db.session.commit()
     login_user(oauth.user)

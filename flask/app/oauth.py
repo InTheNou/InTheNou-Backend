@@ -109,8 +109,7 @@ def google_logged_in(blueprint, token):
     # user was not found in the database
     except NoResultFound:
         if(user):
-            oauth = OAuth(provider=blueprint.name, token=str(token['access_token']), created_at=(
-                str(token['expires_at'])), id=user.id, user=user)
+            oauth = OAuth(provider=blueprint.name, token=str(token['access_token']),  id=user.id, user=user)
             session['token'] = str(token['access_token'])
             db.session.add_all([oauth])
             db.session.commit()

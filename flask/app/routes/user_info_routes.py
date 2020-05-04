@@ -1,6 +1,6 @@
 from app import app
 from flask import Flask, redirect, url_for, session, jsonify, request
-from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.contrib.google import make_google_blueprint
 from app.handlers.UserHandler import UserHandler
 from flask_login import login_required, logout_user, current_user
 from app.oauth import admin_role_required, mod_role_required,user_role_required
