@@ -44,58 +44,11 @@ def getUserByID(uid):
         Content-Type: text/javascript
 
         {
-            "ecreation": "2020-04-25 21:42:57.094493",
-            "ecreator": {
-                "display_name": "Diego Amador",
-                "email": "diego.amador@upr.edu",
-                "roleid": 3,
-                "type": "Professor",
-                "uid": 2
-            },
-            "edescription": "Meeting to discuss plans for integration phase.",
-            "eend": "2020-08-05 17:41:00",
-            "eid": 1,
-            "estart": "2020-08-05 15:41:00",
-            "estatus": "active",
-            "estatusdate": "2020-04-25 21:44:00.365692",
-            "etitle": "Alpha Code Team Meeting",
-            "photourl": "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg",
-            "room": {
-                "building": {
-                    "babbrev": "S",
-                    "bcommonname": "STEFANI",
-                    "bid": 1,
-                    "bname": "LUIS A STEFANI (INGENIERIA)",
-                    "btype": "Academico",
-                    "distinctfloors": [1,2,3,4,5,6,7],
-                    "numfloors": 7,
-                    "photourl": null
-                },
-                "photourl": null,
-                "raltitude": 50.04,
-                "rcode": "123A1",
-                "rcustodian": "naydag.santiago@upr.edu",
-                "rdept": "INGENIERIA ELECTRICA",
-                "rdescription": "CAPSTONE",
-                "rfloor": 1,
-                "rid": 56,
-                "rlatitude": 50.04,
-                "rlongitude": 50.04,
-                "roccupancy": 0
-            },
-            "tags": [
-                {"tid": 6,"tname": "ARTE"},
-                {"tid": 42,"tname": "FILO"},
-                {"tid": 54,"tname": "ICOM"},
-                {"tid": 64,"tname": "INSO"}
-            ],
-            "websites": [
-                {
-                    "url": "http://ece.uprm.edu/~fvega/",
-                    "wdescription": "Our clients webpage",
-                    "wid": 2
-                }
-            ]
+            "display_name": "Brian Rodriguez",
+            "email": "brianrodrig@gmail.com",
+            "roleid": 4,
+            "type": "Student",
+            "uid": 1
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -142,6 +95,23 @@ def getUsersThatCanModifyEvent(eid):
         Content-Type: text/javascript
 
         {
+            "Users": [
+                {
+                    "user_id": [
+                        1
+                    ]
+                },
+                {
+                    "user_id": [
+                        2
+                    ]
+                },
+                {
+                    "user_id": [
+                        11
+                    ]
+                }
+            ]
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -175,7 +145,7 @@ def getUserByEmail(email):
 
     .. sourcecode:: http
 
-        GET /API/App/Users/canModify/eid=1 HTTP/1.1
+        GET /API/Dashboard/Users/email=jonathan.santiago27@upr.edu HTTP/1.1
         Host: inthenou.uprm.edu
         Accept: application/json
 
@@ -188,6 +158,10 @@ def getUserByEmail(email):
         Content-Type: text/javascript
 
         {
+            "display_name": "Jonathan X Santiago Gonzalez",
+            "roleid": 4,
+            "roleissuer": 1,
+            "uid": 11
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -225,7 +199,7 @@ def changeRole(uid,roleid):
 
     .. sourcecode:: http
 
-        GET /API/Dashboard/Users/uid=5/changeRole/roleid=2 HTTP/1.1
+        GET /API/Dashboard/Users/uid=5/changeRole/roleid=1 HTTP/1.1
         Host: inthenou.uprm.edu
         Accept: application/json
 
@@ -238,6 +212,10 @@ def changeRole(uid,roleid):
         Content-Type: text/javascript
 
         {
+            "display_name": "Sofia Saavedra",
+            "email": "sofia.saavedra@upr.edu",
+            "roleid": 1,
+            "uid": 5
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -270,7 +248,7 @@ def getDelegatedUserByID(uid):
 
     .. sourcecode:: http
 
-        GET /API/Dashboard/Users/uid=1/Delegated HTTP/1.1
+        GET /API/Dashboard/Users/uid=11/Delegated HTTP/1.1
         Host: inthenou.uprm.edu
         Accept: application/json
 
@@ -283,6 +261,14 @@ def getDelegatedUserByID(uid):
         Content-Type: text/javascript
 
         {
+           "Users": [
+               {
+                   "display_name": "Sofia Saavedra",
+                   "email": "sofia.saavedra@upr.edu",
+                   "roleid": 1,
+                   "uid": 5
+               }
+           ]
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -338,6 +324,49 @@ def geUsersAndIssuersSegmented(offset, limit):
         Content-Type: text/javascript
 
         {
+            "Users": 
+            [
+                {
+                    "issuer_email": "brianrodrig@gmail.com",
+                    "issuer_id": 1,
+                    "issuer_role": "Admin",
+                    "user_email": "diego.amador@upr.edu",
+                    "user_id": 2,
+                    "user_role": "Moderator"
+                },
+                {
+                    "issuer_email": "diego.amador@upr.edu",
+                    "issuer_id": 2,
+                    "issuer_role": "Moderator",
+                    "user_email": "kensy.bernadeau@upr.edu",
+                    "user_id": 3,
+                    "user_role": "Event_Creator"
+                },
+                {
+                    "issuer_email": "brianrodrig@gmail.com",
+                    "issuer_id": 1,
+                    "issuer_role": "Admin",
+                    "user_email": "jon123123123athan01228@gmail.com",
+                    "user_id": 7,
+                    "user_role": "User"
+                },
+                {
+                    "issuer_email": "22222jonathan.santiago27@upr.edu",
+                    "issuer_id": 4,
+                    "issuer_role": "User",
+                    "user_email": "brianrodrig@gmail.com",
+                    "user_id": 1,
+                    "user_role": "Admin"
+                },
+                {
+                    "issuer_email": "brianrodrig@gmail.com",
+                    "issuer_id": 1,
+                    "issuer_role": "Admin",
+                    "user_email": "22222jonathan.santiago27@upr.edu",
+                    "user_id": 4,
+                    "user_role": "User"
+                }
+            ]
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -384,6 +413,44 @@ def geUsersSegmented(offset, limit):
         Content-Type: text/javascript
 
         {
+            "Users": 
+            [
+                {
+                    "display_name": "Sofia Saavedra",
+                    "email": "sofia.saavedra@upr.edu",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 5
+                },
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "jonathan01228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 10
+                },
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "jonathan011111228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 9
+                },
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "111jonathan01228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 8
+                },
+                {
+                    "display_name": "Jonathan Santiago",
+                    "email": "22222jonathan.santiago27@upr.edu",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 4
+                }
+            ]
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -431,6 +498,44 @@ def getAllUsersByRoleID(roleid, offset, limit):
         Content-Type: text/javascript
 
         {
+            "Users": 
+            [
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "jon123123123athan01228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 7
+                },
+                {
+                    "display_name": "Jonathan Santiago",
+                    "email": "22222jonathan.santiago27@upr.edu",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 4
+                },
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "111jonathan01228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 8
+                },
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "jonathan011111228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 9
+                },
+                {
+                    "display_name": "jonathan santiago",
+                    "email": "jonathan01228@gmail.com",
+                    "roleid": 1,
+                    "type": "User",
+                    "uid": 10
+                }
+            ]
         }
 
     :reqheader Cookie: Must contain session token to authenticate.
@@ -474,6 +579,7 @@ def geNumberOdUsersByRole(roleid):
         Content-Type: text/javascript
 
         {
+            "number": 6
         }
 
     :reqheader Cookie: Must contain session token to authenticate.

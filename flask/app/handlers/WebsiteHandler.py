@@ -79,7 +79,7 @@ def _buildWebsiteIDResponse(website_tuple):
 
     .. code-block:: python
 
-        {'wid', }
+        {'wid'}
     """
     response = {}
     response['wid'] = website_tuple[0]

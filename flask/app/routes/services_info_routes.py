@@ -84,9 +84,6 @@ def getServiceByID(sid):
             "sschedule": "L, W: 9:30am - 10:30am"
             }
             
-               
-            
-
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 200: no error
