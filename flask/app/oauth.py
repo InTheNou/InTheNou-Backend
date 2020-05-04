@@ -21,6 +21,41 @@ blueprint = make_google_blueprint(
 # create/login local user on successful OAuth login
 @oauth_authorized.connect_via(blueprint)
 def google_logged_in(blueprint, token):
+    """
+    .. py:oauth_authorized.connect_via(blueprint)
+    .. :quickref: OAuth; Google Authorized
+    
+    Logout
+    Uses :func:`~app.models.User.query.filter_by` as well as 
+         :func:`~app.models.OAuth.query.filter_by`
+
+    
+    :return: JSON
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /API/App/google/authorized HTTP/1.1
+        Host: inthenou.uprm.edu
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: text/javascript
+
+        {
+           "uid": 11
+        }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    """
     # if no token was recieved from google, throw error
     if not token:
         flash("Failed to log in.", category="error")
@@ -93,6 +128,14 @@ def google_logged_in(blueprint, token):
 # notify on OAuth provider error
 @oauth_error.connect_via(blueprint)
 def google_error(blueprint, message, response):
+    """
+    .. py:oauth_authorized.google_error(blueprint, message, response)
+    .. :quickref: OAuth; Google Error
+    
+    Google Error handling
+    
+    :return: Flash Signal
+    """
     msg = ("OAuth error from {name}! " "message={message} response={response}").format(
         name=blueprint.name, message=message, response=response
     )
@@ -100,6 +143,13 @@ def google_error(blueprint, message, response):
 
 
 def admin_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in and is a Administrator
+    
+
+    :statuscode 403: User is not logged in.
+    :statuscode 401: Admin role required
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         try:    
@@ -114,6 +164,13 @@ def admin_role_required(f):
 
 
 def mod_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in and is a Moderator
+    
+
+    :statuscode 403: User is not logged in.
+    :statuscode 401: Moderator role required
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         try:
@@ -128,6 +185,13 @@ def mod_role_required(f):
 
 
 def event_creator_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in and is a Event Creator
+    
+
+    :statuscode 403: User is not logged in.
+    :statuscode 401: Event Creator role required
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         try:
@@ -142,6 +206,12 @@ def event_creator_role_required(f):
 
 
 def user_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in
+    
+
+    :statuscode 403: User is not logged in.
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         
