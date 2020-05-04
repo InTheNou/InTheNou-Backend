@@ -72,7 +72,7 @@ html_theme_options = {}
 html_static_path = ['_static']
 html_css_files = ['nowidth.css']
 
-# autodoc_mock_imports = []
+autodoc_mock_imports = ['flask_dance']
 
 latex_elements = {
     'printindex': '\\footnotesize\\raggedright\\printindex',

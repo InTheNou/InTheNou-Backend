@@ -28,28 +28,27 @@ def app_logout():
     Logout
     Uses :func:`~app.models.OAuth.filter_by`
 
-    
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/logout HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/logout HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "Error": "You have loged out "
-        }
+            {
+                "Error": "You have loged out "
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -74,48 +73,47 @@ def signup():
     
     Signup
     Uses :func:`~app.TagHandler.TagHandler.batchSetUserTags` as well as
-        :func:`~app.UserHandler.UserHandler.getUserByID`
+    :func:`~app.UserHandler.UserHandler.getUserByID`
 
-    
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/signup HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/signup HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Body of Request**:
 
         .. code-block:: json
 
             {
-
                 "access_token":"test_Token",
                 "id":"113768707919850641968",
                 "email":"jonathan.santiago27@upr.edu",
                 "display_name":"Jonathan X Santiago Gonzalez",
-                "tags":[	{"tid":1,"tname":"ADMI","tagweight":0},
-            			    {"tid":2,"tname":"ADOF","tagweight":0},
-            			    {"tid":3,"tname":"AGRO","tagweight":0},
-            			    {"tid":4,"tname":"ALEM","tagweight":0},
-            			    {"tid":5,"tname":"ANTR","tagweight":0}]	
-
+                "tags":[
+                    {"tid":1,"tname":"ADMI","tagweight":0},
+                    {"tid":2,"tname":"ADOF","tagweight":0},
+                    {"tid":3,"tname":"AGRO","tagweight":0},
+                    {"tid":4,"tname":"ALEM","tagweight":0},
+                    {"tid":5,"tname":"ANTR","tagweight":0}
+                ]
             }
                 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 403 FORBIDDEN
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 403 FORBIDDEN
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "Error": "User with that email exists <User 11>"
-        }
+            {
+                "Error": "User with that email exists <User 11>"
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -182,16 +180,15 @@ def app_login():
     
     Login
     
-    
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/login HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/login HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Body of Request**:
 
@@ -206,15 +203,15 @@ def app_login():
             
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "uid": "11"
-        }
+            {
+                "uid": "11"
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json

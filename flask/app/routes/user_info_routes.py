@@ -22,34 +22,33 @@ def getUserByID(uid):
     User; Get User By ID
     Uses :func:`~app.handlers.UserHandler.UserHandler.getUserByID`
 
-    
     :param uid: User ID
     :type uid: int
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/Users/uid=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/Users/uid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "display_name": "Brian Rodriguez",
-            "email": "brianrodrig@gmail.com",
-            "roleid": 4,
-            "type": "Student",
-            "uid": 1
-        }
+            {
+                "display_name": "Brian Rodriguez",
+                "email": "brianrodrig@gmail.com",
+                "roleid": 4,
+                "type": "Student",
+                "uid": 1
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -73,46 +72,33 @@ def getUsersThatCanModifyEvent(eid):
     Get Users that can modify an event
     Uses :func:`~app.handlers.UserHandler.UserHandler.getUserThatCanModifyEvent`
 
-    
     :param eid: event ID
     :type eid: int
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/Users/canModify/eid=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/Users/canModify/eid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "Users": [
-                {
-                    "user_id": [
-                        1
-                    ]
-                },
-                {
-                    "user_id": [
-                        2
-                    ]
-                },
-                {
-                    "user_id": [
-                        11
-                    ]
-                }
-            ]
-        }
+            {
+                "Users": [
+                    {"user_id": [1]},
+                    {"user_id": [2]},
+                    {"user_id": [11]}
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -120,7 +106,6 @@ def getUsersThatCanModifyEvent(eid):
     :statuscode 403: User is not logged in.
     :statuscode 404: Event does not exist
     """
-    
     if request.method == 'GET':
         return UserHandler().getUsersThatCanModifyEvent(eid=eid)
     else:
@@ -136,33 +121,32 @@ def getUserByEmail(email):
     Get User given an email
     Uses :func:`~app.handlers.UserHandler.UserHandler.getUserByEmail`
 
-    
     :param email: User email
     :type email: string
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Users/email=jonathan.santiago27@upr.edu HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Users/email=jonathan.santiago27@upr.edu HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "display_name": "Jonathan X Santiago Gonzalez",
-            "roleid": 4,
-            "roleissuer": 1,
-            "uid": 11
-        }
+            {
+                "display_name": "Jonathan X Santiago Gonzalez",
+                "roleid": 4,
+                "roleissuer": 1,
+                "uid": 11
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -188,7 +172,6 @@ def changeRole(uid,roleid):
     Change user role
     Uses :func:`~app.handlers.UserHandler.UserHandler.changeRole`
 
-    
     :param uid: User ID
     :type uid: int
     :param roleid: User role ID
@@ -197,26 +180,26 @@ def changeRole(uid,roleid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Users/uid=5/changeRole/roleid=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Users/uid=5/changeRole/roleid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "display_name": "Sofia Saavedra",
-            "email": "sofia.saavedra@upr.edu",
-            "roleid": 1,
-            "uid": 5
-        }
+            {
+                "display_name": "Sofia Saavedra",
+                "email": "sofia.saavedra@upr.edu",
+                "roleid": 1,
+                "uid": 5
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -239,37 +222,36 @@ def getDelegatedUserByID(uid):
     Get delegated users
     Uses :func:`~app.handlers.UserHandler.UserHandler.getUsersDelegatedByID`
 
-    
     :param uid: User ID
     :type uid: int
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Users/uid=11/Delegated HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Users/uid=11/Delegated HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-           "Users": [
-               {
-                   "display_name": "Sofia Saavedra",
-                   "email": "sofia.saavedra@upr.edu",
-                   "roleid": 1,
-                   "uid": 5
-               }
-           ]
-        }
+            {
+               "Users": [
+                   {
+                       "display_name": "Sofia Saavedra",
+                       "email": "sofia.saavedra@upr.edu",
+                       "roleid": 1,
+                       "uid": 5
+                   }
+               ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -299,8 +281,6 @@ def geUsersAndIssuersSegmented(offset, limit):
     Get users and delegators
     Uses :func:`~app.handlers.UserHandler.UserHandler.getUsersAndIssuersSegmented`
 
-    
-  
     :param offset: Number of results to skip from top of list.
     :type offset: int
     :param limit: Number of results after offset to return.
@@ -309,65 +289,65 @@ def geUsersAndIssuersSegmented(offset, limit):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Users/Permissions/offset=0/limit=5 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Users/Permissions/offset=0/limit=5 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "Users": 
-            [
-                {
-                    "issuer_email": "brianrodrig@gmail.com",
-                    "issuer_id": 1,
-                    "issuer_role": "Admin",
-                    "user_email": "diego.amador@upr.edu",
-                    "user_id": 2,
-                    "user_role": "Moderator"
-                },
-                {
-                    "issuer_email": "diego.amador@upr.edu",
-                    "issuer_id": 2,
-                    "issuer_role": "Moderator",
-                    "user_email": "kensy.bernadeau@upr.edu",
-                    "user_id": 3,
-                    "user_role": "Event_Creator"
-                },
-                {
-                    "issuer_email": "brianrodrig@gmail.com",
-                    "issuer_id": 1,
-                    "issuer_role": "Admin",
-                    "user_email": "jon123123123athan01228@gmail.com",
-                    "user_id": 7,
-                    "user_role": "User"
-                },
-                {
-                    "issuer_email": "22222jonathan.santiago27@upr.edu",
-                    "issuer_id": 4,
-                    "issuer_role": "User",
-                    "user_email": "brianrodrig@gmail.com",
-                    "user_id": 1,
-                    "user_role": "Admin"
-                },
-                {
-                    "issuer_email": "brianrodrig@gmail.com",
-                    "issuer_id": 1,
-                    "issuer_role": "Admin",
-                    "user_email": "22222jonathan.santiago27@upr.edu",
-                    "user_id": 4,
-                    "user_role": "User"
-                }
-            ]
-        }
+            {
+                "Users":
+                [
+                    {
+                        "issuer_email": "brianrodrig@gmail.com",
+                        "issuer_id": 1,
+                        "issuer_role": "Admin",
+                        "user_email": "diego.amador@upr.edu",
+                        "user_id": 2,
+                        "user_role": "Moderator"
+                    },
+                    {
+                        "issuer_email": "diego.amador@upr.edu",
+                        "issuer_id": 2,
+                        "issuer_role": "Moderator",
+                        "user_email": "kensy.bernadeau@upr.edu",
+                        "user_id": 3,
+                        "user_role": "Event_Creator"
+                    },
+                    {
+                        "issuer_email": "brianrodrig@gmail.com",
+                        "issuer_id": 1,
+                        "issuer_role": "Admin",
+                        "user_email": "jon123123123athan01228@gmail.com",
+                        "user_id": 7,
+                        "user_role": "User"
+                    },
+                    {
+                        "issuer_email": "22222jonathan.santiago27@upr.edu",
+                        "issuer_id": 4,
+                        "issuer_role": "User",
+                        "user_email": "brianrodrig@gmail.com",
+                        "user_id": 1,
+                        "user_role": "Admin"
+                    },
+                    {
+                        "issuer_email": "brianrodrig@gmail.com",
+                        "issuer_id": 1,
+                        "issuer_role": "Admin",
+                        "user_email": "22222jonathan.santiago27@upr.edu",
+                        "user_id": 4,
+                        "user_role": "User"
+                    }
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -398,60 +378,60 @@ def geUsersSegmented(offset, limit):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Users/offset=0/limit=5 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Users/offset=0/limit=5 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "Users": 
-            [
-                {
-                    "display_name": "Sofia Saavedra",
-                    "email": "sofia.saavedra@upr.edu",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 5
-                },
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "jonathan01228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 10
-                },
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "jonathan011111228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 9
-                },
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "111jonathan01228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 8
-                },
-                {
-                    "display_name": "Jonathan Santiago",
-                    "email": "22222jonathan.santiago27@upr.edu",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 4
-                }
-            ]
-        }
+            {
+                "Users":
+                [
+                    {
+                        "display_name": "Sofia Saavedra",
+                        "email": "sofia.saavedra@upr.edu",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 5
+                    },
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "jonathan01228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 10
+                    },
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "jonathan011111228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 9
+                    },
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "111jonathan01228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 8
+                    },
+                    {
+                        "display_name": "Jonathan Santiago",
+                        "email": "22222jonathan.santiago27@upr.edu",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 4
+                    }
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -483,60 +463,60 @@ def getAllUsersByRoleID(roleid, offset, limit):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Users/roleid=1/offset=0/limit=5 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Users/roleid=1/offset=0/limit=5 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "Users": 
-            [
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "jon123123123athan01228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 7
-                },
-                {
-                    "display_name": "Jonathan Santiago",
-                    "email": "22222jonathan.santiago27@upr.edu",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 4
-                },
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "111jonathan01228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 8
-                },
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "jonathan011111228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 9
-                },
-                {
-                    "display_name": "jonathan santiago",
-                    "email": "jonathan01228@gmail.com",
-                    "roleid": 1,
-                    "type": "User",
-                    "uid": 10
-                }
-            ]
-        }
+            {
+                "Users":
+                [
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "jon123123123athan01228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 7
+                    },
+                    {
+                        "display_name": "Jonathan Santiago",
+                        "email": "22222jonathan.santiago27@upr.edu",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 4
+                    },
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "111jonathan01228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 8
+                    },
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "jonathan011111228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 9
+                    },
+                    {
+                        "display_name": "jonathan santiago",
+                        "email": "jonathan01228@gmail.com",
+                        "roleid": 1,
+                        "type": "User",
+                        "uid": 10
+                    }
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -564,23 +544,23 @@ def geNumberOdUsersByRole(roleid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/Dashboard/Stats/roleid=1 HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/Dashboard/Stats/roleid=1 HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-            "number": 6
-        }
+            {
+                "number": 6
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
