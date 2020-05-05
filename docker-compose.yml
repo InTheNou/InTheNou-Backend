@@ -58,6 +58,7 @@ services:
     - "443:443"
     volumes:
       - ./docs/build/html:/usr/share/nginx/html/docs/backend
+      - ./docs/build/app:/usr/share/nginx/html/docs/app
 
  
   dashboardcontainer:
