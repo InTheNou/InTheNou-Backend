@@ -111,12 +111,40 @@ class PhoneDAO(MasterDAO):
                     pid = self.addPhoneToService(sid=sid, pid=phone[0], cursor=cursor, uid=uid)
                     if pid is None:
                         return jsonify(Error="Service with sid: " + str(sid) + " not found"), 400
+                    else:
+                        row['phoneid']=pid[0]
                 else:
                     return jsonify(Error="Phone number error : "+str(number)), 400
         self.conn.commit()
-        return {"PNumbers": phones}
+        return {"numbers": phones}
                                    
-    def removePhonesByServiceID(self, sid, phoneid, uid):
+    def removePhonesGivenServiceID(self,phones,sid,uid):
+        phoneIDs = []
+        phoneInfo=[]
+        
+        cursor = self.conn.cursor()
+        print("Starting "+ str(phones))
+        
+        for phone in phones:
+            if phone['phoneid'] != "":
+                   
+                    ID = self.removePhonesByServiceID(cursor=cursor,sid=sid, phoneid=phone['phoneid'], uid=uid)
+                    print("This "+str(ID))
+                    if isinstance(ID,tuple):
+                        return jsonify(Error="Phone not asociated with service "+str(phone['phoneid'])),404
+                    
+                    else:
+                        phoneIDs.append(ID)
+                        
+            else:       
+                return jsonify(Error="Phone number ID not associated with Service-> sid: "
+                                     + str(sid) + ' phoneid: ' + str(phone['phoneid'])),404
+         
+        self.conn.commit()
+   
+        return phoneIDs
+    
+    def removePhonesByServiceID(self,cursor, sid, phoneid, uid):
         """
         Query Database and mark a phone number and service entry as deleted.
         
@@ -129,7 +157,7 @@ class PhoneDAO(MasterDAO):
         :return Tuple: SQL result of Query as a tuple.
         """
         #print('Number ID from Phone remove Query: '+phoneid)
-        cursor = self.conn.cursor()
+        cursor = cursor
 
         audit = AuditDAO()
         tablename = "servicephones"
@@ -150,9 +178,9 @@ class PhoneDAO(MasterDAO):
             newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=phoneid, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
-        self.conn.commit()
+        
         if result is None:
-            return None
+            return jsonify(Error= "The service:"+str(sid)+" was not asociated with the phoneid: "+str(phoneid)),404
         else:
             return result[0]
 
