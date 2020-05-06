@@ -822,7 +822,7 @@ def addServicePhone(sid):
 
 # TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
-#@mod_role_required
+@mod_role_required
 def removeServicePhone(sid):
     """
     .. py:decorator:: mod_role_required
@@ -889,7 +889,7 @@ def removeServicePhone(sid):
 
 # TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Services/sid=<int:sid>/update", methods=['POST'])
-#@mod_role_required
+@mod_role_required
 def updateService(sid):
     """
     .. py:decorator:: mod_role_required
