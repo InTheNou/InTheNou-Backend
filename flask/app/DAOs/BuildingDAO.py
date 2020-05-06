@@ -7,10 +7,10 @@ import requests
 STANDARD_HEIGHT = 35
 AVG_STORY_HEIGHT = 2
 BUILDING_TYPES = {
-  "1":"Académico",
+  "1": "Acad\u00e9mico",
   "2": "Administrativo",
   "9": "Espacio Abierto",
-  "13": "Investigación",
+  "13": "Investigaci\u00f3n",
   "14": "Agricultura",
   "15": "Facilidades de Animales"
 }
@@ -149,14 +149,18 @@ def _build_insert_room_sql(building_data):
 
 
 class BuildingDAO(MasterDAO):
+    """
+    Class containing all the methods used to build and execute queries to
+    the database for requests concerning buildings.
+    """
 
     def addFullBuilding(self, building_json, uid):
         """
         Executes queries needed to create a new building or update an existing building
         with information from the UPRM Portal database.
 
-        Uses the private methods :ref:`~app.DAOs.BuildingDAO.BuildingDAO._build_building_insert_sql`
-        and :ref:`~app.DAOs.BuildingDAO.BuildingDAO._build_insert_room_sql`
+        Uses the private methods :func:`~app.DAOs.BuildingDAO.BuildingDAO._build_building_insert_sql`
+        and :func:`~app.DAOs.BuildingDAO.BuildingDAO._build_insert_room_sql`
 
         :param building_json: dictionary that contains the needed CTI key-value pairs.
         :type building_data: dict
@@ -211,9 +215,12 @@ class BuildingDAO(MasterDAO):
     def getAllBuildingsSegmented(self, limit, offset):
         """
         Returns a list of all buildings in the system, segmented
-        Params:
-        limit: The amount of records to ignore 
-        offset: The amount of rows to return in the list  
+
+        :param limit: The amount of records to ignore
+        :type limit: int
+        :param offset: The amount of rows to return in the list
+        :type offset: int
+        :return list: list of tuples containing building information.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -242,9 +249,9 @@ class BuildingDAO(MasterDAO):
 
     def getAllBuildings(self):
         """
-                Query Database for all Building entries.
-               Returns:
-                   Tuple: SQL result of Query as a tuple.
+        Query Database for all Building entries.
+
+        :return Tuple: SQL result of Query as a tuple.
                """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -271,11 +278,11 @@ class BuildingDAO(MasterDAO):
 
     def getBuildingByID(self, bid):
         """
-                Query Database for an Building's information by its bid.
-               Parameters:
-                   bid: building ID
-               Returns:
-                   Tuple: SQL result of Query as a tuple.
+        Query Database for an Building's information by its bid.
+
+        :param bid: building ID
+        :type bid: int
+        :return Tuple: SQL result of Query as a tuple.
                """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -302,9 +309,11 @@ class BuildingDAO(MasterDAO):
 
     def getDistinctFloorNumbersByBuildingID(self, bid):
         """
-        gets a list of distinct floors given a building ID
-        Parameters:
-        bid: The building ID to get the distinct floors from
+        Gets a list of distinct floors given a building ID
+
+        :param bid: The building ID to get the distinct floors from
+        :type bid: int
+        :return list: list of tuples containing the distinct floors on a building.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select distinct rfloor "
@@ -325,10 +334,14 @@ class BuildingDAO(MasterDAO):
     def searchBuildingsByKeyword(self, offset, limit, keyword):
         """
         Returns Buildings list that contain some keyword 
-        prameters:
-        Keyword: word to filter buildings with
-        limit: The amount of records to ignore 
-        offset: The amount of rows to return in the list  
+
+        :param keyword: word to filter buildings with
+        :type keyword: str
+        :param limit: The amount of records to ignore
+        :type limit: int
+        :param offset: The amount of rows to return in the list
+        :type offset: int
+        :return list: list of tuples containg buildings that match the keyword
         """
         keyword = "'%" + keyword + "%'"
         keyword = AsIs(keyword)

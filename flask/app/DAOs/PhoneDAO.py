@@ -6,12 +6,19 @@ from flask import jsonify
 
 
 class PhoneDAO(MasterDAO):
+    """
+    All Methods in this DAO close connections upon proper completion.
+    Do not instantiate this class and assign it, as running a method
+    call will render it useless afterwards.
+    """
 
     def getPhoneByID(self, phoneid):
         """
-        Return a phone number given a phone ID 
-        parameters:
-        phoneid: the ID for the phone number to look for 
+        Query Database for an Phone number, given a phone ID
+
+        :param phoneid: The phone ID
+        :type phoneid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -32,18 +39,23 @@ class PhoneDAO(MasterDAO):
 
         return result
 
-    def addPhone(self, pnumber, ptype, cursor):
-        """Inserts a phone number into the database 
-        Parameters:
-            pnumber: number of the entry
-            ptype: The type of phone i.e. fax, cellphone etc.
-            ideleted: indicates if value is active in the database
-        Returns:
-            pid: phone ID
+    def addPhone(self, pnumber, ptype, cursor, uid):
+        """
+        Creates a new phone entry
+        
+        :param pnumber: The phone number in the format of xxx-xxx-xxxx,xxxx in the case of a phone with extension
+        :type pnumber: string
+        :param ptype: The type of phone can be Fax [F], Land-line [L], Mobile [M] and Extension [E]
+        :type ptype: string
+        :param cursor: addPhone method call connection cursor to database.
+        :type cursor: connection cursor
+        :param uid: User ID
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         
         if pnumber is not None and pnumber != "":
-            if cursor == None:
+            if cursor is None:
                 cursor = self.conn.cursor()
             else:
                 cursor = cursor
@@ -67,40 +79,85 @@ class PhoneDAO(MasterDAO):
                 ]))
             cursor.execute(query, (pnumber, ptype[0], pnumber,ptype[0]))
             result = cursor.fetchone()
-            print(result)
-            return result
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=pnumber, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
         else:
             result = [None, None]
-    
-    def insertPhones(self,phones,sid):
+        return result
+
+    def insertPhones(self, phones, sid, uid):
         """
+        Adds a list of phones to a service,given the service ID and a list of phone
+        numbers,verifies numbers are valid.
+        Uses :func:`~app.DAOs.PhoneDAO.PhoneDAO.addPhone` &
+        :func:`~app.DAOs.PhoneDAO.PhoneDAO.addPhoneToService`
+        
+        :param phones: A list of phone numbers, containing pnumbers and ptypes
+        :type phones: array
+        :param sid: The Service ID
+        :type sid: int
+        :param uid: User ID
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         
         for row in phones:
-                number = phonenumbers.parse(row['pnumber'],"US")
-                if((phonenumbers.is_possible_number(number))):
-                    phone =self.addPhone(cursor=cursor, pnumber=row['pnumber'], ptype=row['ptype'].upper())      
-                    if phone:
-                       pid=  self.addPhoneToService(sid=sid,pid=phone[0],cursor=cursor)
-                       if pid is None:
-                           return jsonify(Error= "Service with sid: "+str(sid)+ " not found"),400
-                           
+            number = phonenumbers.parse(row['pnumber'], "US")
+            if phonenumbers.is_possible_number(number):
+                phone = self.addPhone(cursor=cursor, pnumber=row['pnumber'], ptype=(row['ptype'].upper()), uid=uid)
+                if phone:
+                    pid = self.addPhoneToService(sid=sid, pid=phone[0], cursor=cursor, uid=uid)
+                    if pid is None:
+                        return jsonify(Error="Service with sid: " + str(sid) + " not found"), 400
                     else:
-                        return jsonify(Error="Phone number error : "+str(number)),400
+                        row['phoneid']=pid[0]
+                else:
+                    return jsonify(Error="Phone number error : "+str(number)), 400
         self.conn.commit()
-        return ({"PNumbers":(phones )})
+        return {"numbers": phones}
+                                   
+    def removePhonesGivenServiceID(self,phones,sid,uid):
+        phoneIDs = []
+        phoneInfo=[]
+        
+        cursor = self.conn.cursor()
+        print("Starting "+ str(phones))
+        
+        for phone in phones:
+            if phone['phoneid'] != "":
+                   
+                    ID = self.removePhonesByServiceID(cursor=cursor,sid=sid, phoneid=phone['phoneid'], uid=uid)
+                    print("This "+str(ID))
+                    if isinstance(ID,tuple):
+                        return jsonify(Error="Phone not asociated with service "+str(phone['phoneid'])),404
                     
-                    
-    def removePhonesByServiceID(self, sid, phoneid):
+                    else:
+                        phoneIDs.append(ID)
+                        
+            else:       
+                return jsonify(Error="Phone number ID not associated with Service-> sid: "
+                                     + str(sid) + ' phoneid: ' + str(phone['phoneid'])),404
+         
+        self.conn.commit()
+   
+        return phoneIDs
+    
+    def removePhonesByServiceID(self,cursor, sid, phoneid, uid):
         """
-        Remove a phone number from a service, given a service ID and a phone ID 
-        Parameters 
-        sid: The unique ID of a service 
-        phoneid: The ID for the phone to eliminate from the database 
+        Query Database and mark a phone number and service entry as deleted.
+        
+        :param phoneid: The phone ID
+        :type phoneid: int
+        :param sid: The service ID
+        :type sid: int
+        :param uid: User ID
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         #print('Number ID from Phone remove Query: '+phoneid)
-        cursor = self.conn.cursor()
+        cursor = cursor
 
         audit = AuditDAO()
         tablename = "servicephones"
@@ -116,24 +173,24 @@ class PhoneDAO(MasterDAO):
      
         cursor.execute(query, (phoneid, sid))
         result = cursor.fetchone()
-        self.conn.commit()
-       
-        print('Result from Phone remove Query: ' + str(result))
-
-        #print('Result from Phone remove Query: ' + str(result))
-        if result == None:
-            return None
+        # If result is None, skip auditing.
+        if result:
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=phoneid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+        
+        if result is None:
+            return jsonify(Error= "The service:"+str(sid)+" was not asociated with the phoneid: "+str(phoneid)),404
         else:
             return result[0]
 
     def getPhonesByServiceID(self, sid):
         """
-         Query Database for all the phone entries belonging
-            to a Service, given the Service's ID.
-        Parameters:
-            sid: Service ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Gets a list of phones, given a service ID 
+        
+        :param sid: The Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -154,16 +211,22 @@ class PhoneDAO(MasterDAO):
             result.append(row)
         return result
 
-    def addPhoneToService(self, sid, pid, cursor):
+    def addPhoneToService(self, sid, pid, cursor, uid):
         """
-        Relates the phone number to the service. 
-        Parameters:
-            sid: newly created Service ID.
-            id: phone IDs
-            cursor: createService method call connection cursor to database.
+        Adds a list of phones to a service,given their respective IDs.
+        
+        :param pid: The ID of a phone number
+        :type pid: int
+        :param sid: The Service ID
+        :type sid: int
+        :param cursor: addPhone method call connection cursor to database.
+        :type cursor: connection cursor
+        :param uid: User ID
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         if pid is not None and pid != "":
-            if cursor == None:
+            if cursor is None:
                 cursor = self.conn.cursor()
             cursor = cursor
 
@@ -186,13 +249,14 @@ class PhoneDAO(MasterDAO):
                 ]))
             
             try:
-                result = cursor.execute(query, (sid, pid, False))
+                cursor.execute(query, (sid, pid, False))
                 result = cursor.fetchone()
-                print( result)
-                return result
+                newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                         pkeyval1=sid, pkeyval2=pid, cursor=cursor)
+                audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                       newValue=newValue, uid=uid, cursor=cursor)
             except:
                 return None
         else:
             result = [None, None]
-        
-        
+        return result

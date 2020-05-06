@@ -16,17 +16,17 @@ DELETED_STRING = 'deleted'
 class EventDAO(MasterDAO):
     """
     All Methods in this DAO close connections upon proper completion.
-    Do not instantiate this class and assign it, as running a method call will render it useless afterwards.
+    Do not instantiate this class and assign it, as running a method
+    call will render it useless afterwards.
     """
-
 
     def getEventByID(self, eid):
         """
         Query Database for an Event's information by its eid.
-        Parameters:
-            eid: event ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+
+        :param eid: Event ID
+        :type eid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -60,10 +60,12 @@ class EventDAO(MasterDAO):
         """
         Query Database for an all event information limited and offset.
         Parameters:
-             offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -99,11 +101,12 @@ class EventDAO(MasterDAO):
     def getAllPastEventsSegmented(self, offset, limit):
         """
         Query Database for an all event information limited and offset.
-        Parameters:
-             offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -140,11 +143,12 @@ class EventDAO(MasterDAO):
     def getAllDeletedEventsSegmented(self, offset, limit):
         """
         Query Database for all deleted events information limited and offset.
-        Parameters:
-             offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -181,14 +185,16 @@ class EventDAO(MasterDAO):
     def getUpcomingGeneralEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that are active, that have not ended,
-            ordered by closest start date, offset by a set number of rows,
-             returning a limited number of rows after offset.
-        Parameters:
-            uid: user ID.
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         ordered by closest start date, offset by a set number of rows,
+         returning a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from ("
@@ -233,16 +239,19 @@ class EventDAO(MasterDAO):
 
     def getUpcomingGeneralEventsByKeywordsSegmented(self, uid, keywords, offset, limit):
         """
-         Query Database for events that are active, that have not ended,
-            ordered by closest start date, offset by a set number of rows,
-             returning a limited number of rows after offset.
-        Parameters:
-            uid: user ID.
-            keywords: string of keywords separated by a pipe "|"
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         Query Database for events that are active, that have not ended, ordered
+         by closest start date, offset by a set number of rows, returning a
+         limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param keywords: string of keywords separated by a pipe "|"
+        :type keywords: str
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
 
         cursor = self.conn.cursor()
@@ -289,15 +298,17 @@ class EventDAO(MasterDAO):
 
     def getUpcomingFollowedEventsSegmented(self, uid, offset, limit):
         """
-         Query Database for events that the user is following,
-            that have not ended, ordered by closest start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         Query Database for events that the user is following, that have
+         not ended, ordered by closest start date, offset by a set number
+         of rows, returning a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -342,14 +353,16 @@ class EventDAO(MasterDAO):
     def getUpcomingRecommendedEventsSegmented(self, uid, offset, limit):
         """
          Query Database for events that have been recommended to the user,
-          ordered by closest start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         ordered by closest start date, offset by a set number of rows,
+         returning a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -396,14 +409,18 @@ class EventDAO(MasterDAO):
     def getUpcomingRecommendedEventsByKeywordSegmented(self, uid, keywords, offset, limit):
         """
          Query Database for events that have been recommended to the user,by keywords
-          ordered by closest start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         ordered by closest start date, offset by a set number of rows, returning
+         a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param keywords: string of keywords separated by a pipe "|"
+        :type keywords: str
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -451,15 +468,17 @@ class EventDAO(MasterDAO):
 
     def getPastFollowedEventsSegmented(self, uid, offset, limit):
         """
-         Query Database for events that the user followed,
-            and have ended, ordered by closest start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         Query Database for events that the user followed, and have
+         ended, ordered by closest start date, offset by a set number
+         of rows, returning a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -504,14 +523,16 @@ class EventDAO(MasterDAO):
     def getDismissedEvents(self, uid, offset, limit):
         """
          Query Database for events that the user has dismissed,
-          ordered by closest start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         ordered by closest start date, offset by a set number
+         of rows, returning a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -554,11 +575,11 @@ class EventDAO(MasterDAO):
 
     def getNewDeletedEvents(self, timestamp):
         """
-         Query Database for events that have been deleted after the given timestamp.
-        Parameters:
-            timestamp: string represeting the time after which to search for deleted events.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+        Query Database for events that have been deleted after the given timestamp.
+
+        :param timestamp: time after which to search for deleted events.
+        :type timestamp: str
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -586,12 +607,14 @@ class EventDAO(MasterDAO):
 
     def getEventIDsCreatedAfterTimestamp(self, uid, timestamp):
         """
-         Query Database for events that have been created after the given timestamp.
-        Parameters:
-            uid: user ID
-            timestamp: string representing the time after which to search for deleted events.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         Query Database for the event IDs of events created after the
+         given timestamp and that the given user has not yet interacted with.
+
+        :param uid: User ID
+        :type uid: int
+        :param timestamp: time after which to search for deleted events.
+        :type timestamp: str
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from events "
@@ -615,15 +638,15 @@ class EventDAO(MasterDAO):
 
     def getEventsCreatedByUser(self, uid, offset, limit):
         """
-         Query Database for events created by a user,
-            ordered by highest-value start date, offset by
-            a set number of rows, returning a limited number of rows after offset.
-        Parameters:
-            uid: User ID,
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            List[Tuple]: SQL result of Query as a list of tuples.
+         Query Database for events created by a user,ordered by
+         highest-value start date, offset by a set number of rows,
+         returning a limited number of rows after offset.
+
+        :param uid: User ID
+        :type uid: int
+        :param timestamp: time after which to search for deleted events.
+        :type timestamp: str
+        :return List[Tuple]: SQL result of Query as a list of tuples.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -662,11 +685,12 @@ class EventDAO(MasterDAO):
     def getEventInteractionByUserID(self, eid, uid):
         """
         Query Database for a user's EventUser interaction entry by eid and uid.
-        Parameters:
-            eid: event ID
-            uid: User ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+
+        :param eid: Event ID
+        :type eid: int
+        :param uid: User ID
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} "
@@ -689,12 +713,21 @@ class EventDAO(MasterDAO):
          Create an eventuserinteraction entry for the defined user and event
          that sets the interaction type to the one provided, and recommended as "N". If an entry
          for the user/event key pair exists, update the itype field.
-        Parameters:
-            uid: User ID,
-            eid: Event ID
-            itype: interaction Type string
-        Returns:
-            List[Tuple]: SQL result of Query as a tuple.
+
+        Uses:
+
+         * :func:`~app.DAOs.TagDAO.TagDAO.getCoreUserTagsFromEventID`
+         * :func:`~app.DAOs.TagDAO.TagDAO.setUserTag`
+         * :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByPkeyPair`
+         * :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
+
+        :param uid: User ID
+        :type uid: int
+        :param eid: Event ID
+        :type eid: int
+        :param itype: interaction Type
+        :type itype: str
+        :return List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
 
@@ -801,12 +834,17 @@ class EventDAO(MasterDAO):
          Create an eventuserinteraction entry for the defined user and event
          that sets the recommendstatus to the one provided, and itype as "none". If an entry
          for the user/event key pair exists, update the itype field.
-        Parameters:
-            uid: User ID,
-            eid: Event ID
-            recommendstatus: Char that states if the event is recommended or not.
-        Returns:
-            List[Tuple]: SQL result of Query as a tuple.
+
+         Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByPkeyPair` &
+         :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
+
+        :param uid: User ID
+        :type uid: int
+        :param eid: Event ID
+        :type eid: int
+        :param recommendstatus: Char that states if the event is recommended or not.
+        :type recommendstatus: str
+        :return List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         audit = AuditDAO()
@@ -853,12 +891,18 @@ class EventDAO(MasterDAO):
 # todo: Conisder setting the statusdate via trigger.
     def setEventStatus(self, eid, estatus, uid):
         """
-         Sets the estatus for a given event.
-        Parameters:
-            eid: Event ID
-            estatus: string that indicates the event's status.
-        Returns:
-            List[Tuple]: SQL result of Query as a tuple.
+        Sets the estatus for a given event.
+
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByPkeyPair` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
+
+        :param eid: Event ID
+        :type eid: int
+        :param estatus: indicates the event's status.
+        :type estatus: str
+        :param uid: User ID
+        :type uid: int
+        :return List[Tuple]: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         audit = AuditDAO()
@@ -893,18 +937,35 @@ class EventDAO(MasterDAO):
     def createEvent(self, ecreator, roomid, etitle, edescription, estart, eend, tags, photourl, websites):
         """
         Create an Event from the information provided.
-        Parameters:
-            ecreator: the event creator's UID.
-            roomid: the rid of the room in which the event will take place.
-            etitle: the event's title string.
-            edescription: the event's description string.
-            estart: the event's start timestamp
-            eend: the event's end timestamp which must be greater than the start timestamp.
-            tags: a list of integers corresponding to tag IDs
-            photourl:the url of a photo to be related to the event. Can be empty.
-            websites: a list of dictionaries containing website urls and wdescriptions. can be empty.
-        Return:
-            Tuple: SQL result of Query as a tuple.
+
+        Uses:
+
+         * :func:`~app.DAOs.PhotoDAO.PhotoDAO.insertPhoto`
+         * :func:`~app.DAOs.TagDAO.TagDAO.tagEvent`
+         * :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.addWebsite`
+         * :func:`~app.DAOs.WebsiteDAO.WebsiteDAO.addWebsitesToEvent`
+
+        :param ecreator: the event creator's UID.
+        :type ecreator: int
+        :param roomid: the rid of the room in which the event will take place.
+        :type roomid: int
+        :param etitle: the event's title.
+        :type etitle: str
+        :param edescription: the event's description.
+        :type edescription: str
+        :param estart: the event's start timestamp.
+        :type estart: str
+        :param eend: the event's end timestamp, which must be greater than the start timestamp.
+        :type eend: str
+        :param tags: a list of integers corresponding to tag IDs
+        :type tags: list of int
+
+        :param photourl: url of a photo to be related to the event. Can be empty.
+        :type photourl: str
+        :param websites: a list of dictionaries containing website urls and wdescriptions. can be empty.
+        :type websites: list of dicts
+
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
 

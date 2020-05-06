@@ -5,10 +5,20 @@ from app.DAOs.ServiceDAO import ServiceDAO
 import phonenumbers
 
 PHONETYPEKEYS = ['E', 'L', 'F', 'M']
-SERVICEPHONEKEYS = ['PNumbers']
+SERVICEPHONEKEYS = ['numbers']
 
 
 def _buildPhoneResponse(phone_tuple):
+    """
+    Private Method to build phone number dictionary to be JSONified.
+
+    :param: phone_tuple: response tuple from SQL query
+    :returns Dict: Phone information with keys:
+
+    .. code-block:: python
+
+        {'phoneid', 'pnumber', 'ptype'}
+    """
     response = {}
     response['phoneid'] = phone_tuple[0]
     response['pnumber'] = phone_tuple[1]
@@ -18,10 +28,17 @@ def _buildPhoneResponse(phone_tuple):
 
 
 class PhoneHandler:
+    """
+    Handler Class to manage getting/creating/modifying phones
+    """
 
     def unpackPhones(self, json):
         """
-        Given a Json with phone numbers, returns a list of numbers
+        Returns a lsit of phone numbers given a json body with phone numbers and types 
+
+        :param json: JSON payload with phone numbers
+        :type json: array
+        :return list: list of numbers
         """
         numbers = []
         for num in json:
@@ -30,10 +47,19 @@ class PhoneHandler:
 
     def insertServicePhone(self, sid, uid, json):
         """
-        Create a phone number and add it to a service given its ID 
-        Parameters:
-        sid: The ID of the service to add phone numbers to 
-        json: JSON containing the phone numbers to add 
+        Create a phone number and add it to a service given its ID.
+
+        Uses :func:`~app.DAOs.PhoneDAO.PhoneDAO.insertPhones` as well
+        as :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+
+
+        :param sid: The ID of the service to add phone numbers to
+        :type sid: int
+        :param uid: User ID.
+        :type uid: int
+        :param json: JSON containing the phone numbers to add
+        :type json: array
+        :return: result from :func:`~app.DAOs.PhoneDAO.PhoneDAO.insertPhones`
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
@@ -42,31 +68,33 @@ class PhoneHandler:
 
         phones = []
         phoneInfo = []
-        phones = (handler.unpackPhones(json['PNumbers']))
+        phones = (handler.unpackPhones(json['numbers']))
         dao = PhoneDAO()
 
         if not phones:
             phoneInfo = None
         else:
-           phoneInfo = dao.insertPhones(phones,sid)
-            
-                
+            phoneInfo = dao.insertPhones(phones, sid, uid=uid)
 
         return phoneInfo
 
     def getPhonesByServiceID(self, sid, no_json=False):
         """
-        Return the Phone entries belonging to the specified Service sid.
-        Parameters:
-            sid: Service ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing room information. Error JSON otherwise.
+        Create a phone number and add it to a service given its ID 
+
+        Uses :func:`~app.DAOs.PhoneDAO.PhoneDAO.getPhonesByServiceID`
+        as well as :func:`~app.handlers.PhoneHandler._buildPhoneResponse`
+
+        :param sid: The ID of the service to add phone numbers to
+        :type sid: int
+        :param no_json: Specify if response is Json or not
+        :type no_json: bool
+        :return JSON: list of phones
         """
         dao = PhoneDAO()
         phones = dao.getPhonesByServiceID(sid=sid)
         if not phones:
-            response =  None
+            response = None
         else:
             phone_list = []
             for row in phones:
@@ -78,40 +106,46 @@ class PhoneHandler:
 
     def removePhoneByServiceID(self, sid, json, uid):
         """
-        Remove  a list of phones from a given service ID 
-        Paramters:
-        sid: The ID of the service to remove the Phones from 
-        json: JSON with the tag IDs to remove 
+        Remove a phone number from a service given its ID
+
+        Uses:
+
+            * :func:`~app.DAOs.PhoneDAO.PhoneDAO.removePhonesByServiceID`
+            * :func:`~app.handlers.PhoneHandler._buildPhoneResponse`
+            * :func:`~app.handlers.PhoneHandler.PhoneHandler.unpackPhones`
+
+        :param sid: The ID of the service to add phone numbers to
+        :type sid: int
+        :param uid: User ID.
+        :type uid: int
+        :param json: JSON containing the phone numbers to add
+        :type json: array
+        :return JSON: phone number information.
         """
         for key in SERVICEPHONEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-        print("sending pids")
-        phones = []
+       
+       
         phoneIDs = []
         phoneInfo = []
-        phones = (self.unpackPhones(json['PNumbers']))
+        phones = (self.unpackPhones(json['numbers']))
         dao = PhoneDAO()
-        print(phones)
-        if not phones:
-            phoneInfo = None
-        else:
-            for x in phones:
-                
-                if x['phoneid']!="" :
-                        ID = (dao.removePhonesByServiceID(
-                        sid=sid, phoneid=x['phoneid']))
-                
-                # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
+      
+        
+        phoneIDs = dao.removePhonesGivenServiceID(sid=sid, phones=phones, uid=uid)
+        
+        
+        for id in phoneIDs:
                     
-                        if(ID == None):
-                            phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))
-                        else:
-                            phoneIDs.append((ID))
-                else:
-                    phoneInfo.append("Phone number ID not associated with Service-> sid: " + str(sid) + ' phoneid: ' + (str(x['phoneid'])))
-
-                # print('Phones deleted IDs: '+ str(phoneIDs))
-            for row in phoneIDs:
-                phoneInfo.append((_buildPhoneResponse(dao.getPhoneByID(row))))
-        return jsonify(phoneInfo)
+                        if isinstance(id,int):
+                            phone =dao.getPhoneByID(id)
+                            if phone is not None:
+                                phoneInfo.append(_buildPhoneResponse(phone))
+                            else:
+                                return jsonify(Error="Error with phone id "+str(id)),404
+                        
+                    
+                  
+             
+        return jsonify({"numbers":phoneInfo}),200

@@ -1,4 +1,5 @@
 /dashboard/dist
+
 .vscode
 .env
 .idea
@@ -83,3 +84,7 @@ flask/app/handlers/__pycache__/EventHandler.cpython-36.pyc
 flask/app/handlers/__pycache__/EventHandler.cpython-36.pyc
 flask/app/routes/__pycache__/events_info_routes.cpython-36.pyc
 flask/app/routes/__pycache__/events_info_routes.cpython-36.pyc
+/docs/build/
+flask/app/handlers/__pycache__/EventHandler.cpython-36.pyc
+flask/app/routes/__pycache__/events_info_routes.cpython-36.pyc
+flask/app/routes/__pycache__/user_auth_routes.cpython-36.pyc
