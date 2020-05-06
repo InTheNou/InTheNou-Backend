@@ -1,14 +1,24 @@
 from app.DAOs.MasterDAO import MasterDAO
-from psycopg2 import sql, errors
+from psycopg2 import sql, errors,errorcodes
+from app.DAOs.AuditDAO import AuditDAO
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.DAOs.WebsiteDAO import WebsiteDAO
 from app.DAOs.PhoneDAO import PhoneDAO
+from flask import jsonify
 
 
 class ServiceDAO(MasterDAO):
+    """
+    Data access object for transactions involving services.
+    """
 
     def serviceInfoArgs(self, service):
         """
+        Query Database for an Service's information by its sid.
+
+        :param service: contains service fields
+        :type service: dict
+        :return list: list of strings with 'key = value' structure.
         """
 
         fields = []
@@ -23,8 +33,25 @@ class ServiceDAO(MasterDAO):
                 fields.append(key + " = " + "'"+str(service[key])+"'")
         return fields
 
-    def deleteService(self, sid):
+    def deleteService(self, sid, uid):
+        """
+        Remove a service from the database,given a service ID.
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByIntID` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
+
+        :param sid: Service ID
+        :type sid: int
+        :param uid: User ID
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
+
+        audit = AuditDAO()
+        tablename = "services"
+        pkey = "sid"
+        oldValue = audit.getTableValueByIntID(
+            table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
 
         query = sql.SQL("update {table1} set isdeleted = true  "
                         "where  {pkey1} = %s "
@@ -33,6 +60,11 @@ class ServiceDAO(MasterDAO):
             pkey1=sql.Identifier('sid'))
         cursor.execute(query, (int(sid), ))
         result = cursor.fetchone()
+
+        newValue = audit.getTableValueByIntID(
+            table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
         if result is None:
             return None
@@ -40,14 +72,40 @@ class ServiceDAO(MasterDAO):
 
     def createService(self, uid, rid, sname, sdescription, sschedule, websites, numbers):
         """
+        Creates a new service and adds websites and phones to it.
+        Uses :func:`~app.DAOs.AuditDAO.AuditDAO.getTableValueByIntID` &
+        :func:`~app.DAOs.AuditDAO.AuditDAO.insertAuditEntry`
+
+        :param uid: The user ID for the creator of the service
+        :type uid: int
+        :param rid: The ID for the room that would provide the service
+        :type rid: int
+        :param sname: The name of the service
+        :type sname: string
+        :param sdescription: A description of the service
+        :type sdescription: string 
+        :param sschedule: The service's schedule
+        :type sschedule: string 
+        :param websites: Websites to be asociated with the service
+        :type websites: array
+        :param numbers: Phone numbers to be added to the service
+        :type numbers: array
+        :return: results from :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByID` used with
+            the new service's sid.
         """
         cursor = self.conn.cursor()
 
         # Build the query to create an event entry.
         try:
+            audit = AuditDAO()
+            tablename = "services"
+            pkey = "sid"
+            # TODO: UPDATE WITH APPROPRIATE CALL TO ACTUAL VALUE ON TABLE IF NEEDED.
+            oldValue = None
+
             query = sql.SQL("insert into {table1} ({insert_fields})"
                             "values (%s, %s, %s, %s, %s) "
-                            "returning {pkey1}").format(
+                            "returning {keys}").format(
                 table1=sql.Identifier('services'),
                 insert_fields=sql.SQL(',').join(
                     [
@@ -57,35 +115,56 @@ class ServiceDAO(MasterDAO):
                         sql.Identifier('sschedule'),
                         sql.Identifier('isdeleted'),
                     ]),
-                pkey1=sql.Identifier('sid'))
+                keys=sql.SQL(',').join(
+                    [   sql.Identifier('sid'),
+                        sql.Identifier('rid'),
+                        sql.Identifier('sname'),
+                        sql.Identifier('sdescription'),
+                        sql.Identifier('sschedule'),
+                        sql.Identifier('isdeleted'),
+                    ]))
             cursor.execute(query, (int(rid), str(sname), str(
                 sdescription), str(sschedule), False))
+
             result = cursor.fetchone()
             sid = result[0]
 
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+
             for site in websites:
-                WebsiteDAO().addWebsitesToService(sid=sid, wid=(WebsiteDAO.addWebsite(self,
-                                                                                      url=site['url'], cursor=cursor)), wdescription=site['wdescription'], cursor=cursor)
+                website = (WebsiteDAO.addWebsite(
+                    self, url=site['url'], cursor=cursor, uid=uid))
+                if website is None:
+                    
+                    return jsonify(Error='Website problem '+site['url']+" Not valid"),400
+                else:
+                    WebsiteDAO().addWebsitesToService(
+                        sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor, uid=uid)
 
             for num in numbers:
-                PhoneDAO().addPhoneToService(sid=sid, pid=PhoneDAO.insertPhone(
-                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor), cursor=cursor)
+                phone = PhoneDAO.addPhone(
+                    self, pnumber=num['pnumber'], ptype=num['ptype'], cursor=cursor, uid=uid)
+
+                PhoneDAO().addPhoneToService(
+                    sid=sid, pid=phone[0], cursor=cursor, uid=uid)
 
         # Commit changes if no errors occur.
             self.conn.commit()
 
         except errors.UniqueViolation as badkey:
-            return badkey
-
+            return jsonify(Error=str(badkey))
+      
         return result
 
     def getServiceByID(self, sid):
         """
          Query Database for an Service's information by its sid.
-        Parameters:
-            sid: Service ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+
+        :param sid: Service ID
+        :type sid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -106,12 +185,11 @@ class ServiceDAO(MasterDAO):
 
     def getServicesByRoomID(self, rid):
         """
-        Query Database for all users and their basic information
-        Parameters:
-            offset:Number of records to ignore , ordered by user ID biggest first
-            limit:maximum number of records to recieve
-        Returns:
-            Tuple: SQL result of Query as tuple.
+        Query Database for an all services in a given room ID.
+
+        :param rid: Room ID.
+        :type rid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL(
@@ -124,12 +202,13 @@ class ServiceDAO(MasterDAO):
 
     def getServicesSegmented(self, offset, limit):
         """
-        Query Database for all users and their basic information
-        Parameters:
-            offset:Number of records to ignore , ordered by user ID biggest first
-            limit:maximum number of records to recieve
-        Returns:
-            Tuple: SQL result of Query as tuple.
+        Query Database for an all services, segmented.
+
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select * from services WHERE isdeleted = false "
@@ -143,13 +222,15 @@ class ServiceDAO(MasterDAO):
 
     def getServicesByKeywords(self, searchstring, offset, limit):
         """
-         Query Database for services whose names or descriptions match a search string.
-        Parameters:
-            searchstring: pipe-separated string of keywords to search for.
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for an all services matching a given keyword.
+
+        :param searchstring: Keyword to search for services
+        :type searchstring: string
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -176,10 +257,28 @@ class ServiceDAO(MasterDAO):
             result.append(row)
         return result
 
-    def updateServiceInformation(self, sid, service):
+    def updateServiceInformation(self, sid, service, uid):
+        """
+        Update the information about a service.
+        Parameters:
+
+        :param sid: Service ID.
+        :type sid: int
+        :param service: Dictionary with the service information to update.
+        :type service: string
+        :param uid: User ID of the caller of this function.
+        :type uid: int
+        :return Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         try:
             fields_list = self.serviceInfoArgs(service)
+            audit = AuditDAO()
+            tablename = "services"
+            pkey = "sid"
+            oldValue = audit.getTableValueByIntID(
+                table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+
             query = sql.SQL("update {table1} set {fields}  "
                             "where  {pkey1} = %s AND isdeleted=false  "
                             "returning {pkey1}  ").format(
@@ -187,9 +286,17 @@ class ServiceDAO(MasterDAO):
                 fields=sql.SQL(",").join(map(sql.SQL, fields_list)),
                 pkey1=sql.Identifier('sid'))
             cursor.execute(query, (int(sid), ))
-
-            self.conn.commit()
             result = cursor.fetchone()
+            newValue = audit.getTableValueByIntID(
+                table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
+            self.conn.commit()
             return result
+       
+        except errors.UniqueViolation as badkey:
+            return jsonify(Error="anonther service is using the same name, within the same room"),403
+        
         except errors.TypeError as badkey:
-            return badkey
+            return jsonify(Error = "Sid problem")
+        

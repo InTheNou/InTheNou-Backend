@@ -21,6 +21,40 @@ blueprint = make_google_blueprint(
 # create/login local user on successful OAuth login
 @oauth_authorized.connect_via(blueprint)
 def google_logged_in(blueprint, token):
+    """
+    .. py:oauth_authorized.connect_via(blueprint)
+    .. :quickref: OAuth; Google Authorized
+    
+    Logout
+    Uses :func:`~app.models.User.query.filter_by` as well as 
+    :func:`~app.models.OAuth.query.filter_by`
+    
+    :return: JSON
+
+    **Example request**:
+
+        .. sourcecode:: http
+
+            GET /API/App/google/authorized HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+               "uid": 11
+            }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    """
     # if no token was recieved from google, throw error
     if not token:
         flash("Failed to log in.", category="error")
@@ -59,14 +93,14 @@ def google_logged_in(blueprint, token):
             
             print("USER CAN NOT BE CREATED ERROR CODE  =  0 ")
             flash("User must create account in the InTheNou App")
+            jsonuser = UserHandler().getUserByID(int(user.id))
+
+            response = jsonuser
             
-            response = redirect("http://localhost:8080/#/login/fail/?error=0") 
             return response
   
     try:
-        if int(user.user_role) < 3:
-            response = redirect("http://localhost:8080/#/login/fail/?error=1") 
-            return response
+       
         
         query = OAuth.query.filter_by(
             token=str(token['access_token']), user=user, id=user.id)
@@ -74,8 +108,7 @@ def google_logged_in(blueprint, token):
     # user was not found in the database
     except NoResultFound:
         if(user):
-            oauth = OAuth(provider=blueprint.name, token=str(token['access_token']), created_at=(
-                str(token['expires_at'])), id=user.id, user=user)
+            oauth = OAuth(provider=blueprint.name, token=str(token['access_token']),  id=user.id, user=user)
             session['token'] = str(token['access_token'])
             db.session.add_all([oauth])
             db.session.commit()
@@ -85,7 +118,7 @@ def google_logged_in(blueprint, token):
                 flash("Successfully signed in.")
                 jsonuser = UserHandler().getUserByID(int(user.id))
 
-                response = redirect("http://localhost:8080/#/login/succeed/?uid="+str(user.id)) 
+                response = jsonuser
                 return response
     
 
@@ -93,6 +126,14 @@ def google_logged_in(blueprint, token):
 # notify on OAuth provider error
 @oauth_error.connect_via(blueprint)
 def google_error(blueprint, message, response):
+    """
+    .. py:oauth_authorized.google_error(blueprint, message, response)
+    .. :quickref: OAuth; Google Error
+    
+    Google Error handling
+    
+    :return: Flash Signal
+    """
     msg = ("OAuth error from {name}! " "message={message} response={response}").format(
         name=blueprint.name, message=message, response=response
     )
@@ -100,47 +141,80 @@ def google_error(blueprint, message, response):
 
 
 def admin_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in and is a Administrator
+
+    :statuscode 403: User is not logged in.
+    :statuscode 401: Admin role required
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
-        if current_user.user_role == 4:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to be an admin for this action.")
-            return jsonify(Error="Admin role required"),401
-
+        try:    
+            if current_user.user_role == 4:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be an admin for this action.")
+                return jsonify(Error="Admin role required"),401
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap
 
 
 def mod_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in and is a Moderator
+
+    :statuscode 403: User is not logged in.
+    :statuscode 401: Moderator role required
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
-        if current_user.user_role >= 3:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to be a moderator for this action.")
-            return jsonify(Error="Moderator role required"),401
-
+        try:
+            if current_user.user_role >= 3:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be a moderator for this action.")
+                return jsonify(Error="Moderator role required"),401
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap
 
 
 def event_creator_role_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if current_user.user_role >= 2:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to be a event creator for this action.")
-            return jsonify(Error="Event creator role required "),401
-    return wrap
+    """
+    Decorator to check if user calling the route is signed in and is a Event Creator
 
-
-def token_required(f):
+    :statuscode 403: User is not logged in.
+    :statuscode 401: Event Creator role required
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         try:
-            session['token'] = str(session['token'])
-            return f(*args, **kwargs)
-        except:
-            flash("You need to be authorized to use this function yo.")
+            if current_user.user_role >= 2:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be a event creator for this action.")
+                return jsonify(Error="Event creator role required "),401
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
+    return wrap
 
+
+def user_role_required(f):
+    """
+    Decorator to check if user calling the route is signed in
+
+    :statuscode 403: User is not logged in.
+    """
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        
+        try:
+            if current_user.user_role >= 1:
+                return f(*args, **kwargs)
+            else:
+                flash("You need to be a user for this action.")
+                return jsonify(Error="Event creator role required "),401
+        except AttributeError as e:
+                return jsonify(Error="You need to Log in: "),403
     return wrap

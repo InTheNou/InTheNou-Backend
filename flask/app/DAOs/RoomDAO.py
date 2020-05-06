@@ -1,10 +1,17 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
+
 from psycopg2 import sql
 
 
 class RoomDAO(MasterDAO):
     def roomInfoArgs(self, roomKeys):
         """
+        Given a list of Room information, return a list of fields and values
+
+        :param roomKeys: room keys.
+        :type roomKeys: list
+        :return list: room keys as 'key = value' strings.
         """
 
         fields = []
@@ -14,11 +21,11 @@ class RoomDAO(MasterDAO):
 
     def getRoomByID(self, rid):
         """
-         Query Database for an Room's information by its rid.
-        Parameters:
-            rid: event ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for an Room's information by its rid.
+
+        :param rid: Room ID
+        :type rid: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -50,12 +57,13 @@ class RoomDAO(MasterDAO):
 
     def getRoomsByBuildingAndFloor(self, bid, rfloor):
         """
-         Query Database for all the rooms on a given building's floor..
-        Parameters:
-            bid: building ID
-            rfloor: room floor
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for all the rooms on a given building's floor..
+
+        :param bid: building ID
+        :type bid: int
+        :param rfloor: room floor
+        :type rfloor: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -90,9 +98,23 @@ class RoomDAO(MasterDAO):
             result.append(row)
         return result
 
-    def changeRoomCoordinates(self, rid, roomKeys):
+    def changeRoomCoordinates(self, rid, roomKeys, uid):
+        """
+        Change the Room coordinates given a room ID
+
+        :param rid: The Id of the room to update coordinates for
+        :type rid: int
+        :param roomKeys: The Json object containing the Coordinates to update
+        :type roomKeys: list
+        :return Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         fields_list = self.roomInfoArgs(roomKeys=roomKeys)
+
+        audit = AuditDAO()
+        tablename = "rooms"
+        pkey = "rid"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=rid, cursor=cursor)
 
         query = sql.SQL("update {table1} set {fields}  "
                         "where  {pkey1} = %s  "
@@ -102,6 +124,10 @@ class RoomDAO(MasterDAO):
             pkey1=sql.Identifier('rid'))
         cursor.execute(query, (int(rid), ))
         result = cursor.fetchone()
+
+        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=rid, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
 
         if result is None:
@@ -111,13 +137,15 @@ class RoomDAO(MasterDAO):
 
     def getRoomsByKeywordSegmented(self, keywords, offset, limit):
         """
-         Query Database for an Room's information by description keywords.
-        Parameters:
-            keywords: string of keywords separated by a pipe "|"
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for an Room's information by description keywords.
+
+        :param keywords: string of keywords separated by a pipe "|"
+        :type keywords: str
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -156,13 +184,17 @@ class RoomDAO(MasterDAO):
     # TODO: IMPLEMENT THE PROPER QUERY
     def getRoomsByCodeSearchSegmented(self, babbrev, rcode, offset, limit):
         """
-         Query Database for an Room's information by description keywords.
-        Parameters:
-            keywords: string of keywords separated by a pipe "|"
-            offset: Number of rows to ignore from top results.
-            limit: Maximum number of rows to return from query results.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for an Room's information by description keywords.
+
+        :param babbrev: Building uppercase abbreviation
+        :type babbrev: str
+        :param  rcode: room code without the building abbreviation
+        :type rcode: str
+        :param offset: Number of rows to ignore from top results.
+        :type offset: int
+        :param limit: Maximum number of rows to return from query results.
+        :type limit: int
+        :return Tuple: SQL result of Query as a tuple.
         """
         babbrev = '%' + babbrev + '%'
         rcode = '%' + rcode + "%"

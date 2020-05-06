@@ -21,6 +21,14 @@ DB_URI = 'postgresql+psycopg2://{user}:{pw}@{hostname}:{port}/{db}'.format(
 
 
 class Config(object):
+    """
+    Configuration file that handles setting global variables for data access/connections.
+
+    :var: SECRET_KEY: Secret key, used to encrypt cookies
+    :var: SQLALCHEMY_TRACK_MODIFICATIONS: SQLAlquemy variable, set to False
+    :var: GOOGLE_OAUTH_CLIENT_ID: The Client ID for the google authentication, registered from google.console
+    :var: GOOGLE_OAUTH_CLIENT_SECRET: The client secret key,registered from google.console
+    """
     SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
@@ -31,6 +39,9 @@ class SimpleSecureCookieSessionInterface(SecureCookieSessionInterface):
     # Override method
     # Take secret_key instead of an instance of a Flask app
     def get_signing_serializer(self, secret_key):
+        """
+        Used to check secret key
+        """
         if not secret_key:
             return None
         signer_kwargs = dict(
@@ -42,16 +53,22 @@ class SimpleSecureCookieSessionInterface(SecureCookieSessionInterface):
                                       signer_kwargs=signer_kwargs)
 
 
-def decodeFlaskCookie(secret_key, cookieValue):
-    sscsi = SimpleSecureCookieSessionInterface()
-    signingSerializer = sscsi.get_signing_serializer(secret_key)
-    return signingSerializer.loads(cookieValue)
+    def decodeFlaskCookie(self,secret_key, cookieValue):
+        """
+        Decode a base 64 encoded string
+        """
+        sscsi = SimpleSecureCookieSessionInterface()
+        signingSerializer = sscsi.get_signing_serializer(secret_key)
+        return signingSerializer.loads(cookieValue)
 
 # Keep in mind that flask uses unicode strings for the
 # dictionary keys
 
 
-def encodeFlaskCookie(secret_key, cookieDict):
-    sscsi = SimpleSecureCookieSessionInterface()
-    signingSerializer = sscsi.get_signing_serializer(secret_key)
-    return signingSerializer.dumps(cookieDict)
+    def encodeFlaskCookie(self,secret_key, cookieDict):
+        """
+        Encode a string to base 64
+        """
+        sscsi = SimpleSecureCookieSessionInterface()
+        signingSerializer = sscsi.get_signing_serializer(secret_key)
+        return signingSerializer.dumps(cookieDict)

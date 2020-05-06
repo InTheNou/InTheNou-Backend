@@ -9,6 +9,19 @@ CHANGEROOMCOORDINATESKEYS = ['rlongitude', 'raltitude', 'rlatitude']
 
 # TODO: remove circular dependencies so this import does not occur in here.
 def _buildRoomResponse(room_tuple):
+    """
+    Private Method to build room dictionary to be JSONified.
+
+     Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.GetServicesByRoomID`
+
+    :param room_tuple: response tuple from SQL query
+    :returns Dict: Room information with keys:
+
+    .. code-block:: python
+
+        {'rid',  'rcode', 'rdescription', 'roccupancy',
+        'rdept', 'rcustodian','rlongitude','rlatitude','raltitude','photourl'}
+    """
     response = {}
     response['rid'] = room_tuple[0]
     # Skipping bid so that it may be added either internally
@@ -37,6 +50,18 @@ def _buildRoomResponse(room_tuple):
 
 
 def _buildCoreRoomResponse(room_tuple):
+    """
+    Private Method to build core room dictionary to be JSONified.
+
+     
+    :param room_tuple: response tuple from SQL query
+    :returns Dict: Room information with keys:
+
+    .. code-block:: python
+
+        {'rid',  'rcode','rfloor' ,'rdescription', 'roccupancy',
+        'rdept', 'rcustodian','rlongitude','rlatitude','raltitude','photourl'}
+    """
     response = {}
     response['rid'] = room_tuple[0]
     # Skipping bid so that it may be added either internally
@@ -56,6 +81,17 @@ def _buildCoreRoomResponse(room_tuple):
 
 
 def _buildTinyRoomResponse(room_tuple):
+    """
+    Private Method to build minimal room dictionary to be JSONified.
+
+     
+    :param room_tuple: response tuple from SQL query
+    :returns Dict: Room information with keys:
+
+    .. code-block:: python
+
+        {'rid',  'rcode'}
+    """
     # Currently using the getRoomByID() method
     response = {}
     response['rid'] = room_tuple[0]
@@ -67,6 +103,17 @@ def _buildTinyRoomResponse(room_tuple):
 
 
 def _buildChangeCoordinatesRoomResponse(room_tuple):
+    """
+    Private Method to build change coordinates of a room dictionary to be JSONified.
+
+    :param room_tuple: response tuple from SQL query
+    :returns Dict: Room information with keys:
+
+    .. code-block:: python
+
+        {'rid',  'rcode','rfloor',
+        'rlongitude','rlatitude','raltitude'}
+    """
     # Currently using the getRoomByID() method
     response = {}
     response['rid'] = room_tuple[0]
@@ -84,11 +131,10 @@ class RoomHandler:
     def getRoomByID(self, rid, no_json=False):
         """
         Return the room entry belonging to the specified rid.
-        Parameters:
-            rid: room ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing room information. Error JSON otherwise.
+
+        :param rid: room ID.
+        :param no_json: states if the response should be returned as JSON or not.
+        :return JSON: containing room information. Error JSON otherwise.
         """
         dao = RoomDAO()
         room = dao.getRoomByID(rid)
@@ -108,12 +154,11 @@ class RoomHandler:
     def getRoomsByBuildingAndFloor(self, bid, rfloor, no_json=False):
         """
         Return the room entries belonging to the specified building and floor.
-        Parameters:
-            bid: building ID.
-            rfloor: room floor.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing room information. Error JSON otherwise.
+
+        :param  bid: building ID.
+        :param  rfloor: room floor.
+        :param no_json: states if the response should be returned as JSON or not.
+        :return JSON: containing room information. Error JSON otherwise.
         """
         dao = RoomDAO()
         rooms = dao.getRoomsByBuildingAndFloor(bid=bid, rfloor=rfloor)
@@ -131,6 +176,12 @@ class RoomHandler:
         return jsonify(response)
 
     def safeGetRoomByID(self, rid):
+        """
+        Return a room given the room ID
+
+        :param rid: room ID.
+        :return JSON: containing room information. Error JSON otherwise.
+        """
         room = self.getRoomByID(rid=rid, no_json=True)
         # Following line checks if the above returns a json (no room found or no_json set to False.
         if not isinstance(room, dict):
@@ -140,11 +191,10 @@ class RoomHandler:
     def getTinyRoomByID(self, rid, no_json=False):
         """
         Return the room entry belonging to the specified rid.
-        Parameters:
-            rid: room ID.
-            no_json: states if the response should be returned as JSON or not.
-        Returns:
-            JSON: containing room information. Error JSON otherwise.
+
+        :param rid: room ID.
+        :param  no_json: states if the response should be returned as JSON or not.
+        :return JSON: containing room information. Error JSON otherwise.
         """
         dao = RoomDAO()
         room = dao.getRoomByID(rid)
@@ -158,14 +208,27 @@ class RoomHandler:
                 return response
             return jsonify(response)
 
-    def changeRoomCoordinates(self, rid, json):
+    def changeRoomCoordinates(self, rid, json, uid):
+        """
+        Edit a room's coordinates given the room ID
+
+        :param rid: Room ID.
+        :param uid: User ID
+        :param  json: json payload with the following keys:
+
+                * rlatitude
+                * rlongitude
+                * raltitude
+
+        :return JSON: containing room information. Error JSON otherwise.
+        """
         roomKeys = {}
         for key in json:
             if key in CHANGEROOMCOORDINATESKEYS:
                 roomKeys[key] = (json[key])
 
         dao = RoomDAO()
-        room = dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys)
+        room = dao.changeRoomCoordinates(rid=rid, roomKeys=roomKeys, uid=uid)
         if room is not None:
             response = _buildChangeCoordinatesRoomResponse(room)
             return jsonify(response)
@@ -175,12 +238,11 @@ class RoomHandler:
     def getRoomsByKeywordSegmented(self, searchstring, offset, limit=20):
         """
         Return the room entries matching the search parameters.
-        Parameters:
-            searchstring: string separated by whitespaces with terms to search for
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Returns:
-            JSON: containing room information or null. Error JSON otherwise.
+
+        :param  searchstring: string separated by whitespaces with terms to search for
+        :param offset: Number of result rows to ignore from top of query results.
+        :param limit: Max number of result rows to return. Default=20.
+        :return JSON: containing room information or null. Error JSON otherwise.
         """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
@@ -207,13 +269,12 @@ class RoomHandler:
     def getRoomsByCodeSearchSegmented(self, babbrev, rcode, offset, limit=20):
         """
         Return the room entries matching the search parameters.
-        Parameters:
-            babbrev: string corresponding to the building abbreviation
-            rcode: string corresponding to the room code
-            offset: Number of result rows to ignore from top of query results.
-            limit: Max number of result rows to return. Default=10.
-        Returns:
-            JSON: containing room information or null. Error JSON otherwise.
+
+        :param babbrev: string corresponding to the building abbreviation
+        :param rcode: string corresponding to the room code
+        :param offset: Number of result rows to ignore from top of query results.
+        :param limit: Max number of result rows to return. Default=20.
+        :return JSON: containing room information or null. Error JSON otherwise.
         """
         try:
             SVF.validate_offset_limit(offset=offset, limit=limit)
