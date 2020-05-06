@@ -9,7 +9,8 @@ from app.handlers.BuildingHandler import BuildingHandler
 from app.handlers.ServiceHandler import ServiceHandler
 from app.handlers.TagHandler import TagHandler
 from app.handlers.UserHandler import UserHandler
-
+from datetime import timedelta,datetime
+import base64
 route_prefix = "/API"
 
 
@@ -2526,16 +2527,23 @@ def getAllTags():
         except:
             #No session Found
             #Check for token in Json body
-                try:
+                # try:
                     #TODO Make this check for token dynamically 
-                    if str(request.headers['Token']) == 'This_is_a_token':
-                        
+                    token = str(request.headers['Token'])
+                    token = base64.b64decode(bytes(token, 'utf-8'))
+                    token = token.decode('utf-8')
+                    tokenDate = (datetime.strptime(token, '%Y-%m-%d %H:%M:%S.%f'))    
+                    currentDate= datetime.now()
+                    print("Current date :"+ str(currentDate)+" token date: "+str(tokenDate))
+                    date_diff = (currentDate - tokenDate)/timedelta(minutes=1)
+                    print (date_diff)
+                    if (date_diff) < 5:
                         return TagHandler().getAllTags()
                     else:
                         return jsonify(Error="Try loggin in first "), 401
-                except: 
-                #No Token found
-                    return jsonify(Error="Try loggin in first "), 401
+                # except: 
+                # #No Token found
+                #     return jsonify(Error="Try loggin in first "), 401
         
         return jsonify(Error="Try loggin in first "), 401   
     else:
