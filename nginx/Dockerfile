@@ -8,3 +8,5 @@ COPY ${config} /etc/nginx/conf.d/
 ADD ssl /etc/nginx/ssl/
 RUN chown -R root:root /etc/nginx/ssl
 RUN chmod -R 700 /etc/nginx/ssl
+
+COPY home.html /usr/share/nginx/html

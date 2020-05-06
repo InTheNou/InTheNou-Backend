@@ -1,11 +1,24 @@
 from app.DAOs.MasterDAO import MasterDAO
+from app.DAOs.AuditDAO import AuditDAO
 from psycopg2 import sql, errors
 
 
 class TagDAO(MasterDAO):
 
-    def createTag(self, tname):
+    def createTag(self, tname, uid):
+        """
+        Create a new Tag in the system
+
+        :param  tname: The name of the new tag to be created
+        :param  uid: The tag creator User ID
+        :return  Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
+
+        audit = AuditDAO()
+        tablename = "tags"
+        pkey = "tname"
+        oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tname, cursor=cursor)
         # Build the query to create an event entry.
         query = sql.SQL("insert into {table1} (tname)  "
                         "VALUES (  %s ) "
@@ -14,13 +27,29 @@ class TagDAO(MasterDAO):
             table1=sql.Identifier('tags'))
         cursor.execute(query, (str(tname), str(tname)))
         result = cursor.fetchone()
+        newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tname, cursor=cursor)
+        audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+                               newValue=newValue, uid=uid, cursor=cursor)
         self.conn.commit()
         return result
 
-    def editTagName(self, tid, tname):
+    def editTagName(self, tid, tname, uid):
+        """
+        Edit the name of a Tag in the system,given it's ID
+
+        :param  tname: The new name of the tag to be edited
+        :param tid: The Tag ID
+        :param  uid: The tag creator User ID
+        :return  Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         # Build the query to create an event entry.\
         try:
+            audit = AuditDAO()
+            tablename = "tags"
+            pkey = "tid"
+            oldValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tid, cursor=cursor)
+
             query = sql.SQL("update  {table1} SET   "
                             "tname =  %s  "
                             "WHERE tid = %s "
@@ -28,6 +57,9 @@ class TagDAO(MasterDAO):
                 table1=sql.Identifier('tags'))
             cursor.execute(query, (str(tname), int(tid)))
             result = cursor.fetchone()
+            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=tid, cursor=cursor)
+            audit.insertAuditEntry(changedTable=tablename, changeType=audit.UPDATEVALUE, oldValue=oldValue,
+                                   newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
             return result
 
@@ -36,11 +68,10 @@ class TagDAO(MasterDAO):
 
     def getTagByID(self, tid):
         """
-         Query Database for an Tag's information by its tid.
-        Parameters:
-            tid: tag ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for an Tag's information by its tid.
+
+        :param tid: tag ID
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table} "
@@ -57,12 +88,11 @@ class TagDAO(MasterDAO):
 
     def getTagsByEventID(self, eid):
         """
-         Query Database for all the tags belonging
-            to an event, given the event's ID.
-        Parameters:
-            eid: event ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for all the tags belonging
+        to an event, given the event's ID.
+
+        :param eid: event ID
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -85,9 +115,9 @@ class TagDAO(MasterDAO):
 
     def getAllTags(self):
         """
-         Query Database all tag entries.
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database all tag entries.
+
+        :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table};").format(
@@ -104,12 +134,11 @@ class TagDAO(MasterDAO):
 
     def getTagsByUserID(self, uid):
         """
-         Query Database for all the tags belonging
-            to a User, given the user's ID.
-        Parameters:
-            uid: User ID
-        Returns:
-            Tuple: SQL result of Query as a tuple.
+        Query Database for all the tags belonging
+        to a User, given the user's ID.
+
+        :param uid: User ID
+        :return  Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
         query = sql.SQL("select {fields} from {table1} "
@@ -135,13 +164,14 @@ class TagDAO(MasterDAO):
         """
         Tag the specified event with the specified tag. DOES NOT COMMIT CHANGES TO
         DB.
-        Parameters:
-            eid: newly created Event ID.
-            tid: tag ID
-            cursor: createEvent method call connection cursor to database.
+
+        :param  eid: newly created Event ID.
+        :param  tid: tag ID
+        :param  cursor: createEvent method call connection cursor to database.
+        :return  Tuple: SQL result of Query as a tuple.
         """
         cursor = cursor
-
+        # Currently not auditing this method, since creating an event stores info on who and when.
         query = sql.SQL("insert into {table1} "
                         "({insert_fields}) "
                         "values (%s, %s);").format(
@@ -152,10 +182,16 @@ class TagDAO(MasterDAO):
             ]))
         cursor.execute(query, (int(eid), int(tid)))
 
+#TODO: METHOD NOT CURRENTLY AUDITING.
     def setUserTag(self, uid, tid, weight, cursor):
         """
-        Sets the weight for the users's tag.
-        DOES NOT COMMIT CHAGES TO DATABASE
+        Associate a user account with a specified tag 
+
+        :param  uid: The user ID
+        :param  tid: tag ID
+        :param weight: The importance of a tag to a specified user
+        :param  cursor: createEvent method call connection cursor to database.
+        :return  Tuple: SQL result of Query as a tuple.
         """
         cursor = cursor
         query = sql.SQL("insert into {table}({fields}) "
@@ -174,7 +210,16 @@ class TagDAO(MasterDAO):
         result = cursor.fetchone()
         return result
 
+#TODO: METHOD NOT CURRENTLY AUDITING
     def batchSetUserTags(self, uid, tags, weight):
+        """
+        Assign a list of tags to a user
+
+        :param tags: list of the tag IDs to associate with the user
+        :param  uid: The tag creator User ID
+        :param weight: The importance of a tag to a specified user
+        :return  Tuple: SQL result of Query as a tuple.
+        """
         cursor = self.conn.cursor()
         result = []
         try:
@@ -198,11 +243,10 @@ class TagDAO(MasterDAO):
         except errors.ForeignKeyViolation as badkey:
             return badkey
         return result
-
+#TODO:FINISH DOCUMENTATION ON THIS METHOD
     def getCoreUserTagsFromEventID(self, uid, eid, cursor):
         """
-        Gets the weights for the given user, for the given event, even if null.
-        DOES NOT COMMIT CHANGES TO DATABASE
+
         """
         cursor = cursor
         query = sql.SQL("select et.tid, cuser.tagweight from "

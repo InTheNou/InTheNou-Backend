@@ -42,7 +42,6 @@ Create table Users
 Create table oAuth
 (
    access_token text NOT NULL CHECK (access_token <> ''),
-   created_at text CHECK (created_at <> ''),
    provider text NOT NULL CHECK (provider <> ''),
    uid int references Users(uid) NOT NULL,
    primary key (access_token, uid)
@@ -100,7 +99,7 @@ Create table rooms
    rAltitude decimal(10,6) NOT NULL,
    photoID int references Photos(photoID),
    rdescription_tokens tsvector,
-   constraint Unique_rcode_per_building UNIQUE (bid, rcode)
+   constraint "Unique_rcode_per_building" UNIQUE (bid, rcode)
 );
 
 /* For searching the tokens of rooms, use both languages:
@@ -163,8 +162,9 @@ execute procedure vectorizeService
 Create table Phones
 (
    phoneID serial primary key,
-   pNumber text NOT NULL UNIQUE CHECK (pNumber <> ''),
-   pType char(1) NOT NULL
+   pNumber text NOT NULL CHECK (pNumber <> ''),
+   pType char(1) NOT NULL,
+   constraint "unique_pnumber_ptype" UNIQUE(pNumber,pType)
 );
 
 /* Relate Phones with Services */
@@ -192,7 +192,8 @@ Create table ServiceWebsites
    wid integer references Websites(wid) NOT NULL,
    wDescription text,
    isDeleted boolean NOT NULL,
-   primary key (sid,wid)
+   primary key (sid,wid) 
+  
 );
 
 /* Create Events, related with Users, Rooms, Photos, and Websites. */
@@ -290,10 +291,10 @@ Create table UserTags
                         
 /* Create Audit Table */
 /* Removed due to COVID-19 Curriculum changes. */
---Create table Audit( auditID serial primary key,
---                    aTime timestamp NOT NULL,
---                    changedTable text NOT NULL CHECK (changedTable <> ''),
---                    changeType text NOT NULL CHECK (changeType <> ''),
---                    oldValue text NOT NULL,
---                    newValue text NOT NULL,
---                    uid int references Users(uid) NOT NULL);
+Create table Audit( auditID serial primary key,
+                    aTime timestamp NOT NULL,
+                    changedTable text NOT NULL CHECK (changedTable <> ''),
+                    changeType text NOT NULL CHECK (changeType <> ''),
+                    oldValue text NOT NULL,
+                    newValue text NOT NULL,
+                    uid int references Users(uid) NOT NULL);
