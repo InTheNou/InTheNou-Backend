@@ -173,14 +173,15 @@ class ServiceHandler:
                                     websites=websites,
                                     numbers=phones
                                     )
-        if not isinstance(sid,int):
-            return (sid),400
-        
-        service = _buildCoreServiceResponse(sid)
+     
+        try:
+            service = _buildCoreServiceResponse(sid)
        
       
             
-        return jsonify(service),201
+            return jsonify(service),201
+        except:
+            return jsonify(Error= "Cant find service "+str(sid))
             
        
 

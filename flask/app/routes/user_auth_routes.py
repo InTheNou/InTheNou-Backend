@@ -13,6 +13,8 @@ from app.oauth import *
 from app.config import *
 from sqlalchemy.orm.exc import NoResultFound
 from dotenv import load_dotenv
+from datetime import datetime
+import base64
 load_dotenv()
 
 SIGNUPKEYS = ['id', 'display_name', 'access_token', 'email', 'tags']
@@ -224,8 +226,10 @@ def app_login():
         user = query.one()
         
     except NoResultFound:
-        token = {"Token":"This_is_a_token"}
-        return jsonify(token),200
+        token = str(datetime.now()) #today's datetime
+        cookie = base64.b64encode(bytes(token, 'utf-8'))
+        cookie = str(cookie)[2:-1]
+        return ({"Token":(cookie)}),200
 
     query = OAuth.query.filter_by(
         token = info['access_token'], id=user.id, user=user)
