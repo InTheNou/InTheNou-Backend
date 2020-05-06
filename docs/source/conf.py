@@ -18,12 +18,12 @@ sys.path.insert(0, os.path.abspath('../../flask'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'InTheNou Backend'
-copyright = '2020, Diego J. Amador Bonilla & Brian Rodriguez Badillo'
+project = 'InTheNou Backend API'
+copyright = '2020, Alpha Code'
 author = 'Diego J. Amador Bonilla & Brian Rodriguez Badillo'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '1.1.0'
 
 master_doc = 'index'
 # -- General configuration ---------------------------------------------------
