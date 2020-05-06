@@ -298,6 +298,7 @@ class WebsiteDAO(MasterDAO):
         :type uid: int
         :return Tuple: SQL result of Query as a tuple.
         """ 
+        print("START")
         websites = []
         cursor = self.conn.cursor()
         
@@ -315,7 +316,7 @@ class WebsiteDAO(MasterDAO):
                 return jsonify(Error="Error assigning website to sid: "+str(sid)), 400
        
         self.conn.commit()
-        return {"Websites": websites}
+        return {"websites": websites}
         
     def removeWebsitesGivenServiceID(self, wid, sid, uid):
         """

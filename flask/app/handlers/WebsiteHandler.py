@@ -4,7 +4,7 @@ from app.DAOs.WebsiteDAO import WebsiteDAO
 
 
 import validators
-SERVICEWEBSITEKEYS = ['Websites']
+SERVICEWEBSITEKEYS = ['websites']
 
 
 def _buildCoreWebsiteResponse(website_tuple):
@@ -219,17 +219,17 @@ class WebsiteHandler:
 
         sites = []
         website = []
-        sites = (handler.unpackWebsites(json['Websites']))
+        sites = (handler.unpackWebsites(json['websites']))
         dao = WebsiteDAO()
 
         if not sites:
             return jsonify(Error='Missing websites for submission: '), 400
 
         website = dao.insertWebsiteToService(sites, sid, uid=uid)
-
-        if website:
-            return (website)
-        else:
+        
+        try:
+            return jsonify(website),201
+        except:
             return jsonify(Error="Service with sid: "+sid+" not found"), 401
 
     def removeServiceWebsite(self, sid, json, uid):
@@ -259,7 +259,7 @@ class WebsiteHandler:
         sites = []
         siteIDs = []
         websiteInfo = []
-        sites = (handler.unpackWebsites(json['Websites']))
+        sites = (handler.unpackWebsites(json['websites']))
         dao = WebsiteDAO()
 
         if not sites:
@@ -271,8 +271,8 @@ class WebsiteHandler:
                     sid=sid, wid=x['wid'], uid=uid))
                 # print('Removed PhoneID '+str(x['phoneid']) + ' from service '+ str(sid))
                 if(ID == None):
-                    websiteInfo.append(
-                        "Website ID not associated with Service-> sid: " + str(sid) + ' Websiteid: ' + (str(x['wid'])))
+                    return jsonify(Error=
+                        "Website ID not associated with Service-> sid: " + str(sid) + ' websiteid: ' + (str(x['wid']))),403
                 else:
                     siteIDs.append(int(ID))
                     # print('Phones deleted IDs: '+ str(phoneIDs))
@@ -280,7 +280,7 @@ class WebsiteHandler:
                 websiteInfo.append(_buildCoreWebsiteResponse(
                     website_tuple=dao.getWebsiteByID(row)))
 
-        return jsonify({"Websites":(websiteInfo)})
+        return jsonify({"websites":(websiteInfo)})
 
     def validateWebsites(self, list_of_websites):
         """

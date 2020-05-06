@@ -5,7 +5,7 @@ from app.DAOs.ServiceDAO import ServiceDAO
 import phonenumbers
 
 PHONETYPEKEYS = ['E', 'L', 'F', 'M']
-SERVICEPHONEKEYS = ['PNumbers']
+SERVICEPHONEKEYS = ['numbers']
 
 
 def _buildPhoneResponse(phone_tuple):
@@ -68,7 +68,7 @@ class PhoneHandler:
 
         phones = []
         phoneInfo = []
-        phones = (handler.unpackPhones(json['PNumbers']))
+        phones = (handler.unpackPhones(json['numbers']))
         dao = PhoneDAO()
 
         if not phones:
@@ -125,25 +125,27 @@ class PhoneHandler:
         for key in SERVICEPHONEKEYS:
             if key not in json:
                 return jsonify(Error='Missing credentials from submission: ' + key), 400
-        print("sending pids")
+       
+       
         phoneIDs = []
         phoneInfo = []
-        phones = (self.unpackPhones(json['PNumbers']))
+        phones = (self.unpackPhones(json['numbers']))
         dao = PhoneDAO()
-        if not phones:
-            phoneInfo = None
-        else:
-            for x in phones:
-                if x['phoneid'] != "":
-                    ID = dao.removePhonesByServiceID(sid=sid, phoneid=x['phoneid'], uid=uid)
-                    if ID is None:
-                        phoneInfo.append("Phone number ID not associated with Service-> sid: "
-                                         + str(sid) + ' phoneid: ' + str(x['phoneid']))
-                    else:
-                        phoneIDs.append(ID)
-                else:
-                    phoneInfo.append("Phone number ID not associated with Service-> sid: "
-                                     + str(sid) + ' phoneid: ' + str(x['phoneid']))
-            for row in phoneIDs:
-                phoneInfo.append(_buildPhoneResponse(dao.getPhoneByID(row)))
-        return jsonify(phoneInfo)
+      
+        
+        phoneIDs = dao.removePhonesGivenServiceID(sid=sid, phones=phones, uid=uid)
+        
+        
+        for id in phoneIDs:
+                    
+                        if isinstance(id,int):
+                            phone =dao.getPhoneByID(id)
+                            if phone is not None:
+                                phoneInfo.append(_buildPhoneResponse(phone))
+                            else:
+                                return jsonify(Error="Error with phone id "+str(id)),404
+                        
+                    
+                  
+             
+        return jsonify({"numbers":phoneInfo}),200
