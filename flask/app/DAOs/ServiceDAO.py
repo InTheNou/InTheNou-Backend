@@ -1,5 +1,5 @@
 from app.DAOs.MasterDAO import MasterDAO
-from psycopg2 import sql, errors
+from psycopg2 import sql, errors,errorcodes
 from app.DAOs.AuditDAO import AuditDAO
 from app.handlers.WebsiteHandler import WebsiteHandler
 from app.DAOs.WebsiteDAO import WebsiteDAO
@@ -105,7 +105,7 @@ class ServiceDAO(MasterDAO):
 
             query = sql.SQL("insert into {table1} ({insert_fields})"
                             "values (%s, %s, %s, %s, %s) "
-                            "returning {pkey1}").format(
+                            "returning {keys}").format(
                 table1=sql.Identifier('services'),
                 insert_fields=sql.SQL(',').join(
                     [
@@ -115,7 +115,14 @@ class ServiceDAO(MasterDAO):
                         sql.Identifier('sschedule'),
                         sql.Identifier('isdeleted'),
                     ]),
-                pkey1=sql.Identifier('sid'))
+                keys=sql.SQL(',').join(
+                    [   sql.Identifier('sid'),
+                        sql.Identifier('rid'),
+                        sql.Identifier('sname'),
+                        sql.Identifier('sdescription'),
+                        sql.Identifier('sschedule'),
+                        sql.Identifier('isdeleted'),
+                    ]))
             cursor.execute(query, (int(rid), str(sname), str(
                 sdescription), str(sschedule), False))
 
@@ -130,8 +137,8 @@ class ServiceDAO(MasterDAO):
                 website = (WebsiteDAO.addWebsite(
                     self, url=site['url'], cursor=cursor, uid=uid))
                 if website is None:
-                    print("Website faulty")
-                    return jsonify(Error='Website problem '+site['url'])
+                    
+                    return jsonify(Error='Website problem '+site['url']+" Not valid"),400
                 else:
                     WebsiteDAO().addWebsitesToService(
                         sid=sid, wid=website[0], wdescription=site['wdescription'], cursor=cursor, uid=uid)
@@ -147,9 +154,9 @@ class ServiceDAO(MasterDAO):
             self.conn.commit()
 
         except errors.UniqueViolation as badkey:
-            return jsonify(Error='Website problem ')
-
-        return self.getServiceByID(sid)
+            return jsonify(Error=str(badkey))
+      
+        return result
 
     def getServiceByID(self, sid):
         """
@@ -286,5 +293,10 @@ class ServiceDAO(MasterDAO):
                                    newValue=newValue, uid=uid, cursor=cursor)
             self.conn.commit()
             return result
+       
+        except errors.UniqueViolation as badkey:
+            return jsonify(Error="anonther service is using the same name, within the same room"),403
+        
         except errors.TypeError as badkey:
-            return badkey
+            return jsonify(Error = "Sid problem")
+        

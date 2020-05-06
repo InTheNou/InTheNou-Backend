@@ -173,15 +173,15 @@ class UserHandler:
         dao = UserDAO()
         users = dao.getUsersThatCanModifyEvent(eid=eid)
         if not users:
-            response = {'Users': None}
+            response = {'users': None}
         else:
             user_list = []
             for row in users:
                 user_list.append(_buildUserIDList(user_tuple=row))
 
-            response = {"Users": user_list}
+            response = {"users": user_list}
             if no_json:
-                return response['Users']
+                return response['users']
             return jsonify(response)
 
     def getUsersDelegatedByID(self, uid):
@@ -203,7 +203,7 @@ class UserHandler:
             user_list = []
             for row in users:
                 user_list.append(_buildUserResponse(user_tuple=row))
-            response = {"Users": user_list}
+            response = {"users": user_list}
             return jsonify(response)
 
     def getUsersAndIssuersSegmented(self, offset, limit):
@@ -223,12 +223,12 @@ class UserHandler:
         dao = UserDAO()
         users = dao.getUsersAndIssuersSegmented(offset=offset, limit=limit)
         if not users:
-            response = {'Users': None}
+            response = {'users': None}
         else:
             user_list = []
             for row in users:
                 user_list.append(_buildDelegatedUserResponse(user_tuple=row))
-            response = {"Users": user_list}
+            response = {"users": user_list}
             return jsonify(response)
 
     def getAllUsersByRoleIDSegmented(self, roleid, offset, limit):
@@ -251,7 +251,7 @@ class UserHandler:
         result = []
         for row in users:
             result.append(_buildCoreUserResponse(row))
-        return jsonify({"Users":result})
+        return jsonify({"users":result})
 
     def getUsersSegmented(self, offset, limit):
         """
@@ -274,7 +274,7 @@ class UserHandler:
             user_list = []
             for row in users:
                 user_list.append(_buildCoreUserResponse(user_tuple=row))
-            response = {"Users": user_list}
+            response = {"users": user_list}
             return jsonify(response)
 
     def changeRole(self, uid, id, newRole):
@@ -349,7 +349,7 @@ class UserHandler:
         users = []
         users = dao.getUserIssuers(userID=userID)
         if not users:
-            response = {'Users': None}
+            response = {'users': None}
             return jsonify(response)
 
         if no_json:

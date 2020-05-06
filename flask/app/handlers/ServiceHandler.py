@@ -11,7 +11,7 @@ import app.handlers.SharedValidationFunctions as SVF
 
 
 CREATESERVICEKEYS = ['uid', 'rid', 'sname',
-                     'sdescription', 'sschedule', 'PNumbers', 'Websites']
+                     'sdescription', 'sschedule', 'numbers', 'websites']
 UPDATESERVICEKEYS = ['sname', 'sdescription', 'sschedule', 'rid']
 SEARCHSTRING_VALUE = 'searchstring'
 
@@ -36,7 +36,6 @@ def _buildServiceResponse(service_tuple):
     response['sname'] = str(service_tuple[2])
     response['sdescription'] = str(service_tuple[3])
     response['sschedule'] = service_tuple[4]
-    response['isdeleted'] = service_tuple[5]
     return response
 
 
@@ -44,7 +43,9 @@ def _buildCoreServiceResponse(service_tuple):
     """
     Private Method to build core service dictionary to be JSONified.
 
-    Uses :func:`~app.handlers.RoomHandler.RoomHandler.safeGetRoomByID`
+    Uses :func:`~app.handlers.RoomHandler.RoomHandler.safeGetRoomByID` as well as 
+        * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
+        * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebistesByServiceID`
 
     :param service_tuple: response tuple from SQL query
     :returns Dict: Service information with keys:
@@ -56,12 +57,19 @@ def _buildCoreServiceResponse(service_tuple):
     """
     response = {}
     response['sid'] = service_tuple[0]
-    response['rid'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
+    response['room'] = RoomHandler().safeGetRoomByID(rid=service_tuple[1])
     response['sname'] = service_tuple[2]
     response['sdescription'] = service_tuple[3]
     response['sschedule'] = service_tuple[4]
-
+    response['numbers'] = PhoneHandler().getPhonesByServiceID(
+                sid=service_tuple[0], no_json=True)
+    
+    response['websites'] = WebsiteHandler().getWebistesByServiceID(
+                sid=service_tuple[0], no_json=True)
+    
     return response
+
+   
 
 
 def _buildServiceByRoomResponse(service_tuple):
@@ -86,10 +94,11 @@ def _buildServiceByRoomResponse(service_tuple):
     response['sname'] = service_tuple[1]
     response['sdescription'] = service_tuple[2]
     response['sschedule'] = service_tuple[3]
-    response['PNumbers'] = PhoneHandler().getPhonesByServiceID(
+    response['numbers'] = PhoneHandler().getPhonesByServiceID(
                 sid=service_tuple[0], no_json=True)
-    response['Websites'] = WebsiteHandler().getWebistesByServiceID(
+    response['websites'] = WebsiteHandler().getWebistesByServiceID(
                 sid=service_tuple[0], no_json=True)
+     
     return response
 
 
@@ -123,27 +132,40 @@ class ServiceHandler:
         """
         
          # TODO:SHOULD TAKE PARAMETERS DINAMICALLY CHECKING FOR KEYS
-        for key in CREATESERVICEKEYS:
-            if key not in json:
-                return jsonify(Error='Missing credentials from submission: ' + key), 400
-      
-        websites = WebsiteHandler().unpackWebsites(json=json['Websites'])
-        if len(websites) > 10:
-            return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
+     
         
-        phones = PhoneHandler().unpackPhones(json=json['PNumbers'])
-        if len(websites) > 10:
-            return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
-
+        # for key in CREATESERVICEKEYS:
+        #     if key not in json:
+        #         return jsonify(Error="Error in credentials from submission: "+ str(key)), 400
+        
+    
+       
+        
+        try:
+            websites = WebsiteHandler().unpackWebsites(json=json['websites'])
+            if len(websites) > 10:
+                return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
+        except TypeError:
+                return jsonify(Error="Error in input Parameters (websites)" ), 400
+        except KeyError as e:
+                return jsonify(Error=str(e) ), 400
+        try:
+            phones = PhoneHandler().unpackPhones(json=json['numbers'])
+            if len(websites) > 10:
+                return jsonify(Error="Improper number of websites provided: " + str(len(websites))), 400
+        except TypeError:
+                return jsonify(Error="Error in input Parameters (numbers)" ), 400
+        except KeyError as e:
+                return jsonify(Error=str(e) ), 400
+       
         # MAKE DICTIONARY TO CRREATE THESE
         user = uid
         roomID = json['rid']
         name = json['sname']
         description = json['sdescription']
         schedule = json['sschedule']
-
         dao = ServiceDAO()
-        service = dao.createService(uid=user,
+        sid = dao.createService(uid=user,
                                     rid=roomID,
                                     sname=name,
                                     sdescription=description,
@@ -151,16 +173,16 @@ class ServiceHandler:
                                     websites=websites,
                                     numbers=phones
                                     )
-        try:
-            sid = service[0]
-        except TypeError:
-                return jsonify(Error="Error in input Parameters" ), 400
+        if not isinstance(sid,int):
+            return (sid),400
         
-        if isinstance(service, Response):
-            return service
-        
-        else:
-            return self.getServiceByID(sid)
+        service = _buildCoreServiceResponse(sid)
+       
+      
+            
+        return jsonify(service),201
+            
+       
 
     def deleteService(self, sid, uid):
         """Attempt to delete a service.
@@ -197,8 +219,7 @@ class ServiceHandler:
 
             * :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServiceByID`
             * :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`
-            * :func:`~app.handlers.PhoneHandler.PhoneHandler.getPhonesByServiceID`
-            * :func:`~app.handlers.WebsiteHandler.WebsiteHandler.getWebistesByServiceID`
+            
 
         :param sid: Service ID
         :type sid: int
@@ -206,18 +227,12 @@ class ServiceHandler:
         :type no_json: bool
         :returns JSON Response Object: JSON Response Object containing success or error response.
         """
-        Phonehandler = PhoneHandler()
-        Websitehandler = WebsiteHandler()
         dao = ServiceDAO()
         service = dao.getServiceByID(sid=sid)
         if not service:
             return jsonify(Error='Service does not exist: sid=' + str(sid)), 404
         else:
-            response = _buildServiceResponse(service_tuple=service)
-            response['PNumbers'] = Phonehandler.getPhonesByServiceID(
-                sid=sid, no_json=True)
-            response['Websites'] = Websitehandler.getWebistesByServiceID(
-                sid=sid, no_json=True)
+            response = _buildCoreServiceResponse(service_tuple=service)
             if no_json:
                 return response
             return jsonify(response)
@@ -245,9 +260,9 @@ class ServiceHandler:
             return(serviceInfo)
         
         if len(serviceInfo) > 0:
-            return jsonify({"Services": serviceInfo})
+            return jsonify({"services": serviceInfo})
         else:
-            return jsonify({"Services": None})
+            return jsonify({"services": None})
 
     def getServicesSegmented(self, offset, limit):
         """Get all services, segmented
@@ -272,12 +287,12 @@ class ServiceHandler:
 
         services = dao.getServicesSegmented(offset=offset, limit=limit)
         if not services:
-            response = {'Services': None}
+            response = {'services': None}
         else:
             service_list = []
             for row in services:
                 service_list.append(_buildCoreServiceResponse(row))
-            response = {'Services': service_list}
+            response = {'services': service_list}
             return jsonify(response)
 
     def updateServiceInformation(self, sid, json, uid):
@@ -294,8 +309,8 @@ class ServiceHandler:
             * sname
             * sdescription
             * sschedule
-            * Websites
-            * PNumbers
+            * websites
+            * numbers
 
          :type json: JSON
          :returns JSON Response Object: JSON Response Object containing success or error response.
@@ -310,14 +325,20 @@ class ServiceHandler:
         id = dao.updateServiceInformation(service=service, sid=sid, uid=uid)
 
         if id is not None:
-            response = _buildServiceResponse(dao.getServiceByID(id[0]))
-
-            return jsonify(response)
+            if not isinstance(id[0],int):
+                if isinstance(id,tuple):
+                    return id
+                    
+                return jsonify(id)
+            else:
+                response = _buildCoreServiceResponse(dao.getServiceByID(id[0]))
+                return jsonify(response)
         else:
             return jsonify(Error="no service with that ID found")
 
     def getServicesByKeywords(self, searchstring, offset, limit=20):
-        """Get all services by keyword, segmented
+        """
+        Get all services by keyword, segmented
 
          Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.getServicesByKeywords` as well as
          :func:`~app.handlers.ServiceHandler._buildServiceResponse`
@@ -346,6 +367,6 @@ class ServiceHandler:
         else:
             service_list = []
             for row in services:
-                service_list.append(_buildServiceResponse(service_tuple=row))
+                service_list.append(_buildCoreServiceResponse(service_tuple=row))
             response = {'services': service_list}
         return jsonify(response)

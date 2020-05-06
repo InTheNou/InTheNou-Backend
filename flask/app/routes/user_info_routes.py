@@ -95,7 +95,7 @@ def getUsersThatCanModifyEvent(eid):
         Content-Type: text/javascript
 
         {
-            "Users": [
+            "users": [
                 {
                     "user_id": [
                         1
@@ -261,7 +261,7 @@ def getDelegatedUserByID(uid):
         Content-Type: text/javascript
 
         {
-           "Users": [
+           "users": [
                {
                    "display_name": "Sofia Saavedra",
                    "email": "sofia.saavedra@upr.edu",
@@ -324,7 +324,7 @@ def geUsersAndIssuersSegmented(offset, limit):
         Content-Type: text/javascript
 
         {
-            "Users": 
+            "users": 
             [
                 {
                     "issuer_email": "brianrodrig@gmail.com",
@@ -413,7 +413,7 @@ def geUsersSegmented(offset, limit):
         Content-Type: text/javascript
 
         {
-            "Users": 
+            "users": 
             [
                 {
                     "display_name": "Sofia Saavedra",
@@ -498,7 +498,7 @@ def getAllUsersByRoleID(roleid, offset, limit):
         Content-Type: text/javascript
 
         {
-            "Users": 
+            "users": 
             [
                 {
                     "display_name": "jonathan santiago",
