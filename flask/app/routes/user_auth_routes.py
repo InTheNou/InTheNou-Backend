@@ -115,7 +115,6 @@ def signup():
                 "Error": "User with that email exists <User 11>"
             }
 
-    :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
     :statuscode 201: User Created
     :statuscode 403: User with that email exists
@@ -213,8 +212,8 @@ def app_login():
                 "uid": "11"
             }
 
-    :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
+    :resheader Set-Cookie: Sets the "Session" header in the user's cookies.
     :statuscode 201: User Created
     :statuscode 403: User with that email exists
     """
