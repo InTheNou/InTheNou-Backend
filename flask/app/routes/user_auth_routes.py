@@ -20,7 +20,7 @@ load_dotenv()
 SIGNUPKEYS = ['id', 'display_name', 'access_token', 'email', 'tags']
 
 # route used to logout user, must be logged in to access
-@app.route("/API/App/logout")
+@app.route("/API/App/logout", methods=['POST'])
 @user_role_required
 def app_logout():
     """
@@ -57,16 +57,20 @@ def app_logout():
     :statuscode 200: no error
     :statuscode 403: User is not logged in.
     """
-    query = OAuth.query.filter_by(token=str(session['token']))
-    try:
-        oauth = query.one()
-        db.session.delete(oauth)
-        db.session.commit()
-    except NoResultFound:
-        return jsonify(Error="You need a session in the system, try loggin in  "), 403
-    logout_user()
-
-    return jsonify(Error="You have loged out "), 200
+    if request.method == 'POST':
+        query = OAuth.query.filter_by(token=str(session['token']))
+        try:
+            oauth = query.one()
+            db.session.delete(oauth)
+            db.session.commit()
+        except NoResultFound:
+            return jsonify(Error="You need a session in the system, try loggin in  "), 403
+        
+        logout_user()
+        return jsonify(Error="You have loged out "), 200
+    
+    else:
+        return jsonify(Error='Method not allowed.'), 405
 
 
 @app.route("/API/App/signup", methods=['POST'])
@@ -178,7 +182,6 @@ def signup():
     else:
         return jsonify(Error="Method not allowed."), 405
 
-
 @app.route("/API/App/login", methods=['POST'])
 def app_login():
     """
@@ -224,51 +227,53 @@ def app_login():
     :statuscode 201: User Created
     :statuscode 403: User with that email exists
     """
-    info = request.json
-    user_usub = info["id"]
-    query = User.query.filter_by(provider=user_usub)
-    try:
-        user = query.one()
+    if request.method == 'POST':
+        info = request.json
+        user_usub = info["id"]
+        query = User.query.filter_by(provider=user_usub)
+        try:
+            user = query.one()
 
-    except NoResultFound:
-        token = str(datetime.now())  # today's datetime
-        cookie = base64.b64encode(bytes(token, 'utf-8'))
-        cookie = str(cookie)[2:-1]
-        return ({"Token": (cookie)}), 200
+        except NoResultFound:
+            token = str(datetime.now())  # today's datetime
+            cookie = base64.b64encode(bytes(token, 'utf-8'))
+            cookie = str(cookie)[2:-1]
+            return ({"Token": (cookie)}), 200
 
-    query = OAuth.query.filter_by(
-        token=info['access_token'], id=user.id, user=user)
-    try:
-        oauth = query.one()
-    except NoResultFound:
-        oauth = OAuth(token=info['access_token'],
-                      id=user.id, user=user, provider="google")
-        db.session.add_all([oauth])
-        db.session.commit()
-    login_user(oauth.user)
-    session['token'] = info['access_token']
-    flash("Successfully signed in.")
-    # sessionDict = str(session)[20:-1]
-    # # print(sessionDict)
-    # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
-    # cookie = encodeFlaskCookie(secret_key=os.getenv(
-    #     "FLASK_SECRET_KEY"), cookieDict=sessionDict)
-    # # print(cookie)
-    # session['cookys'] = cookie
-    # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
+        query = OAuth.query.filter_by(
+            token=info['access_token'], id=user.id, user=user)
+        try:
+            oauth = query.one()
+        except NoResultFound:
+            oauth = OAuth(token=info['access_token'],
+                          id=user.id, user=user, provider="google")
+            db.session.add_all([oauth])
+            db.session.commit()
+        login_user(oauth.user)
+        session['token'] = info['access_token']
+        flash("Successfully signed in.")
+        # sessionDict = str(session)[20:-1]
+        # # print(sessionDict)
+        # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
+        # cookie = encodeFlaskCookie(secret_key=os.getenv(
+        #     "FLASK_SECRET_KEY"), cookieDict=sessionDict)
+        # # print(cookie)
+        # session['cookys'] = cookie
+        # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
 
-    response = make_response({"uid": str(user.id)})
+        response = make_response({"uid": str(user.id)})
 
-    response.headers['Session'] = str(session)
+        response.headers['Session'] = str(session)
 
-    return (response)
-
-
+        return (response)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+    
 ################## DASHBOARD ROUTES ######################
-@app.route("/API/Dashboard/login", methods=['GET'])
+@app.route("/API/Dashboard/login", methods=['POST'])
 def dashboard_login():
     """
-    .. :quickref: OAuth; Login
+    .. :quickref: OAuth;  Dashboard Login
 
     Dashboard Login
 
@@ -311,45 +316,39 @@ def dashboard_login():
     :statuscode 404: User not found
     :statuscode 401: User does not have permission to login 
     """
-    info = request.json
-    user_usub = info["id"]
-    query = User.query.filter_by(provider=user_usub)
-    try:
-        user = query.one()
+    if request.method == 'POST':
+        info = request.json
+        user_usub = info["id"]
+        query = User.query.filter_by(provider=user_usub)
+        try:
+            user = query.one()
 
-    except NoResultFound:
-        return jsonify(Error="User not found, try signing up "), 404
+        except NoResultFound:
+            return jsonify(Error="User not found, try signing up "), 404
 
-    if user.user_role > 2:
-        query = OAuth.query.filter_by(
-            token=info['access_token'], id=user.id, user=user)
+        if user.user_role > 2:
+            query = OAuth.query.filter_by(
+                token=info['access_token'], id=user.id, user=user)
+        else:
+            return jsonify(Error="User does not have permission to login "), 401
+        try:
+            oauth = query.one()
+        except NoResultFound:
+            oauth = OAuth(token=info['access_token'],
+                          id=user.id, user=user, provider="google")
+            db.session.add_all([oauth])
+            db.session.commit()
+        login_user(oauth.user)
+        session['token'] = info['access_token']
+        flash("Successfully signed in.")
+        response = make_response({"uid": str(user.id)})
+
+        response.headers['Session'] = str(session)
+
+        return (response)
+
     else:
-        return jsonify(Error="User does not have permission to login "), 401
-    try:
-        oauth = query.one()
-    except NoResultFound:
-        oauth = OAuth(token=info['access_token'],
-                      id=user.id, user=user, provider="google")
-        db.session.add_all([oauth])
-        db.session.commit()
-    login_user(oauth.user)
-    session['token'] = info['access_token']
-    flash("Successfully signed in.")
-    # sessionDict = str(session)[20:-1]
-    # # print(sessionDict)
-    # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
-    # cookie = encodeFlaskCookie(secret_key=os.getenv(
-    #     "FLASK_SECRET_KEY"), cookieDict=sessionDict)
-    # # print(cookie)
-    # session['cookys'] = cookie
-    # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
-
-    response = make_response({"uid": str(user.id)})
-
-    response.headers['Session'] = str(session)
-
-    return (response)
-
+        return jsonify(Error="Method not allowed."), 405
 
 # @oauth_before_login.connect
 # def before_google_login(blueprint, url):
