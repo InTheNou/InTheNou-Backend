@@ -138,7 +138,7 @@ class BuildingHandler:
         result = []
         for row in buildings:
             result.append(_buildBuildingResponse(row))
-        return jsonify(result)
+        return jsonify({"buildings":result})
 
     def getBuildingByID(self, bid, no_json=False):
         """
@@ -227,4 +227,4 @@ class BuildingHandler:
            result.append(_buildBuildingResponse(
                building_tuple=building))
 
-        return jsonify(result)
+        return jsonify({"buildings":result})
