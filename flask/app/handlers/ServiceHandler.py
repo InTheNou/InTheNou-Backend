@@ -175,18 +175,19 @@ class ServiceHandler:
                                     )
      
         try:
-            service = _buildCoreServiceResponse(sid)
-       
-      
             
-            return jsonify(service),201
+            if isinstance(sid[0],int):
+                return (self.getServiceByID(sid[0])),201
+            else:
+                return jsonify(Error=sid)
         except:
-            return jsonify(Error= "Cant find service "+str(sid))
+          return jsonify(Error= "Unique service violation "+str(sid))
             
        
 
     def deleteService(self, sid, uid):
-        """Attempt to delete a service.
+        """
+        Attempt to delete a service.
 
         Uses :func:`~app.DAOs.ServiceDAO.ServiceDAO.deleteService` and
         :func:`~app.handlers.ServiceHandler._buildCoreServiceResponse`

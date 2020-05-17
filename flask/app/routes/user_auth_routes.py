@@ -20,13 +20,13 @@ load_dotenv()
 SIGNUPKEYS = ['id', 'display_name', 'access_token', 'email', 'tags']
 
 # route used to logout user, must be logged in to access
-@app.route("/API/App/logout")
+@app.route("/API/App/logout", methods=['POST'])
 @user_role_required
 def app_logout():
     """
     .. py:decorator:: user_role_required
     .. :quickref: OAuth; Logout
-    
+
     Logout
     Uses :func:`~app.models.OAuth.filter_by`
 
@@ -57,22 +57,27 @@ def app_logout():
     :statuscode 200: no error
     :statuscode 403: User is not logged in.
     """
-    query = OAuth.query.filter_by(token=str(session['token']))
-    try:
-        oauth = query.one()
-        db.session.delete(oauth)
-        db.session.commit()
-    except NoResultFound:
-        return jsonify(Error="You need a session in the system, try loggin in  "),403
-    logout_user()
+    if request.method == 'POST':
+        query = OAuth.query.filter_by(token=str(session['token']))
+        try:
+            oauth = query.one()
+            db.session.delete(oauth)
+            db.session.commit()
+        except NoResultFound:
+            return jsonify(Error="You need a session in the system, try loggin in  "), 403
+        
+        logout_user()
+        return jsonify(Error="You have loged out "), 200
     
-    return jsonify(Error="You have loged out "),200
+    else:
+        return jsonify(Error='Method not allowed.'), 405
+
 
 @app.route("/API/App/signup", methods=['POST'])
 def signup():
     """
     .. :quickref: OAuth; Singup
-    
+
     Signup
     Uses :func:`~app.TagHandler.TagHandler.batchSetUserTags` as well as
     :func:`~app.UserHandler.UserHandler.getUserByID`
@@ -86,7 +91,7 @@ def signup():
             GET /API/App/signup HTTP/1.1
             Host: inthenou.uprm.edu
             Accept: application/json
-    
+
     **Body of Request**:
 
         .. code-block:: json
@@ -104,7 +109,7 @@ def signup():
                     {"tid":5,"tname":"ANTR","tagweight":0}
                 ]
             }
-                
+
     **Example response**:
 
         .. sourcecode:: http
@@ -122,54 +127,57 @@ def signup():
     :statuscode 403: User with that email exists
     """
     if request.method == 'POST':
-        
+
         if not request.json:
             return jsonify(Error="No JSON provided."), 400
         info = request.json
-        local={}
+        local = {}
         for key in info:
             if key in SIGNUPKEYS:
-                local[key]=info[key]
-        
+                local[key] = info[key]
+
         for key in SIGNUPKEYS:
             if key not in local:
                 return jsonify(Error="Missing input parameter: "+str(key))
-            
+
         user_usub = local["id"]
         query = User.query.filter_by(provider=user_usub)
-        
+
         try:
             user = query.one()
-            return jsonify(Error="User with that email exists "+str(user)),403
+            return jsonify(Error="User with that email exists "+str(user)), 403
         except NoResultFound:
-        # Create account for new user
+            # Create account for new user
             print("User being created")
             user = User(email=local["email"],
-                    provider=user_usub,
-                    display_name=local["display_name"],
-                    user_type="Student",
-                    user_role=int(1),
-                    role_issuer=int(1),
-                    )
+                        provider=user_usub,
+                        display_name=local["display_name"],
+                        user_type="Student",
+                        user_role=int(1),
+                        role_issuer=int(1),
+                        )
             if(user):
                 db.session.add_all([user])
                 db.session.commit()
-            
+
             query = OAuth.query.filter_by(
-                    token= local['access_token'], id=user.id, user=user)
-            
+                token=local['access_token'], id=user.id, user=user)
+
             try:
                 oauth = query.one()
             except NoResultFound:
-                oauth = OAuth(token=local['access_token'], id=user.id, user=user, provider="google")
+                oauth = OAuth(token=local['access_token'],
+                              id=user.id, user=user, provider="google")
                 db.session.add_all([oauth])
                 db.session.commit()
                 login_user(oauth.user)
-                info['uid']=int(current_user.id)
+                info['uid'] = int(current_user.id)
                 print("Registering tags : "+str(local["tags"]))
-                
-                tags =   TagHandler().batchSetUserTags(uid= user.id,json=info, weight=100, no_json=True)
-                tags['User'] = UserHandler().getUserByID(current_user.id,no_json=True)
+
+                tags = TagHandler().batchSetUserTags(
+                    uid=user.id, json=info, weight=100, no_json=True)
+                tags['User'] = UserHandler().getUserByID(
+                    current_user.id, no_json=True)
             return (tags), 201
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -178,9 +186,9 @@ def signup():
 def app_login():
     """
     .. :quickref: OAuth; Login
-    
+
     Login
-    
+
     :return: JSON
 
     **Example request**:
@@ -190,7 +198,7 @@ def app_login():
             GET /API/App/login HTTP/1.1
             Host: inthenou.uprm.edu
             Accept: application/json
-    
+
     **Body of Request**:
 
         .. code-block:: json
@@ -201,7 +209,7 @@ def app_login():
                 "email":"jonathan.santiago27@upr.edu",
                 "display_name":"Jonathan X Santiago Gonzalez"
             }
-            
+
     **Example response**:
 
         .. sourcecode:: http
@@ -219,47 +227,128 @@ def app_login():
     :statuscode 201: User Created
     :statuscode 403: User with that email exists
     """
-    info = request.json
-    user_usub = info["id"]
-    query = User.query.filter_by(provider=user_usub)
-    try:
-        user = query.one()
-        
-    except NoResultFound:
-        token = str(datetime.now()) #today's datetime
-        cookie = base64.b64encode(bytes(token, 'utf-8'))
-        cookie = str(cookie)[2:-1]
-        return ({"Token":(cookie)}),200
+    if request.method == 'POST':
+        info = request.json
+        user_usub = info["id"]
+        query = User.query.filter_by(provider=user_usub)
+        try:
+            user = query.one()
 
-    query = OAuth.query.filter_by(
-        token = info['access_token'], id=user.id, user=user)
-    try:
-        oauth = query.one()
-    except NoResultFound:
-        oauth = OAuth(token=info['access_token'], id=user.id, user=user,provider="google")
-        db.session.add_all([oauth])
-        db.session.commit()
-    login_user(oauth.user)
-    session['token']=info['access_token']
-    flash("Successfully signed in.")
-    # sessionDict = str(session)[20:-1]
-    # # print(sessionDict)
-    # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
-    # cookie = encodeFlaskCookie(secret_key=os.getenv(
-    #     "FLASK_SECRET_KEY"), cookieDict=sessionDict)
-    # # print(cookie)
-    # session['cookys'] = cookie
-    # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
+        except NoResultFound:
+            token = str(datetime.now())  # today's datetime
+            cookie = base64.b64encode(bytes(token, 'utf-8'))
+            cookie = str(cookie)[2:-1]
+            return ({"Token": (cookie)}), 200
 
-    response = make_response({"uid": str(user.id)})
+        query = OAuth.query.filter_by(
+            token=info['access_token'], id=user.id, user=user)
+        try:
+            oauth = query.one()
+        except NoResultFound:
+            oauth = OAuth(token=info['access_token'],
+                          id=user.id, user=user, provider="google")
+            db.session.add_all([oauth])
+            db.session.commit()
+        login_user(oauth.user)
+        session['token'] = info['access_token']
+        flash("Successfully signed in.")
+        # sessionDict = str(session)[20:-1]
+        # # print(sessionDict)
+        # # {'_fresh': True, '_id': '934028cbba09af9ef6c35734f503a02c84a5f9d54e92c85bd1b3c7b0eb9167791a93fe9cf0a6a57c1af31d4d319031a244a2514124fa970b7ebb39d06249737f', '_user_id': '2', 'token': 'ya29.a0Ae4lvC25jHQPYb40hlyWPdxeVpgE8lPKEhYURwbfNkWdfO-4z4joM3zZByq1UlFdXbjt5y40-qYGy3lClOL6ffCyWRIYIBfgbia-vKBpA5Aspd5LNNIueAJI-zlO04k-vPHYUxmP2r3imNF33avaI3Xe0-3jSS-yOrNV"}
+        # cookie = encodeFlaskCookie(secret_key=os.getenv(
+        #     "FLASK_SECRET_KEY"), cookieDict=sessionDict)
+        # # print(cookie)
+        # session['cookys'] = cookie
+        # # print(decodeFlaskCookie(secret_key=os.getenv("FLASK_SECRET_KEY"), cookieValue=cookie))
+
+        response = make_response({"uid": str(user.id)})
+
+        response.headers['Session'] = str(session)
+
+        return (response)
+    else:
+        return jsonify(Error="Method not allowed."), 405
     
-    response.headers['Session']=str(session)
-
-    return (response)
-
-
-
 ################## DASHBOARD ROUTES ######################
+@app.route("/API/Dashboard/login", methods=['POST'])
+def dashboard_login():
+    """
+    .. :quickref: OAuth;  Dashboard Login
+
+    Dashboard Login
+
+    :return: JSON
+
+    **Example request**:
+
+        .. sourcecode:: http
+
+            GET /API/Dashboard/login HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
+
+    **Body of Request**:
+
+        .. code-block:: json
+
+            {
+                "access_token":"test_Token",
+                "id":"113768707919850641968",
+                "email":"jonathan.santiago27@upr.edu",
+                "display_name":"Jonathan X Santiago Gonzalez"
+            }
+
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
+
+            {
+                "uid": "11"
+            }
+
+    :resheader Content-Type: application/json
+    :resheader Set-Cookie: Sets the "Session" header in the user's cookies.
+    :statuscode 200: User logged in 
+    :statuscode 404: User not found
+    :statuscode 401: User does not have permission to login 
+    """
+    if request.method == 'POST':
+        info = request.json
+        user_usub = info["id"]
+        query = User.query.filter_by(provider=user_usub)
+        try:
+            user = query.one()
+
+        except NoResultFound:
+            return jsonify(Error="User not found, try signing up "), 404
+
+        if user.user_role > 2:
+            query = OAuth.query.filter_by(
+                token=info['access_token'], id=user.id, user=user)
+        else:
+            return jsonify(Error="User does not have permission to login "), 401
+        try:
+            oauth = query.one()
+        except NoResultFound:
+            oauth = OAuth(token=info['access_token'],
+                          id=user.id, user=user, provider="google")
+            db.session.add_all([oauth])
+            db.session.commit()
+        login_user(oauth.user)
+        session['token'] = info['access_token']
+        flash("Successfully signed in.")
+        response = make_response({"uid": str(user.id)})
+
+        response.headers['Session'] = str(session)
+
+        return (response)
+
+    else:
+        return jsonify(Error="Method not allowed."), 405
 
 # @oauth_before_login.connect
 # def before_google_login(blueprint, url):
@@ -283,9 +372,8 @@ def app_login():
 #         # print('Session Defined as ' + str(session['AppLogin']))
 #         # login_user(user)
 #         # #flash ("No user found ")
-        
+
 #         return redirect(url_for(("google.login")))
-        
 
 
 # @app.route("/API/logout")
