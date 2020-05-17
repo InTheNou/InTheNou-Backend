@@ -120,7 +120,7 @@ class TagDAO(MasterDAO):
         :return Tuple: SQL result of Query as a tuple.
         """
         cursor = self.conn.cursor()
-        query = sql.SQL("select {fields} from {table};").format(
+        query = sql.SQL("select {fields} from {table} order by tname;").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('tid'),
                 sql.Identifier('tname')
@@ -144,7 +144,8 @@ class TagDAO(MasterDAO):
         query = sql.SQL("select {fields} from {table1} "
                         "natural join {table2} "
                         "natural join {table3} "
-                        "where {pkey}= %s and tagweight > 0;").format(
+                        "where {pkey}= %s and tagweight > 0 "
+                        "order by tname;").format(
             fields=sql.SQL(',').join([
                 sql.Identifier('tid'),
                 sql.Identifier('tname'),
