@@ -105,7 +105,10 @@ class ServiceDAO(MasterDAO):
 
             query = sql.SQL("insert into {table1} ({insert_fields})"
                             "values (%s, %s, %s, %s, %s) "
-                            "returning {keys}").format(
+                            "ON CONFLICT (rid,sname) "
+                            "do update set sdescription=%s, sschedule=%s, isdeleted=false "
+                            "where services.isdeleted = true "
+                            "returning {keys} ").format(
                 table1=sql.Identifier('services'),
                 insert_fields=sql.SQL(',').join(
                     [
@@ -124,10 +127,15 @@ class ServiceDAO(MasterDAO):
                         sql.Identifier('isdeleted'),
                     ]))
             cursor.execute(query, (int(rid), str(sname), str(
-                sdescription), str(sschedule), False))
+                sdescription), str(sschedule), False, str(
+                sdescription), str(sschedule)))
 
             result = cursor.fetchone()
-            sid = result[0]
+            
+            try :
+                sid = result[0]
+            except :
+                return jsonify(Error = 'Room with service already exists '), 401
 
             newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
             audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
