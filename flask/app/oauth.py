@@ -27,30 +27,29 @@ def google_logged_in(blueprint, token):
     
     Logout
     Uses :func:`~app.models.User.query.filter_by` as well as 
-         :func:`~app.models.OAuth.query.filter_by`
-
+    :func:`~app.models.OAuth.query.filter_by`
     
     :return: JSON
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        GET /API/App/google/authorized HTTP/1.1
-        Host: inthenou.uprm.edu
-        Accept: application/json
+            GET /API/App/google/authorized HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: text/javascript
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: text/javascript
 
-        {
-           "uid": 11
-        }
+            {
+               "uid": 11
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -144,7 +143,6 @@ def google_error(blueprint, message, response):
 def admin_role_required(f):
     """
     Decorator to check if user calling the route is signed in and is a Administrator
-    
 
     :statuscode 403: User is not logged in.
     :statuscode 401: Admin role required
@@ -165,7 +163,6 @@ def admin_role_required(f):
 def mod_role_required(f):
     """
     Decorator to check if user calling the route is signed in and is a Moderator
-    
 
     :statuscode 403: User is not logged in.
     :statuscode 401: Moderator role required
@@ -186,7 +183,6 @@ def mod_role_required(f):
 def event_creator_role_required(f):
     """
     Decorator to check if user calling the route is signed in and is a Event Creator
-    
 
     :statuscode 403: User is not logged in.
     :statuscode 401: Event Creator role required
@@ -207,7 +203,6 @@ def event_creator_role_required(f):
 def user_role_required(f):
     """
     Decorator to check if user calling the route is signed in
-    
 
     :statuscode 403: User is not logged in.
     """

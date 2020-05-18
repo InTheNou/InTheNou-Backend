@@ -152,11 +152,11 @@ class ServiceDAO(MasterDAO):
 
         # Commit changes if no errors occur.
             self.conn.commit()
-
+            return result
         except errors.UniqueViolation as badkey:
-            return jsonify(Error=str(badkey))
+            return jsonify(Error="Room has service with the same name"+str(badkey)), 401
       
-        return result
+        
 
     def getServiceByID(self, sid):
         """

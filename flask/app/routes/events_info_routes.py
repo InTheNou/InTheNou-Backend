@@ -2423,7 +2423,13 @@ def getServicesByKeywords(searchstring, offset, limit):
             {
                 "services": [
                     {
-                        "isdeleted": false,
+                        "numbers": [
+                            {
+                                "phoneid": 3,
+                                "pnumber": "787-832-4040,5842",
+                                "ptype": "E"
+                            }
+                        ],
                         "room": {
                             "building": {
                                 "babbrev": "S",
@@ -2450,7 +2456,14 @@ def getServicesByKeywords(searchstring, offset, limit):
                         "sdescription": "Office Hours to discuss class topics, and consult with Capstone Team.",
                         "sid": 3,
                         "sname": "Office Hours: Fernando Vega",
-                        "sschedule": "L: 3:30pm - 4:30pm, W: 1:30pm - 3:30pm"
+                        "sschedule": "L: 3:30pm - 4:30pm, W: 1:30pm - 3:30pm",
+                        "websites": [
+                            {
+                                "url": "http://ece.uprm.edu/~fvega/",
+                                "wdescription": "J. Fernando Vega-Riveros, Ph.D. Professor",
+                                "wid": 2
+                            }
+                        ]
                     }
                 ]
             }

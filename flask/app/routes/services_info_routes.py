@@ -53,7 +53,7 @@ def getServiceByID(sid):
                     "bcommonname": "STEFANI",
                     "bid": 1,
                     "bname": "LUIS A STEFANI (INGENIERIA)",
-                    "btype": "Académico",
+                    "btype": "Academico",
                     "distinctfloors": [
                         1,
                         2,
@@ -130,7 +130,7 @@ def getServicesSegmented(limit, offset):
 
 
             {
-                           "services": [
+                "services": [
                     {
                         "numbers": null,
                         "room": {
@@ -139,7 +139,7 @@ def getServicesSegmented(limit, offset):
                                 "bcommonname": "STEFANI",
                                 "bid": 1,
                                 "bname": "LUIS A STEFANI (INGENIERIA)",
-                                "btype": "Académico",
+                                "btype": "Academico",
                                 "distinctfloors": [
                                     1,
                                     2,
@@ -184,7 +184,7 @@ def getServicesSegmented(limit, offset):
                                 "bcommonname": "STEFANI",
                                 "bid": 1,
                                 "bname": "LUIS A STEFANI (INGENIERIA)",
-                                "btype": "Académico",
+                                "btype": "Academico",
                                 "distinctfloors": [
                                     1,
                                     2,
@@ -240,7 +240,7 @@ def getServicesSegmented(limit, offset):
                                 "bcommonname": "STEFANI",
                                 "bid": 1,
                                 "bname": "LUIS A STEFANI (INGENIERIA)",
-                                "btype": "Académico",
+                                "btype": "Academico",
                                 "distinctfloors": [
                                     1,
                                     2,
@@ -305,15 +305,15 @@ def getServicesByRoomID(rid):
 
     **Example request**:
 
-      .. sourcecode:: http
+        .. sourcecode:: http
 
-          GET /API/Dashboard/Rooms/rid=<int:rid>/Services HTTP/1.1
-          Host: inthenou.uprm.edu
-          Accept: application/json
+            GET /API/Dashboard/Rooms/rid=<int:rid>/Services HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Example response**:
 
-      .. sourcecode:: json
+        .. sourcecode:: json
 
             {
                 "services": 
@@ -486,7 +486,7 @@ def getServicesByRoomID(rid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: verify this is working with audit
+
 @app.route("/API/Dashboard/Services/create", methods=['POST'])
 @mod_role_required
 def createService():
@@ -501,18 +501,17 @@ def createService():
 
     **Example request**:
 
-      .. sourcecode:: http
+        .. sourcecode:: http
 
-          GET /API/Dashboard/Services/create HTTP/1.1
-          Host: inthenou.uprm.edu
-          Accept: application/json
+            GET /API/Dashboard/Services/create HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Request Body**:
 
-      .. sourcecode:: json
+        .. sourcecode:: json
 
             {
-
             "uid":"{{uidService}}",
             "rid":"{{ridService}}",
             "sname":"{{$randomIngverb}}",
@@ -524,10 +523,8 @@ def createService():
             		   ],
             "websites":[		
             			{"url":"{{websiteService}}","wdescription":"{{wdescriptionService}}"},	
-            			{"url":"{{websiteService2}}","wdescription":"{{wdescriptionService2}}"}	
-
-            			]				
-
+            			{"url":"{{websiteService2}}","wdescription":"{{wdescriptionService2}}"}
+            			]
             }
 
     **Example response**:
@@ -572,7 +569,7 @@ def createService():
                         "bcommonname": "STEFANI",
                         "bid": 1,
                         "bname": "LUIS A STEFANI (INGENIERIA)",
-                        "btype": "Académico",
+                        "btype": "Academico",
                         "distinctfloors": [
                             1,
                             2,
@@ -613,7 +610,6 @@ def createService():
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/website/remove", methods=['POST'])
 @mod_role_required
 def removeServiceWebsite(sid):
@@ -628,24 +624,22 @@ def removeServiceWebsite(sid):
 
     **Example request**:
 
-      .. sourcecode:: http
+        .. sourcecode:: http
 
-          GET /API/Dashboard/Services/sid=1/website/remove HTTP/1.1
-          Host: inthenou.uprm.edu
-          Accept: application/json
+            GET /API/Dashboard/Services/sid=1/website/remove HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Request Body**:
 
-      .. sourcecode:: json
+        .. sourcecode:: json
 
-            {	
-                "websites":	
-
-                [	
-            	    {"wid":"{{wid}}"}, 
-            	    {"wid":"{{wid2}}"} 		
-                ]	
-
+            {
+                "websites":
+                [
+                    {"wid":"{{wid}}"},
+                    {"wid":"{{wid2}}"}
+                ]
             }
 
     **Example response**:
@@ -655,7 +649,6 @@ def removeServiceWebsite(sid):
             HTTP/1.1 200 OK
             Vary: Accept
             Content-Type: application/json
-
 
             {
                 "websites": 
@@ -680,7 +673,7 @@ def removeServiceWebsite(sid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
+
 @app.route("/API/Dashboard/Services/sid=<int:sid>/website/add", methods=['POST'])
 @mod_role_required
 def addServiceWebsite(sid):
@@ -695,26 +688,22 @@ def addServiceWebsite(sid):
 
     **Example request**:
 
-      .. sourcecode:: http
+        .. sourcecode:: http
 
-          GET /API/Dashboard/Services/sid=1/website/add" HTTP/1.1
-          Host: inthenou.uprm.edu
-          Accept: application/json
+            GET /API/Dashboard/Services/sid=1/website/add" HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Request Body**:
 
-      .. sourcecode:: json
+        .. sourcecode:: json
 
             {
-	
                 "websites":
-                [	
-                
+                [
                     {"url":"{{website}}","wdescription":"{{wdescription}}"},	
                     {"url":"{{website2}}","wdescription":"{{wdescription2}}"}
-
-                ]				
-
+                ]
             }
 
     **Example response**:
@@ -724,7 +713,6 @@ def addServiceWebsite(sid):
             HTTP/1.1 201 CREATED
             Vary: Accept
             Content-Type: application/json
-
 
             {
                 "websites": 
@@ -752,7 +740,6 @@ def addServiceWebsite(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
 @app.route("/API/Dashboard/Services/sid=<int:sid>/phone/add", methods=['POST'])
 @mod_role_required
 def addServicePhone(sid):
@@ -767,49 +754,46 @@ def addServicePhone(sid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-      GET /API/Dashboard/Services/sid=1/phone/add HTTP/1.1
-      Host: inthenou.uprm.edu
-      Accept: application/json
+            GET /API/Dashboard/Services/sid=1/phone/add HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
 
     **Request Body**:
 
-    .. sourcecode:: json
+        .. sourcecode:: json
 
-            {
-            	"numbers":	
-            	[	
-             
-            	{"pnumber":"{{phone_number}}","ptype":"{{ptype}}"},	
-            	{"pnumber":"{{phone_number2}}","ptype":"{{ptype2}}"}		
+                {
+                    "numbers":
+                    [
 
-            	]	
-
-            }
+                    {"pnumber":"{{phone_number}}","ptype":"{{ptype}}"},
+                    {"pnumber":"{{phone_number2}}","ptype":"{{ptype2}}"}
+                    ]
+                }
 
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 201 CREATED
-        Vary: Accept
-        Content-Type: application/json
+            HTTP/1.1 201 CREATED
+            Vary: Accept
+            Content-Type: application/json
 
-
-        {
-            "numbers":
-            [
-                {
-                    "pnumber": "831-000-5089",
-                    "ptype": "m"
-                },
-                {
-                    "pnumber": "267-476-7589",
-                    "ptype": "m"
-                }
-            ]
-        }
+            {
+                "numbers":
+                [
+                    {
+                        "pnumber": "831-000-5089",
+                        "ptype": "m"
+                    },
+                    {
+                        "pnumber": "267-476-7589",
+                        "ptype": "m"
+                    }
+                ]
+            }
         
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -820,7 +804,7 @@ def addServicePhone(sid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# TODO: ENSURE THE AUDIT CHANGE WORKS FOR THIS ROUTE.
+
 @app.route("/API/Dashboard/Services/sid=<int:sid>/phone/remove", methods=['POST'])
 @mod_role_required
 def removeServicePhone(sid):
@@ -835,35 +819,34 @@ def removeServicePhone(sid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-      GET /API/Dashboard/Services/sid=1/phone/remove HTTP/1.1
-      Host: inthenou.uprm.edu
-      Accept: application/json
+          GET /API/Dashboard/Services/sid=1/phone/remove HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
      
     **Request Body**:
 
-    .. sourcecode:: json
+        .. sourcecode:: json
 
-            {
-            	"numbers":	
-                [	
-            	{"phoneid":"{{pid}}"}, 
-            	{"phoneid":"{{pid2}}"} 		
-                ]	
+                {
+                    "numbers":
+                    [
+                        {"phoneid":"{{pid}}"},
+                        {"phoneid":"{{pid2}}"}
+                    ]
+                }
 
-            }
     **Example response**:
 
-      .. sourcecode:: http
+        .. sourcecode:: http
 
-          HTTP/1.1 200 OK
-          Vary: Accept
-          Content-Type: application/json
-
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
 
             {
-                "numbers": 
+                "numbers":
                 [
                     {
                         "pnumber": "667-882-6107",
@@ -887,7 +870,6 @@ def removeServicePhone(sid):
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Services/sid=<int:sid>/update", methods=['POST'])
 @mod_role_required
 def updateService(sid):
@@ -902,11 +884,11 @@ def updateService(sid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-      GET /API/Dashboard/Services/sid=1/update HTTP/1.1
-      Host: inthenou.uprm.edu
-      Accept: application/json
+          GET /API/Dashboard/Services/sid=1/update HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
     
     **Request Body**:
 
@@ -916,21 +898,124 @@ def updateService(sid):
                 "sname":"new Service Name", 
                 "sdescription":"New service description", 
                 "sschedule":"New service schedule", 
-                "rid":{{rid}}	
+                "rid":1
             }
     
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
 
+
+                {
+                    "numbers":
+                    [
+                        {
+                            "phoneid": 97,
+                            "pnumber": "723-186-6255",
+                            "ptype": "M"
+                        },
+                        {
+                            "phoneid": 98,
+                            "pnumber": "929-005-8183",
+                            "ptype": "M"
+                        }
+                    ],
+                    "room": {
+                        "building": {
+                            "babbrev": "S",
+                            "bcommonname": "STEFANI",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)",
+                            "btype": "Academico",
+                            "distinctfloors": [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5,
+                                6,
+                                7
+                            ],
+                            "numfloors": 7,
+                            "photourl": null
+                        },
+                        "photourl": null,
+                        "raltitude": 149.9028,
+                        "rcode": "100",
+                        "rcustodian": "pedro.rivera25@upr.edu",
+                        "rdept": "INGENIERIA ELECTRICA",
+                        "rdescription": "COBACHA CONSERJE",
+                        "rfloor": 1,
+                        "rid": 1,
+                        "rlatitude": -81.2338,
+                        "rlongitude": 177.3793,
+                        "roccupancy": 0
+                    },
+                    "sdescription": "New service description",
+                    "sid": 1,
+                    "sname": "new Service Name ",
+                    "sschedule": "New service schedule",
+                    "websites": [
+                        {
+                            "url": "http://talia.org",
+                            "wdescription": "",
+                            "wid": 51
+                        },
+                        {
+                            "url": "https://otilia.org",
+                            "wdescription": "Quibusdam impedit rem nesciunt soluta.",
+                            "wid": 52
+                        }
+                    ]
+                }
+
+    :reqheader Cookie: Must contain session token to authenticate.
+    :resheader Content-Type: application/json
+    :statuscode 200: no error
+    :statuscode 403: User is not logged in.
+    :statuscode 404: Service does not exist
+    """
+    
+    if request.method == 'POST':
+        return ServiceHandler().updateServiceInformation(sid=sid, json=request.json, uid=int(current_user.id))
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+@app.route("/API/Dashboard/Services/sid=<int:sid>/delete", methods=['POST'])
+@mod_role_required
+def deleteService(sid):
+    """
+    .. py:decorator:: mod_role_required
+    .. :quickref: Service; Delete Service with given ID.
+    
+    Delete Service 
+    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.deleteService`
+    
+    :return: JSON
+
+    **Example request**:
+
+        .. sourcecode:: http
+
+          GET /API/Dashboard/Services/sid=1/delete HTTP/1.1
+          Host: inthenou.uprm.edu
+          Accept: application/json
+    
+    **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
 
             {
-                "numbers": 
-                [
+                "numbers": [
                     {
                         "phoneid": 97,
                         "pnumber": "723-186-6255",
@@ -948,7 +1033,7 @@ def updateService(sid):
                         "bcommonname": "STEFANI",
                         "bid": 1,
                         "bname": "LUIS A STEFANI (INGENIERIA)",
-                        "btype": "Académico",
+                        "btype": "Academico",
                         "distinctfloors": [
                             1,
                             2,
@@ -989,7 +1074,7 @@ def updateService(sid):
                         "wid": 52
                     }
                 ]
-            } 
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -997,119 +1082,12 @@ def updateService(sid):
     :statuscode 403: User is not logged in.
     :statuscode 404: Service does not exist
     """
-    
-    if request.method == 'POST':
-        return ServiceHandler().updateServiceInformation(sid=sid, json=request.json, uid=int(current_user.id))
-    else:
-        return jsonify(Error="Method not allowed."), 405
-
-
-# TODO: check that this route is using audit properly
-@app.route("/API/Dashboard/Services/sid=<int:sid>/delete", methods=['POST'])
-@mod_role_required
-def deleteService(sid):
-    """
-    .. py:decorator:: mod_role_required
-    .. :quickref: Service; Delete Service with given ID.
-    
-    Delete Service 
-    Uses :func:`~app.handlers.ServiceHandler.ServiceHandler.deleteService`
-    
-    :return: JSON
-
-    **Example request**:
-
-    .. sourcecode:: http
-
-      GET /API/Dashboard/Services/sid=1/delete HTTP/1.1
-      Host: inthenou.uprm.edu
-      Accept: application/json
-    
-    **Example response**:
-
-    .. sourcecode:: http
-
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
-
-
-        {
-            "numbers": [
-                {
-                    "phoneid": 97,
-                    "pnumber": "723-186-6255",
-                    "ptype": "M"
-                },
-                {
-                    "phoneid": 98,
-                    "pnumber": "929-005-8183",
-                    "ptype": "M"
-                }
-            ],
-            "room": {
-                "building": {
-                    "babbrev": "S",
-                    "bcommonname": "STEFANI",
-                    "bid": 1,
-                    "bname": "LUIS A STEFANI (INGENIERIA)",
-                    "btype": "Académico",
-                    "distinctfloors": [
-                        1,
-                        2,
-                        3,
-                        4,
-                        5,
-                        6,
-                        7
-                    ],
-                    "numfloors": 7,
-                    "photourl": null
-                },
-                "photourl": null,
-                "raltitude": 149.9028,
-                "rcode": "100",
-                "rcustodian": "pedro.rivera25@upr.edu",
-                "rdept": "INGENIERIA ELECTRICA",
-                "rdescription": "COBACHA CONSERJE",
-                "rfloor": 1,
-                "rid": 1,
-                "rlatitude": -81.2338,
-                "rlongitude": 177.3793,
-                "roccupancy": 0
-            },
-            "sdescription": "New service description",
-            "sid": 1,
-            "sname": "new Service Name ",
-            "sschedule": "New service schedule",
-            "websites": [
-                {
-                    "url": "http://talia.org",
-                    "wdescription": "",
-                    "wid": 51
-                },
-                {
-                    "url": "https://otilia.org",
-                    "wdescription": "Quibusdam impedit rem nesciunt soluta.",
-                    "wid": 52
-                }
-            ]
-        }
-
-    :reqheader Cookie: Must contain session token to authenticate.
-    :resheader Content-Type: application/json
-    :statuscode 200: no error
-    :statuscode 403: User is not logged in.
-    :statuscode 404: Service does not exist
-    """
-   
     if request.method == 'POST':
         return ServiceHandler().deleteService(sid=sid, uid=int(current_user.id))
     else:
         return jsonify(Error="Method not allowed."), 405
 
 
-# TODO: check that this route is using audit properly
 @app.route("/API/Dashboard/Rooms/rid=<int:rid>/changeCoordinates", methods=['POST'])
 @mod_role_required
 def changeRoomCoordinates(rid):
@@ -1124,40 +1102,39 @@ def changeRoomCoordinates(rid):
 
     **Example request**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-      GET /API/Dashboard/Rooms/rid=1/changeCoordinates HTTP/1.1
-      Host: inthenou.uprm.edu
-      Accept: application/json
+            GET /API/Dashboard/Rooms/rid=1/changeCoordinates HTTP/1.1
+            Host: inthenou.uprm.edu
+            Accept: application/json
     
     **Request Body**:
 
-    .. sourcecode:: json
+        .. sourcecode:: json
 
-            {
-            	"rlatitude":"{{$randomLatitude}}",
-            	"rlongitude":"{{$randomLongitude}}",
-            	"raltitude":"{{$randomLongitude}}"
-
-            }
+                {
+                    "rlatitude":"{{$randomLatitude}}",
+                    "rlongitude":"{{$randomLongitude}}",
+                    "raltitude":"{{$randomLongitude}}"
+                }
             
     **Example response**:
 
-    .. sourcecode:: http
+        .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
-        Content-Type: application/json
+            HTTP/1.1 200 OK
+            Vary: Accept
+            Content-Type: application/json
 
 
-        {
-            "raltitude": 1.1006,
-            "rcode": "100",
-            "rfloor": 1,
-            "rid": 1,
-            "rlatitude": 56.7699,
-            "rlongitude": 9.1135
-        }
+            {
+                "raltitude": 1.1006,
+                "rcode": "100",
+                "rfloor": 1,
+                "rid": 1,
+                "rlatitude": 56.7699,
+                "rlongitude": 9.1135
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
