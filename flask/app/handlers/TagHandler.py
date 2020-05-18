@@ -99,7 +99,7 @@ class TagHandler:
                 tag = dao.editTagName(tid=tid, tname=tagname, uid=uid)
                 if tag is not None:
                     response.append(_buildTagResponse(tag))
-                    return jsonify(response)
+                    return jsonify({"tags":response})
                 else:
                     return jsonify(Error="No tag found with provided ID"), 404
 
