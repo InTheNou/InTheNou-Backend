@@ -2298,6 +2298,7 @@ def getAllBuildingsSegmented(offset, limit):
             Vary: Accept
             Content-Type: application/json
 
+            "buildings":
             [
                 {
                     "babbrev": "S",
@@ -2358,6 +2359,7 @@ def getBuildingsByKeywords(searchstring, offset, limit):
             Vary: Accept
             Content-Type: application/json
 
+            "buildings":
             [
                 {
                     "babbrev": "S",
@@ -3009,12 +3011,12 @@ def editTagName(tid):
             Vary: Accept
             Content-Type: application/json
 
-            [
+            "tags":  [
                 {
                     "tid": 2,
                     "tname": "newName"
                 }
-            ]
+                    ]
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
