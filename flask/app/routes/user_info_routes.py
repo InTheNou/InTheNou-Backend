@@ -55,7 +55,7 @@ def getUserByID(uid):
     :resheader Content-Type: application/json
     :statuscode 200: no error
     :statuscode 403: User is not logged in.
-    :statuscode 404: Event does not exist
+    :statuscode 404: User does not exist
     """
     if request.method == 'GET':
         return UserHandler().getUserByID(uid=uid)
@@ -64,10 +64,10 @@ def getUserByID(uid):
         return jsonify(Error='Method not allowed.'), 405
 
 @app.route("/API/App/Users/canModify/eid=<int:eid>", methods=['GET'])
-@user_role_required
+@admin_role_required
 def getUsersThatCanModifyEvent(eid):
     """
-    .. py:decorator:: user_role_required
+    .. py:decorator:: admin_role_required
     .. :quickref: User; Get Users that can modify a given event
     
     Get Users that can modify an event
