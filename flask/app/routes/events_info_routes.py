@@ -2298,19 +2298,20 @@ def getAllBuildingsSegmented(offset, limit):
             Vary: Accept
             Content-Type: application/json
 
-            "buildings":
-            [
-                {
-                    "babbrev": "S",
-                    "bcommonname": "STEFANI",
-                    "bid": 1,
-                    "bname": "LUIS A STEFANI (INGENIERIA)",
-                    "btype": "Academico",
-                    "distinctfloors": [1,2,3,4,5,6,7],
-                    "numfloors": 7,
-                    "photourl": null
-                }
-            ]
+            {
+                "buildings": [
+                        {
+                            "babbrev": "S",
+                            "bcommonname": "STEFANI",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)",
+                            "btype": "Academico",
+                            "distinctfloors": [1,2,3,4,5,6,7],
+                            "numfloors": 7,
+                            "photourl": null
+                        }
+                ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -2359,19 +2360,20 @@ def getBuildingsByKeywords(searchstring, offset, limit):
             Vary: Accept
             Content-Type: application/json
 
-            "buildings":
-            [
-                {
-                    "babbrev": "S",
-                    "bcommonname": "STEFANI",
-                    "bid": 1,
-                    "bname": "LUIS A STEFANI (INGENIERIA)",
-                    "btype": "Academico",
-                    "distinctfloors": [1,2,3,4,5,6,7],
-                    "numfloors": 7,
-                    "photourl": null
-                }
-            ]
+            {    "buildings":
+                    [
+                        {
+                            "babbrev": "S",
+                            "bcommonname": "STEFANI",
+                            "bid": 1,
+                            "bname": "LUIS A STEFANI (INGENIERIA)",
+                            "btype": "Academico",
+                            "distinctfloors": [1,2,3,4,5,6,7],
+                            "numfloors": 7,
+                            "photourl": null
+                        }
+                    ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json
@@ -3011,12 +3013,15 @@ def editTagName(tid):
             Vary: Accept
             Content-Type: application/json
 
-            "tags":  [
-                {
-                    "tid": 2,
-                    "tname": "newName"
-                }
+            {
+                "tags":
+                    [
+                        {
+                            "tid": 2,
+                            "tname": "newName"
+                        }
                     ]
+            }
 
     :reqheader Cookie: Must contain session token to authenticate.
     :resheader Content-Type: application/json

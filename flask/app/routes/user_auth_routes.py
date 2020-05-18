@@ -76,7 +76,7 @@ def app_logout():
 @app.route("/API/App/signup", methods=['POST'])
 def signup():
     """
-    .. :quickref: OAuth; Singup
+    .. :quickref: OAuth; Signup
 
     Signup
     Uses :func:`~app.TagHandler.TagHandler.batchSetUserTags` as well as
