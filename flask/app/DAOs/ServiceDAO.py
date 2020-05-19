@@ -99,9 +99,9 @@ class ServiceDAO(MasterDAO):
         try:
             audit = AuditDAO()
             tablename = "services"
-            pkey = "sid"
-            # TODO: UPDATE WITH APPROPRIATE CALL TO ACTUAL VALUE ON TABLE IF NEEDED.
-            oldValue = None
+            pkeys = ["rid", "sname"]
+            oldValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=rid, pkeyval2=sname, cursor=cursor)
 
             query = sql.SQL("insert into {table1} ({insert_fields})"
                             "values (%s, %s, %s, %s, %s) "
@@ -137,8 +137,14 @@ class ServiceDAO(MasterDAO):
             except :
                 return jsonify(Error = 'Room with service already exists '), 401
 
-            newValue = audit.getTableValueByIntID(table=tablename, pkeyname=pkey, pkeyval=sid, cursor=cursor)
-            audit.insertAuditEntry(changedTable=tablename, changeType=audit.INSERTVALUE, oldValue=oldValue,
+            newValue = audit.getTableValueByPkeyPair(table=tablename, pkeyname1=pkeys[0], pkeyname2=pkeys[1],
+                                                     pkeyval1=rid, pkeyval2=sname, cursor=cursor)
+            if not oldValue:
+                changeType = audit.INSERTVALUE
+            else:
+                changeType = audit.UPDATEVALUE
+
+            audit.insertAuditEntry(changedTable=tablename, changeType=changeType, oldValue=oldValue,
                                    newValue=newValue, uid=uid, cursor=cursor)
 
             for site in websites:
