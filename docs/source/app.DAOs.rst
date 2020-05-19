@@ -6,14 +6,15 @@ app.DAOs package
      
    app.DAOs.MasterDAO
    
+   app.DAOs.AuditDAO
    app.DAOs.BuildingDAO
-   app.DAOs.PhotoDAO
-   app.DAOs.UserDAO
-   app.DAOs.TagDAO
-   app.DAOs.ServiceDAO
-   app.DAOs.PhoneDAO
-   app.DAOs.WebsiteDAO
-   app.DAOs.RoomDAO
    app.DAOs.EventDAO
+   app.DAOs.PhoneDAO
+   app.DAOs.PhotoDAO
+   app.DAOs.RoomDAO
+   app.DAOs.ServiceDAO
+   app.DAOs.TagDAO
+   app.DAOs.UserDAO
+   app.DAOs.WebsiteDAO
 
 
